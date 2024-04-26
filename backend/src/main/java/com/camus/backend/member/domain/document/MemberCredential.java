@@ -1,6 +1,7 @@
 package com.camus.backend.member.domain.document;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -17,7 +18,9 @@ public class MemberCredential {
 
 	@Id
 	private String _id;
-	private String loginId;
+
+	@Indexed
+	private String userName;
 	private String password;
 
 }
