@@ -4,10 +4,12 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 @Getter
+@Setter
 @TypeAlias("b2cProfile")
 public class B2CProfile extends MemberProfile {
 	private String nickname;
