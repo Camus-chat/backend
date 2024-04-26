@@ -2,7 +2,6 @@ package com.camus.backend.member.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.global.Exception.CustomException;
@@ -12,6 +11,7 @@ import com.camus.backend.global.util.SuccessResponseDto;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.document.MemberProfile.B2CProfile;
 import com.camus.backend.member.domain.dto.B2CProfileDto;
+import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 import com.camus.backend.member.domain.repository.MemberProfileRepository;
 
@@ -21,7 +21,6 @@ public class MemberService {
 	private final MemberCredentialRepository memberCredentialRepository;
 	private final MemberProfileRepository memberProfileRepository;
 
-	@Autowired
 	public MemberService(MemberCredentialRepository memberCredentialRepository,
 		MemberProfileRepository memberProfileRepository) {
 		this.memberCredentialRepository = memberCredentialRepository;
@@ -50,10 +49,19 @@ public class MemberService {
 
 	// FeatureID 105-1
 
-	public SuccessResponseDto EditProfileNicknameBySelf(
+	public SuccessResponseDto updateNicknameBySelf(
 		// TODO : 여기서 인증 클래스를 받아야 함.
+		B2CUpdateNicknameDto b2CUpdateNicknameDto
 	) {
+		// TODO : uuid 삭제
+		String uuid = "0000";
+		B2CProfile memberProfile = memberProfileRepository.findProfileById(uuid, B2CProfile.class)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_USER));
+
+		memberProfile.setNickname(b2CUpdateNicknameDto.getNewNickname());
+		memberProfileRepository.save(memberProfile);
 
 		return SuccessResponseDto.builder().successCode(SuccessCode.NICKNAME_EDIT).build();
+
 	}
 }
