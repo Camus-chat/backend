@@ -21,7 +21,7 @@ public class StatisticController {
 	private final StatisticService service;
 
 	@Autowired
-	public StatisticController(StatisticService service){
+	public StatisticController(StatisticService service) {
 		this.service = service;
 	}
 
@@ -34,6 +34,7 @@ public class StatisticController {
 		// CHECK : Optional 사용하는지 제크!
 		Optional<MemberStatistic> statistic = service.find(id);
 
+		// TODO : 에러처리 재작성
 		return statistic.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
@@ -46,6 +47,5 @@ public class StatisticController {
 	public void getChannelStatistic(@RequestParam String id) {
 		// CHECK : 시간대별 통계를 제공할때, 어떻게 나눠서 GET을 만들어야할까요? 시간대를 입력받는 방식은 어떤가요?
 	}
-
 
 }

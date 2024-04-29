@@ -1,5 +1,7 @@
 package com.camus.backend.member.domain.document;
 
+import java.util.UUID;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,7 +19,7 @@ import lombok.Setter;
 public class MemberCredential {
 
 	@Id
-	private String _id;
+	private UUID _id;
 
 	@Indexed
 	private String userName;

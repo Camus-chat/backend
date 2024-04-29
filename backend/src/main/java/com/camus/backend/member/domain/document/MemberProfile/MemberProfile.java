@@ -1,5 +1,7 @@
 package com.camus.backend.member.domain.document.MemberProfile;
 
+import java.util.UUID;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,5 +19,5 @@ import lombok.ToString;
 @ToString
 public abstract class MemberProfile {
 	@Id
-	private String _id;
+	private UUID _id;
 }

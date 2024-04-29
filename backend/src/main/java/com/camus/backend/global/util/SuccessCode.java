@@ -14,11 +14,11 @@ public enum SuccessCode {
 
 	// CHANEL
 	CHANNEL_DISABLE("CHANEL", "채널 링크 비활성화 성공"),
-	CHANEL_EDIT("CHANEL", "채널명 변경 성공"),
+	CHANNEL_EDIT("CHANEL", "채널명 변경 성공"),
 
 	// ROOM
 	ROOM_DISABLE("ROOM", "채팅방 닫기 성공"),
-	
+
 	;
 
 	private final String okResponse = "OK";
