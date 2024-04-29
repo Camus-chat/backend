@@ -5,10 +5,23 @@ import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
 @Document(collection = "channel_list")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelList {
 	@Id
-	private UUID member_id;
+	@Field("_id")
+	private UUID _id;
+	@Field("channels")
 	private List<Channel> channels;
+
 }
