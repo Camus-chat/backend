@@ -18,7 +18,7 @@ import lombok.ToString;
 @Getter
 @Document
 @ToString
-@TypeAlias("channel")
+@TypeAlias("Channel")
 public class Channel {
 	@Builder.Default
 	@Id
@@ -33,11 +33,13 @@ public class Channel {
 	private String content;
 	@Builder.Default
 	private Boolean isValid = true;
+	private LocalDateTime createDate;
 	private LocalDateTime validDate;
 	@Builder.Default
 	private List<UUID> chatRoomList = new ArrayList<>();
-	private Integer maxMembers;
+	private Integer maxRooms;
 	@Builder.Default
 	private Boolean isClose = false;
 	private Integer filterLevel;
+
 }
