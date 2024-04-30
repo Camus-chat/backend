@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.manage.domain.dto.ChannelDto;
+import com.camus.backend.manage.domain.dto.ChannelInfoDto;
 import com.camus.backend.manage.domain.dto.ChannelListDto;
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.service.ChannelService;
@@ -30,7 +31,6 @@ public class ChannelController {
 	@PostMapping("/tempSave")
 	public ResponseEntity<SuccessCode> tempSave() {
 		channelService.createChannelList();
-		// TODO : 임시 저장 기능 구현
 		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
 	}
 
@@ -56,7 +56,9 @@ public class ChannelController {
 		description = "채널 리스트를 반환합니다."
 	)
 	@GetMapping("/list")
-	public ResponseEntity<ChannelListDto> getChannelList() {
+	public ResponseEntity<ChannelListDto> getChannelList(
+		// TODO : 사용자 인증 정보 - 회원일 때만
+	) {
 
 		return ResponseEntity.ok(channelService.getChannelList(
 			// TODO : 여기서 사용자 정보 넘기기
@@ -71,26 +73,30 @@ public class ChannelController {
 	@PatchMapping("/disable")
 	public ResponseEntity<SuccessCode> disableChannel(
 		String channelLink
+		// TODO : 여기서 사용자 정보 받기
 	) {
-		// TODO : 사용자 정보 삭제하고 인증에서 받아오기
-
 		channelService.disableChannel(
 			// TODO : 여기서 사용자 정보 넘기기
 			channelLink
 		);
-
 		return ResponseEntity.ok(SuccessCode.CHANNEL_DISABLE);
 	}
 
 	// FeatureID 510-1
 	@Operation(
-		summary = "채널 제목 변경",
-		description = "채널 제목 변경"
+		summary = "채널 정보 변경",
+		description = "채널 정보 변경"
 	)
-	@PatchMapping("/update/title")
-	public ResponseEntity<SuccessCode> updateChannel() {
+	@PatchMapping("/edit")
+	public ResponseEntity<SuccessCode> editChannelInfo(
+		@RequestBody ChannelInfoDto channelInfoDto
+		// TODO : 사용자 인증 정보 - 회원일 때만
+	) {
+		channelService.editChannelInfo(
+			// TODO : 여기서 사용자 정보 넘기기
+			channelInfoDto
+		);
 
-		//  TODO : 채널 링크 수정 방식 확인하고 메소드 구현
 		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
 	}
 }

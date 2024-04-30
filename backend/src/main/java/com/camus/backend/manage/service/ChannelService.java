@@ -1,17 +1,22 @@
 package com.camus.backend.manage.service;
 
+import static com.camus.backend.manage.util.ChannelUtil.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.camus.backend.manage.domain.document.Channel;
 import com.camus.backend.manage.domain.document.ChannelList;
 import com.camus.backend.manage.domain.dto.ChannelDto;
+import com.camus.backend.manage.domain.dto.ChannelInfoDto;
 import com.camus.backend.manage.domain.dto.ChannelListDto;
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
+import com.camus.backend.manage.util.ManageConstants;
 
 @Service
 public class ChannelService {
@@ -22,34 +27,54 @@ public class ChannelService {
 		this.channelListRepository = channelListRepository;
 	}
 
-	// FIXME : 사용자마다으 ㅣChannelList임시 생성
-	public void createChannelList() {
-		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
+	// FIXME : 사용자마다 ChannelList임시 생성로직
+	// FIXME : 사용자가 가입하면 곧바로 리스트 생성해야된다.
+	public void createChannelList(
+		// 인증정보 보내주라
+
+	) {
 
 		ChannelList newChannelList = ChannelList.builder()
-			._id(uuid)
+			._id(ManageConstants.tempMemUuid)
 			.channels(new ArrayList<>())
 			.build();
 		channelListRepository.save(newChannelList);
 	}
 
 	// FeatureID 501-1 : 채널 생성 메서드
-	public ChannelDto createChannel(CreateChannelDto createChannelDto
+	public ChannelDto createChannel(
+		CreateChannelDto createChannelDto
 		// TODO : 사용자 인증 정보 받기
 	) {
 
 		// FIXME : uuid 삭제 -> 사용자 인증 정보로 처리
-		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
+		UUID uuid = ManageConstants.tempMemUuid;
+
+		checkChannelTitleLengthLimit(createChannelDto.getTitle());
+		checkChannelContentLengthLimit(createChannelDto.getContent());
+		checkChannelFilterLevel(createChannelDto.getFilterLevel());
+
+		checkChannelType(createChannelDto.getType());
 
 		Channel newChannel = Channel.builder()
 			.type(createChannelDto.getType())
 			.title(createChannelDto.getTitle())
 			.content(createChannelDto.getContent())
 			.filterLevel(createChannelDto.getFilterLevel())
-			.validDate(LocalDateTime.now())
-			// TODO : 정책 정의 하고 숫자 final로 수정
-			.maxMembers(createChannelDto.getType().equals("private") ? 2 : 3000)
+			.createDate(LocalDateTime.now())
+			.validDate(
+				LocalDateTime.now()
+					.plusMonths(ManageConstants.CHANNEL_VALID_DATE_MONTH)
+			)
+			.maxRooms(
+				createChannelDto.getType()
+					.equals(ManageConstants.CHANNEL_TYPE_PRIVATE) ?
+					ManageConstants.PRIVATE_CHANNEL_MAX_ROOMS :
+					ManageConstants.GROUP_CHANNEL_MAX_ROOMS)
 			.build();
+
+		// FIXME : 유효아이디 체크를 위한 print
+		System.out.println(newChannel.toString());
 
 		channelListRepository.addChannelToMemberChannels(uuid, newChannel);
 		return new ChannelDto(createChannelDto, newChannel.getLink());
@@ -59,10 +84,11 @@ public class ChannelService {
 	public ChannelListDto getChannelList(
 		// TODO : 사용자 인증 정보 받기
 	) {
-		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
-		// CHECK : 본인 리스트에서 채널 리스트 가져오기
-		return new ChannelListDto(channelListRepository.getChannelListByMemberId(uuid));
-		
+
+		return new ChannelListDto(channelListRepository.getChannelListByMemberId(
+			ManageConstants.tempMemUuid
+		));
+
 	}
 
 	// FeatureID 503-1
@@ -71,8 +97,24 @@ public class ChannelService {
 		String channelLink
 	) {
 		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
+		UUID uuidLink = UUID.fromString(channelLink);
 		// CHECK : 채널의 유효성을 false로 변경
-		channelListRepository.disableChannelByLink(channelLink, uuid);
+		channelListRepository.disableChannelByLink(uuidLink, uuid);
+	}
+
+	// FeatureID 510-1
+	public void editChannelInfo(
+		// TODO : 사용자 인증 정보 받기
+		@RequestBody ChannelInfoDto channelInfoDto
+	) {
+		// 이게 사용자 정보
+		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
+
+		checkChannelTitleLengthLimit(channelInfoDto.getTitle());
+		checkChannelContentLengthLimit(channelInfoDto.getContent());
+		checkChannelFilterLevel(channelInfoDto.getFilterLevel());
+
+		channelListRepository.editChannelInfo(uuid, channelInfoDto);
 	}
 
 }
