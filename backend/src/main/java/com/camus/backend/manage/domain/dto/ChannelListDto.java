@@ -1,5 +1,6 @@
 package com.camus.backend.manage.domain.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.camus.backend.manage.domain.document.Channel;
@@ -18,7 +19,8 @@ public class ChannelListDto {
 
 	public ChannelListDto(ChannelList channelList) {
 
-		// ㅊ
+		this.channelList = new ArrayList<>();
+
 		for (int i = 0; i < channelList.getChannels().size(); i++) {
 			Channel channel = channelList.getChannels().get(i);
 			// 유효 채널 검사

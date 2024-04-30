@@ -1,6 +1,5 @@
 package com.camus.backend.statistic.domain.document;
 
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -9,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import nonapi.io.github.classgraph.json.Id;
 
-@Document(collection = "member_stat")
+@Document(collection = "MemberStat")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,7 +16,7 @@ import nonapi.io.github.classgraph.json.Id;
 public class MemberStatistic {
 
 	@Id
-	private  String _id;
+	private String _id;
 
 	private int singleAiUsage;
 	private int contextAiUsage;
