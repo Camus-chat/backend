@@ -11,9 +11,7 @@ import lombok.Setter;
 @Setter
 public class ChannelDto extends CreateChannelDto {
 
-	private String link;
-	// FIXME : link 앞선 String 수정;
-	private String linkBase = "http://localhost:8080/channel/";
+	private UUID link;
 
 	public ChannelDto() {
 		super();
@@ -24,11 +22,11 @@ public class ChannelDto extends CreateChannelDto {
 		this.setTitle(createChannelDto.getTitle());
 		this.setContent(createChannelDto.getContent());
 		this.setFilterLevel(createChannelDto.getFilterLevel());
-		this.link = linkBase + link;
+		this.link = link;
 	}
 
 	public ChannelDto(Channel channel) {
-		this.link = linkBase + channel.getLink();
+		this.link = channel.getLink();
 		this.setType(channel.getType());
 		this.setTitle(channel.getTitle());
 		this.setContent(channel.getContent());
