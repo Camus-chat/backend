@@ -40,6 +40,7 @@ dependencies {
 	// CHECK : Swagger 설정 - 맞는지 확인
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 }
 
