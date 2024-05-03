@@ -1,13 +1,13 @@
-package com.camus.backend.service;
+package com.camus.backend.jwt.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.camus.backend.document.MemberCredential;
-import com.camus.backend.dto.CustomUserDetails;
-import com.camus.backend.repository.MemberCredentialRepository;
+import com.camus.backend.member.domain.document.MemberCredential;
+import com.camus.backend.member.domain.dto.CustomUserDetails;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {

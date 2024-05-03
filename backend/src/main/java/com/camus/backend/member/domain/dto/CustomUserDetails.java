@@ -1,4 +1,4 @@
-package com.camus.backend.dto;
+package com.camus.backend.member.domain.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.camus.backend.document.MemberCredential;
+import com.camus.backend.member.domain.document.MemberCredential;
 
 public class CustomUserDetails implements UserDetails {
 

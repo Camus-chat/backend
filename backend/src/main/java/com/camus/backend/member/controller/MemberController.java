@@ -1,12 +1,11 @@
-package com.camus.backend.controller;
+package com.camus.backend.member.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.camus.backend.dto.MemberCredentialDto;
-import com.camus.backend.service.MemberService;
+import com.camus.backend.member.domain.dto.MemberCredentialDto;
+import com.camus.backend.member.service.MemberService;
 
 @RestController("/member")
 public class MemberController {

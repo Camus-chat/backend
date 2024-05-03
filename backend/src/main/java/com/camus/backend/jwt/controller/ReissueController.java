@@ -1,4 +1,4 @@
-package com.camus.backend.controller;
+package com.camus.backend.jwt.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.camus.backend.jwt.JwtTokenProvider;
-import com.camus.backend.service.RedisService;
+import com.camus.backend.jwt.util.JwtTokenProvider;
+import com.camus.backend.jwt.service.RedisService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;

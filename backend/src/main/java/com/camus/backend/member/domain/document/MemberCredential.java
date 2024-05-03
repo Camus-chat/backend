@@ -1,4 +1,4 @@
-package com.camus.backend.document;
+package com.camus.backend.member.domain.document;
 
 import java.util.UUID;
 

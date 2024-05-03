@@ -1,4 +1,4 @@
-package com.camus.backend.jwt;
+package com.camus.backend.jwt.util;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -11,7 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.camus.backend.service.RedisService;
+import com.camus.backend.jwt.service.RedisService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;

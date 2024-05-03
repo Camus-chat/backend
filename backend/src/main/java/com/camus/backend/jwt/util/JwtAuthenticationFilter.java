@@ -1,16 +1,15 @@
-package com.camus.backend.jwt;
+package com.camus.backend.jwt.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.UUID;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.camus.backend.document.MemberCredential;
-import com.camus.backend.dto.CustomUserDetails;
+import com.camus.backend.member.domain.document.MemberCredential;
+import com.camus.backend.member.domain.dto.CustomUserDetails;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

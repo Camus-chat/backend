@@ -1,6 +1,5 @@
-package com.camus.backend.config;
+package com.camus.backend.global.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,12 +11,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.camus.backend.jwt.CustomLogoutFilter;
-import com.camus.backend.jwt.JwtAuthenticationFilter;
-import com.camus.backend.jwt.JwtSettings;
-import com.camus.backend.jwt.JwtTokenProvider;
-import com.camus.backend.jwt.LoginFilter;
-import com.camus.backend.service.RedisService;
+import com.camus.backend.jwt.util.CustomLogoutFilter;
+import com.camus.backend.jwt.util.JwtAuthenticationFilter;
+import com.camus.backend.jwt.util.JwtSettings;
+import com.camus.backend.jwt.util.JwtTokenProvider;
+import com.camus.backend.jwt.util.LoginFilter;
+import com.camus.backend.jwt.service.RedisService;
 
 @Configuration
 @EnableWebSecurity

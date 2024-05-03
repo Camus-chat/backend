@@ -1,4 +1,4 @@
-package com.camus.backend.dto;
+package com.camus.backend.member.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;

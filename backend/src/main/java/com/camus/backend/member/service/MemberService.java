@@ -1,13 +1,13 @@
-package com.camus.backend.service;
+package com.camus.backend.member.service;
 
 import java.util.UUID;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.camus.backend.document.MemberCredential;
-import com.camus.backend.dto.MemberCredentialDto;
-import com.camus.backend.repository.MemberCredentialRepository;
+import com.camus.backend.member.domain.document.MemberCredential;
+import com.camus.backend.member.domain.dto.MemberCredentialDto;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @Service
 public class MemberService {
