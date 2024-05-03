@@ -18,6 +18,7 @@ public enum SuccessCode {
 
 	// ROOM
 	ROOM_DISABLE("ROOM", "채팅방 닫기 성공"),
+	ROOM_ENTRY("ROOM", "채팅방 입장 성공"),
 
 	;
 

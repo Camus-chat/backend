@@ -1,14 +1,22 @@
 package com.camus.backend.manage.controller;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.manage.domain.dto.RoomIdDto;
 import com.camus.backend.manage.domain.dto.RoomListDto;
 import com.camus.backend.manage.service.RoomService;
+import com.camus.backend.manage.util.ChannelStatus;
+import com.camus.backend.manage.util.ManageConstants;
+import com.camus.backend.manage.util.RoomEntryManager;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -31,5 +39,42 @@ public class RoomController {
 		// TODO : ROOM 받아오는 로직 구현 -> Redis
 		return ResponseEntity.ok(RoomListDto.builder().roomList(new ArrayList<>()).build());
 	}
+
+	// FeatureID : 게스트 ROOM 입장하기 & 생성하기
+
+	public ResponseEntity<RoomIdDto> enterRoom(
+		// TODO : 사용자 인증 정보
+		@RequestBody UUID channelLink
+	) {
+		// CHECK : 여기서 이미 사용자 인증이 되었다고 가정
+		UUID tempMemberId = ManageConstants.tempMemUuid;
+
+		RoomEntryManager roomEntryManager;
+		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
+		roomEntryManager = roomService.isChannelMember(tempMemberId, channelLink);
+
+		if (roomEntryManager.isCheck()) {
+			return ResponseEntity.ok(RoomIdDto.builder().roomId(
+				roomEntryManager.getRoomId()
+			).build());
+		}
+
+		ChannelStatus channelStatus = roomService.channelStatus(channelLink);
+		// TODO : 채널 링크가 유효한가? 체크 => 진입
+		if (!channelStatus.isValid()) {
+			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
+		}
+
+		// TODO : 개인 : 새로운 ROOM 생성 => 진입
+
+		// TODO : 단체 : 기존에 ROOM이 있는가? => 진입
+
+		// TODO : 단체 : 방 생성 및 진입
+
+		// 입장 성공
+		return;
+	}
+
+	// FeatureID : ROOM 채팅 기록 읽어오기
 
 }
