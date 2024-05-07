@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumerService {
 	private final SimpMessagingTemplate simpMessagingTemplate;
 
-	@Autowired
 	public KafkaConsumerService(SimpMessagingTemplate simpMessagingTemplate) {
 		this.simpMessagingTemplate = simpMessagingTemplate;
 	}
