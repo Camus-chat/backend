@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequiredArgsConstructor
 public class SocketController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger( SocketController.class );
@@ -26,8 +25,14 @@ public class SocketController {
 	// private final SimpMessageSendingOperations simpleMessageSendingOperations;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final KafkaProducerService kafkaProducerService;
+	private final ObjectMapper objectMapper;
 
-    // 새로운 사용자가 웹 소
+    public SocketController(SimpMessagingTemplate simpMessagingTemplate, KafkaProducerService kafkaProducerService,
+		ObjectMapper objectMapper) {
+		this.simpMessagingTemplate = simpMessagingTemplate;
+		this.kafkaProducerService = kafkaProducerService;
+		this.objectMapper = objectMapper;
+	}
 
 	// 새로운 사용자가 웹 소켓을 연결할 때 실행됨
 	// @EventListener은 한개의 매개변수만 가질 수 있다.
@@ -47,7 +52,6 @@ public class SocketController {
 		LOGGER.info("sessionId Disconnected : {}", sessionId);
 	}
 
-	private final ObjectMapper objectMapper;
 	// /pub/message로 메시지 발행
 	@MessageMapping("/message")
 	public void sendMessage(Map<String, Object> params) throws JsonProcessingException {
