@@ -1,4 +1,4 @@
-package com.camus.backend.stomp;
+package com.camus.backend.stomp.controller;
 
 import java.util.Map;
 
@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.camus.backend.stomp.service.KafkaProducerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.RequiredArgsConstructor;
 
 @RestController
 public class SocketController {
@@ -23,7 +22,7 @@ public class SocketController {
 	private static final Logger LOGGER = LoggerFactory.getLogger( SocketController.class );
 
 	// private final SimpMessageSendingOperations simpleMessageSendingOperations;
-	private final SimpMessagingTemplate messagingTemplate;
+	private final SimpMessagingTemplate simpMessagingTemplate;
 	private final KafkaProducerService kafkaProducerService;
 	private final ObjectMapper objectMapper;
 
@@ -64,7 +63,7 @@ public class SocketController {
 
 		// 클라이언트에게 직접 메시지 발송해주는 로직
 		String channelId = params.get("channelId").toString();
-		messagingTemplate.convertAndSend("/subscribe/message/" + channelId, params);
+		simpMessagingTemplate.convertAndSend("/subscribe/message/" + channelId, params);
 	}
 
 	/*

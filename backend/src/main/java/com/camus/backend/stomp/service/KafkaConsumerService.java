@@ -1,4 +1,4 @@
-package com.camus.backend.stomp;
+package com.camus.backend.stomp.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;

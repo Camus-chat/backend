@@ -1,4 +1,4 @@
-package com.camus.backend.stomp;
+package com.camus.backend.stomp.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSocketMessageBroker
-@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger( WebSocketConfig.class );
