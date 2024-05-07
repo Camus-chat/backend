@@ -7,16 +7,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaConsumerService {
-	private final SimpMessagingTemplate template;
+	private final SimpMessagingTemplate simpMessagingTemplate;
 
 	@Autowired
-	public KafkaConsumerService(SimpMessagingTemplate template) {
-		this.template = template;
+	public KafkaConsumerService(SimpMessagingTemplate simpMessagingTemplate) {
+		this.simpMessagingTemplate = simpMessagingTemplate;
 	}
 
 	@KafkaListener(topics = "myTopic", groupId = "myGroup")
 	public void listen(String message) {
-		template.convertAndSend("/subscribe/message", message);
+		simpMessagingTemplate.convertAndSend("/subscribe/message", message);
 		System.out.println("Received message : " + message);
 	}
 }
