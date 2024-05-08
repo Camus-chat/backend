@@ -18,7 +18,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
 	@Override
 	public MongoClient mongoClient() {
-		return MongoClients.create("mongodb://your_mongodb_uri");
+		return MongoClients.create("mongodb://localhost:27017/testdatabase");
 	}
 
 	@Bean
