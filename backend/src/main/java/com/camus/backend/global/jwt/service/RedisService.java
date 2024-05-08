@@ -29,4 +29,10 @@ public class RedisService {
 	public void deleteRefreshToken(String key) {
 		redisTemplate.delete(key);
 	}
+
+	// refresh 있는지 확인
+	public boolean isRefreshExist(String key){
+		return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+	}
+
 }

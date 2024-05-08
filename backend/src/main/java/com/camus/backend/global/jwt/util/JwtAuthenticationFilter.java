@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+	// jwtfilter에 해당
+	// jwt 검증함
+
 	private final JwtTokenProvider jwtTokenProvider;
 
 	public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider){
@@ -69,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String username = jwtTokenProvider.getUsername(accessToken);
 		String role = jwtTokenProvider.getRole(accessToken);
 
-		//memberCredential를 생성하여 값 set
+		// memberCredential를 생성하여 값 set
 		// 세션 처리를 위한 임시객체
 		MemberCredential memberCredential = MemberCredential.builder()
 			.username(username)

@@ -1,4 +1,4 @@
-package com.camus.backend.global.jwt.service;
+package com.camus.backend.member.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +11,8 @@ import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
+
+	// db에서 username을 가지고 UserDetails를 반환하는 UserDetailsService 구현
 
 	private final MemberCredentialRepository memberCredentialRepository;
 

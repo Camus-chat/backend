@@ -10,6 +10,8 @@ import com.camus.backend.member.domain.document.MemberCredential;
 
 public class CustomUserDetails implements UserDetails {
 
+	// 맴버 정보 담는 UserDetails 객체
+
 	private final MemberCredential memberCredential;
 
 	public CustomUserDetails(MemberCredential memberCredential) {

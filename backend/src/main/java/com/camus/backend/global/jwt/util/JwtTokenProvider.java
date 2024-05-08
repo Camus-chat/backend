@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtTokenProvider {
 
+	// jwtutil에 해당
+	// jwt 발급
+	
 	private final SecretKey secretKey;
 
 	public JwtTokenProvider(@Value("${spring.jwt.secret}") String secret) {
@@ -77,23 +80,3 @@ public class JwtTokenProvider {
 	}
 }
 
-// // accesstoken 생성
-// public String createAccessToken(String username, String role) {
-// 	return Jwts.builder()
-// 		.claim("username", username)
-// 		.claim("role", role)
-// 		.issuedAt(new Date(System.currentTimeMillis()))
-// 		.expiration(new Date(System.currentTimeMillis() + accessExpire))
-// 		.signWith(secretKey)
-// 		.compact();
-// }
-//
-// // refreshtoken 생성
-// public String createRefreshToken(String username) {
-// 	return Jwts.builder()
-// 		.claim("username", username)
-// 		.issuedAt(new Date(System.currentTimeMillis()))
-// 		.expiration(new Date(System.currentTimeMillis() + refreshExpire))
-// 		.signWith(secretKey)
-// 		.compact();
-// }

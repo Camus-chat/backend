@@ -2,6 +2,8 @@ package com.camus.backend.global.jwt.util;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.camus.backend.global.jwt.service.RedisService;
@@ -11,11 +13,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class CustomLogoutFilter extends GenericFilterBean {
 
+	// logout 용도
+	
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisService redisService;
 
@@ -44,28 +49,44 @@ public class CustomLogoutFilter extends GenericFilterBean {
 			return;
 		}
 
+		// String accessToken = request.getHeader("access");
+		// String accessUsername = jwtTokenProvider.getUsername(accessToken);
+		// String refresh = redisService.getRefreshToken(accessUsername);
+
 		//refresh token 가져오기
-		String accessToken = request.getHeader("access");
-		String accessUsername = jwtTokenProvider.getUsername(accessToken);
-		String refresh = redisService.getRefreshToken(accessUsername);
+		String refreshToken=null;
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals("refresh")) {
+				refreshToken = cookie.getValue();
+			}
+		}
 
 		//refresh 토큰이 없음
-		if (refresh == null) {
+		if (refreshToken == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
+		String accessUsername = jwtTokenProvider.getUsername(refreshToken);
+
 		//refresh 만료 확인
 		try {
-			jwtTokenProvider.isExpired(refresh);
+			jwtTokenProvider.isExpired(refreshToken);
 		} catch (ExpiredJwtException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
 		// 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-		String category = jwtTokenProvider.getCategory(refresh);
+		String category = jwtTokenProvider.getCategory(refreshToken);
 		if (!category.equals("refresh")) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		// redis에 refresh가 저장되어 있는지 확인
+		if (!redisService.isRefreshExist(accessUsername)) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -74,6 +95,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
 		//Refresh 토큰 레디스에서 제거
 		redisService.deleteRefreshToken(accessUsername);
 
+		//Refresh 토큰 Cookie 값 0
+		Cookie cookie = new Cookie("refresh", null);
+		cookie.setMaxAge(0);
+		// cookie.setPath("/");
+
+		response.addCookie(cookie);
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 }

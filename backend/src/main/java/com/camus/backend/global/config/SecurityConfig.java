@@ -64,12 +64,14 @@ public class SecurityConfig {
 		http
 			.httpBasic((auth) -> auth.disable());
 
-		// 로그인, 회원가입은 아무나 가능
-		// 나머지 요청은 역할에 따라 나누기
+		// 요청을 역할에 따라 나누기
 		http
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/login", "/", "/signup").permitAll()
-				.requestMatchers("/reissue").permitAll()
+				.requestMatchers("/").permitAll() // 메인페이지
+				.requestMatchers("/member/b2c/login","/member/b2c/signup").permitAll() // b2c 유저 로그인, 회원가입
+				.requestMatchers("/member/b2b/login","/member/b2b/signup").permitAll() // b2b 유저 로그인, 회원가입
+				.requestMatchers("/guest/signup").permitAll() // 게스트
+				.requestMatchers("/reissue").permitAll() // access 토큰 재발급
 				.anyRequest().authenticated());
 
 		http

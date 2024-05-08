@@ -1,5 +1,6 @@
 package com.camus.backend.member.service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,7 +27,7 @@ public class MemberService {
 		String username= memberCredentialDto.getUsername();
 		String password= memberCredentialDto.getPassword();
 
-		// 이미 사용되는 id면 생성 못함
+		// 이미 사용되는 username이면 생성 못함
 		Boolean isExist=memberCredentialRepository.existsByUsername(username);
 		if(isExist){
 			return false;
@@ -37,9 +38,14 @@ public class MemberService {
 			.username(username)
 			.password(bCryptPasswordEncoder.encode(password))
 			.role(role)
+			.loginTime(LocalDateTime.now())
 			.build();
 
 		memberCredentialRepository.save(newMemberCredential);
+
+		// 시간은 한국 시간으로 정상적으로 찍히네
+		// System.out.println(memberCredentialRepository.findByUsername(username).getLoginTime());
+
 		return true;
 	}
 }

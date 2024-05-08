@@ -1,5 +1,6 @@
 package com.camus.backend.member.domain.document;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -23,4 +24,5 @@ public class MemberCredential {
 	private String username;
 	private String password;
 	private String role;
+	private LocalDateTime loginTime;
 }
