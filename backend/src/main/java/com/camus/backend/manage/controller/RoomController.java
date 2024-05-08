@@ -66,13 +66,25 @@ public class RoomController {
 		}
 
 		// TODO : 개인 : 새로운 ROOM 생성 => 진입
+		if (channelStatus.getType().equals("private")) {
+			UUID newRoomId = new UUID(0, 0);
+			// 입장 성공
+			return
+				ResponseEntity.ok(RoomIdDto.builder().roomId(
+					newRoomId
+				).build());
+		}
 
 		// TODO : 단체 : 기존에 ROOM이 있는가? => 진입
 
 		// TODO : 단체 : 방 생성 및 진입
 
+		UUID tempRoomId = new UUID(0, 0);
 		// 입장 성공
-		return;
+		return
+			ResponseEntity.ok(RoomIdDto.builder().roomId(
+				tempRoomId
+			).build());
 	}
 
 	// FeatureID : ROOM 채팅 기록 읽어오기

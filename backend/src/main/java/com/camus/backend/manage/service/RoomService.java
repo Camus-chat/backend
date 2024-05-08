@@ -32,6 +32,12 @@ public class RoomService {
 		return new RoomEntryManager(false, null);
 	}
 
+	// FeatureID 511-2 : 새로운 Rooom 생성 및 channel 정보에 추가
+
+	public void createRoom(UUID newRoomId, UUID channelLink) {
+		// Channel 주인 받기
+	}
+
 	public ChannelStatus channelStatus(UUID channelLink) {
 
 		return roomRepository.getChannelStatus(channelLink);

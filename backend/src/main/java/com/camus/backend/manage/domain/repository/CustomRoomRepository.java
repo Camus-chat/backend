@@ -11,7 +11,5 @@ public interface CustomRoomRepository {
 
 	List<UUID> getUserListById(UUID uuid);
 
-	ChannelStatus isChannelValid(UUID channelLink);
-
 	ChannelStatus getChannelStatus(UUID channelLink);
 }
