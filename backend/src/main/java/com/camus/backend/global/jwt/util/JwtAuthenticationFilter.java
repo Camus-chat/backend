@@ -1,4 +1,4 @@
-package com.camus.backend.jwt.util;
+package com.camus.backend.global.jwt.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -1,4 +1,4 @@
-package com.camus.backend.jwt.service;
+package com.camus.backend.global.jwt.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

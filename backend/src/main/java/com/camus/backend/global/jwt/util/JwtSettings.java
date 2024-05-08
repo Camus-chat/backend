@@ -1,4 +1,4 @@
-package com.camus.backend.jwt.util;
+package com.camus.backend.global.jwt.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

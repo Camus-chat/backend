@@ -1,10 +1,10 @@
-package com.camus.backend.jwt.util;
+package com.camus.backend.global.jwt.util;
 
 import java.io.IOException;
 
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.camus.backend.jwt.service.RedisService;
+import com.camus.backend.global.jwt.service.RedisService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

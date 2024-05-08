@@ -1,4 +1,4 @@
-package com.camus.backend.jwt.service;
+package com.camus.backend.global.jwt.service;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
