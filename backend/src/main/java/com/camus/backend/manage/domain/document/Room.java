@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Getter;
@@ -12,8 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Document
-@TypeAlias("CHAT_ROOM")
+@Document(collection = "CHAT_ROOM")
 public class Room {
 
 	private UUID _id;
@@ -23,11 +21,13 @@ public class Room {
 	private boolean isClosed = false;
 	private int maxUserCount;
 
-	Room(UUID channelKey) {
+	public Room(UUID channelKey, UUID ownerId) {
 		this._id = UUID.randomUUID();
-		this.key = UUID.randomUUID();
+		this.key = channelKey;
 		this.createDate = LocalDateTime.now();
 		this.userList = new ArrayList<>();
+		this.userList.add(ownerId);
+
 	}
 
 }
