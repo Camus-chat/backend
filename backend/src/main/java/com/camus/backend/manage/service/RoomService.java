@@ -35,8 +35,13 @@ public class RoomService {
 	// FeatureID 511-2 : 새로운 Rooom 생성 및 channel 정보에 추가
 
 	// GroupRoom의 경우
-	public void createGroupRoomByOwnerId(UUID newRoomId, UUID channelId, UUID ownerId) {
+	public UUID createGroupRoomByOwnerId(UUID channelKey, UUID ownerId) {
+		// 그룹 채널 생성 시 바로 방 생성
+		UUID newRoomId = roomRepository.createGroupRoom(channelKey, ownerId);
 
+		// TODO : Redis에도 올리기
+
+		return newRoomId;
 	}
 
 	public ChannelStatus channelStatus(UUID channelLink) {

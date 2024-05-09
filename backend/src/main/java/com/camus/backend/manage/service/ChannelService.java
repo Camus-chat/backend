@@ -22,9 +22,11 @@ import com.camus.backend.manage.util.ManageConstants;
 public class ChannelService {
 
 	private final ChannelListRepository channelListRepository;
+	private final RoomService roomService;
 
-	public ChannelService(ChannelListRepository channelListRepository) {
+	public ChannelService(ChannelListRepository channelListRepository, RoomService roomService) {
 		this.channelListRepository = channelListRepository;
+		this.roomService = roomService;
 	}
 
 	// FIXME : 사용자마다 ChannelList임시 생성로직
@@ -54,7 +56,7 @@ public class ChannelService {
 		checkChannelContentLengthLimit(createChannelDto.getContent());
 		checkChannelFilterLevel(createChannelDto.getFilterLevel());
 
-		checkChannelType(createChannelDto.getType());
+		checkValidChannelType(createChannelDto.getType());
 
 		Channel newChannel = Channel.builder()
 			.type(createChannelDto.getType())
@@ -73,8 +75,10 @@ public class ChannelService {
 					ManageConstants.GROUP_CHANNEL_MAX_ROOMS)
 			.build();
 
-		// FIXME : 유효아이디 체크를 위한 print
-		System.out.println(newChannel.toString());
+		if (newChannel.getType().equals(ManageConstants.CHANNEL_TYPE_GROUP)) {
+			UUID newRoomId = roomService.createGroupRoomByOwnerId(newChannel.getLink(), uuid);
+			newChannel.getChatRoomList().add(newRoomId);
+		}
 
 		channelListRepository.addChannelToMemberChannels(uuid, newChannel);
 		return new ChannelDto(createChannelDto, newChannel.getLink());

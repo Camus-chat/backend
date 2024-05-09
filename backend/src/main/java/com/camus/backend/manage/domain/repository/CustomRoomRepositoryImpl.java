@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import com.camus.backend.manage.domain.document.Channel;
+import com.camus.backend.manage.domain.document.Room;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.util.ChannelStatus;
 
@@ -48,6 +49,12 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		} else {
 			return new ChannelStatus(false, null);
 		}
+	}
+
+	public UUID createGroupRoom(UUID channelKey, UUID ownerId) {
+		Room newGroupRoom = new Room(channelKey, ownerId);
+		mongoTemplate.save(newGroupRoom);
+		return newGroupRoom.get_id();
 	}
 
 }
