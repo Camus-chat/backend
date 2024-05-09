@@ -1,6 +1,5 @@
-package com.camus.backend.stomp.service;
+package com.camus.backend.chat.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

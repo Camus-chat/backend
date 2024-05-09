@@ -1,4 +1,4 @@
-package com.camus.backend.stomp.service;
+package com.camus.backend.chat.service;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
