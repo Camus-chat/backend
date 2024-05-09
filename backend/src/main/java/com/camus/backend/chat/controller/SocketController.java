@@ -1,4 +1,4 @@
-package com.camus.backend.stomp.controller;
+package com.camus.backend.chat.controller;
 
 import java.util.Map;
 
@@ -12,21 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.camus.backend.stomp.service.KafkaProducerService;
+import com.camus.backend.chat.service.KafkaProducerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class SocketController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger( SocketController.class );
+	private static final Logger LOGGER = LoggerFactory.getLogger(SocketController.class);
 
 	// private final SimpMessageSendingOperations simpleMessageSendingOperations;
 	private final SimpMessagingTemplate simpMessagingTemplate;
 	private final KafkaProducerService kafkaProducerService;
 	private final ObjectMapper objectMapper;
 
-    public SocketController(SimpMessagingTemplate simpMessagingTemplate, KafkaProducerService kafkaProducerService,
+	public SocketController(SimpMessagingTemplate simpMessagingTemplate, KafkaProducerService kafkaProducerService,
 		ObjectMapper objectMapper) {
 		this.simpMessagingTemplate = simpMessagingTemplate;
 		this.kafkaProducerService = kafkaProducerService;
