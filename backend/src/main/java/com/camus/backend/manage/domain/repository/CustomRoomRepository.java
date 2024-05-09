@@ -12,4 +12,6 @@ public interface CustomRoomRepository {
 	List<UUID> getUserListById(UUID uuid);
 
 	ChannelStatus getChannelStatus(UUID channelLink);
+
+	UUID createGroupRoom(UUID channelKey, UUID ownerId);
 }
