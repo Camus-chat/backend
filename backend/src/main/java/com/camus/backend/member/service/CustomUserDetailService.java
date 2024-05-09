@@ -30,11 +30,6 @@ public class CustomUserDetailService implements UserDetailsService {
 			throw new UsernameNotFoundException("유저를 찾을 수 없음!!!!!! " + username);
 		}
 
-		// System.out.println(memberCredentialData.get_id());
-		// System.out.println(memberCredentialData.getUsername());
-		// System.out.println(memberCredentialData.getPassword());
-		// System.out.println(memberCredentialData.getRole());
-
 		return new CustomUserDetails(memberCredentialData);
 	}
 }

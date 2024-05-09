@@ -39,7 +39,11 @@ public class CustomLogoutFilter extends GenericFilterBean {
 	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 		// post로 로그아웃 하면 필터로 감지함
 		String requestUri = request.getRequestURI();
-		if (!requestUri.matches("^\\/logout$")) {
+		// if (!requestUri.matches("/api/member/logout")) {
+		// 	filterChain.doFilter(request, response);
+		// 	return;
+		// }
+		if (!requestUri.matches("^.*/logout$")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -48,10 +52,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
 			filterChain.doFilter(request, response);
 			return;
 		}
-
-		// String accessToken = request.getHeader("access");
-		// String accessUsername = jwtTokenProvider.getUsername(accessToken);
-		// String refresh = redisService.getRefreshToken(accessUsername);
 
 		//refresh token 가져오기
 		String refreshToken=null;
@@ -86,7 +86,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 		}
 
 		// redis에 refresh가 저장되어 있는지 확인
-		if (!redisService.isRefreshExist(accessUsername)) {
+		if (!redisService.doesRefreshTokenNotExist(accessUsername)) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -95,7 +95,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 		//Refresh 토큰 레디스에서 제거
 		redisService.deleteRefreshToken(accessUsername);
 
-		//Refresh 토큰 Cookie 값 0
+		//Refresh 토큰 Cookie 값 0으로 바꿔주기
 		Cookie cookie = new Cookie("refresh", null);
 		cookie.setMaxAge(0);
 		// cookie.setPath("/");

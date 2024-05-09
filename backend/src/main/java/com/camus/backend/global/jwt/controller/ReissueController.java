@@ -1,6 +1,10 @@
 package com.camus.backend.global.jwt.controller;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.camus.backend.global.jwt.util.JwtSettings;
 import com.camus.backend.global.jwt.util.JwtTokenProvider;
 import com.camus.backend.global.jwt.service.RedisService;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
@@ -22,13 +27,15 @@ public class ReissueController {
 	
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisService redisService;
-
 	private final JwtSettings jwtSettings;
+	private final MemberCredentialRepository memberCredentialRepository;
 
-	public ReissueController(JwtTokenProvider jwtTokenProvider, RedisService redisService, JwtSettings jwtSettings) {
+	public ReissueController(JwtTokenProvider jwtTokenProvider, RedisService redisService, JwtSettings jwtSettings,
+		MemberCredentialRepository memberCredentialRepository) {
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.redisService = redisService;
 		this.jwtSettings = jwtSettings;
+		this.memberCredentialRepository = memberCredentialRepository;
 	}
 
 	@PostMapping("/reissue")
@@ -70,13 +77,28 @@ public class ReissueController {
 		}
 
 		// redis에 refresh가 저장되어 있는지 확인
-		if (!redisService.isRefreshExist(accessUsername)) {
+		if (!redisService.doesRefreshTokenNotExist(accessUsername)) {
 			//response body
 			return new ResponseEntity<>("유효하지 않은 refresh token", HttpStatus.BAD_REQUEST);
 		}
 
 		String username = jwtTokenProvider.getUsername(refreshToken);
 		String role = jwtTokenProvider.getRole(refreshToken);
+
+		// 게스트면 계정이 5일동안만 유지
+		if(role.equals("guest")){
+			LocalDateTime nowDate = LocalDateTime.now();
+			LocalDateTime createDate = memberCredentialRepository.findByUsername(username).getLoginTime();
+
+			// nowDate와 createDate의 차이 계산
+			Duration duration = Duration.between(nowDate, createDate);
+			long durationToSecond = duration.toSeconds();
+			
+			// 5일이 지났으면 갱신 안함
+			if(durationToSecond>432000){
+				return new ResponseEntity<>("게스트 계정은 5일동안만 이용 가능합니다", HttpStatus.BAD_REQUEST);
+			}
+		}
 
 		//token 새로 생성
 		String newAccess = jwtTokenProvider.createToken("access", username, role, jwtSettings.getAccessExpire());

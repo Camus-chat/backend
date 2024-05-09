@@ -1,5 +1,6 @@
 package com.camus.backend.global.jwt.util;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -10,6 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.camus.backend.global.jwt.service.RedisService;
 
@@ -18,18 +22,19 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 
 	// 로그인 하는 부분
 	
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisService redisService;
-
 	private final JwtSettings jwtSettings;
+
 
 	public LoginFilter(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider,
 		RedisService redisService, JwtSettings jwtSettings) {
+		super();
 		this.authenticationManager = authenticationManager;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.redisService = redisService;
@@ -42,8 +47,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		String username = obtainUsername(request);
 		String password = obtainPassword(request);
 
-		System.out.println(username+" 비비상");
-
 		//스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
 
@@ -55,8 +58,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 		String username=authentication.getName();
-
-		System.out.println(username+" 비상");
 
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 		Iterator<? extends GrantedAuthority> iterator = authorities.iterator();

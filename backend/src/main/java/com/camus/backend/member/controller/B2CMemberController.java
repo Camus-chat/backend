@@ -1,5 +1,7 @@
 package com.camus.backend.member.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +24,10 @@ public class B2CMemberController {
 	ResponseEntity<?> b2cSignUp(MemberCredentialDto memberCredentialDto){
 		// String role=memberCredentialDto.getRole();
 		// boolean signUpSuccess = memberService.signUp(memberCredentialDto,role);
-		boolean signUpSuccess = memberService.signUp(memberCredentialDto,"b2c");
-		if (!signUpSuccess) {
+		List<String> credentials = memberService.signUp(memberCredentialDto,"b2c");
+		if (credentials.isEmpty()) {
 			return ResponseEntity.badRequest().body("이미 존재하는 사용자 이름입니다.");
 		}
-		return ResponseEntity.ok("회원가입 성공");
+		return ResponseEntity.ok(credentials);
 	}
 }
