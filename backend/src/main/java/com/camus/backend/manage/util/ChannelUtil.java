@@ -31,7 +31,7 @@ public class ChannelUtil {
 		}
 	}
 
-	public static void checkChannelType(String type) {
+	public static void checkValidChannelType(String type) {
 		if (!type.equals(ManageConstants.CHANNEL_TYPE_PRIVATE) && !type.equals(ManageConstants.CHANNEL_TYPE_GROUP)) {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER_CHANNEL_TYPE);
 		}
