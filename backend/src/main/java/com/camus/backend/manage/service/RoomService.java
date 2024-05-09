@@ -34,8 +34,9 @@ public class RoomService {
 
 	// FeatureID 511-2 : 새로운 Rooom 생성 및 channel 정보에 추가
 
-	public void createRoom(UUID newRoomId, UUID channelLink) {
-		// Channel 주인 받기
+	// GroupRoom의 경우
+	public void createGroupRoomByOwnerId(UUID newRoomId, UUID channelId, UUID ownerId) {
+
 	}
 
 	public ChannelStatus channelStatus(UUID channelLink) {

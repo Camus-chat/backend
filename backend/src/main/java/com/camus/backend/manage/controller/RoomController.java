@@ -68,6 +68,7 @@ public class RoomController {
 		// TODO : 개인 : 새로운 ROOM 생성 => 진입
 		if (channelStatus.getType().equals("private")) {
 			UUID newRoomId = new UUID(0, 0);
+
 			// 입장 성공
 			return
 				ResponseEntity.ok(RoomIdDto.builder().roomId(
@@ -75,7 +76,7 @@ public class RoomController {
 				).build());
 		}
 
-		// TODO : 단체 : 기존에 ROOM이 있는가? => 진입
+		// TODO : 단체 : 기존에 ROOM이 있는가? => 진입 
 
 		// TODO : 단체 : 방 생성 및 진입
 
