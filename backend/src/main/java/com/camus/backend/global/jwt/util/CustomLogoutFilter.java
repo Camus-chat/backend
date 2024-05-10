@@ -102,5 +102,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
 		response.addCookie(cookie);
 		response.setStatus(HttpServletResponse.SC_OK);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
 	}
 }

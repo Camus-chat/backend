@@ -24,7 +24,7 @@ public class MemberService {
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 
-	// 회원가입(db에 넣기) 후 프론트에
+	// 회원가입(db에 넣기) 후 프론트에 아이디, 비번 보내기
 	public List<String> signUp(MemberCredentialDto memberCredentialDto, String role){
 		String username= memberCredentialDto.getUsername();
 		String password= memberCredentialDto.getPassword();
@@ -48,14 +48,14 @@ public class MemberService {
 
 		memberCredentialRepository.save(newMemberCredential);
 
-		// 저장 후 username과 암호화된 password를 리스트로 반환
-		List<String> credentials = new ArrayList<>();
-		credentials.add(username);
-		credentials.add(password);
+		// List<String> credentials = new ArrayList<>();
+		// credentials.add(username);
+		// credentials.add(password);
 
 		// 시간은 한국 시간으로 정상적으로 찍히네
 		// System.out.println(memberCredentialRepository.findByUsername(username).getLoginTime());
 
-		return credentials;
+		// 저장 후 username과 암호화된 password를 리스트로 반환
+		return List.of(username,password);
 	}
 }

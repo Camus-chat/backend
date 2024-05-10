@@ -72,6 +72,7 @@ public class SecurityConfig {
 		// 요청을 역할에 따라 나누기
 		http
 			.authorizeHttpRequests((auth) -> auth
+				.requestMatchers("/swagger","/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**").permitAll() // swagger 설정
 				.requestMatchers("/").permitAll() // 메인페이지
 				.requestMatchers("/member/b2c/login","/member/b2c/signup").permitAll() // b2c 유저 로그인, 회원가입
 				.requestMatchers("/member/b2b/login","/member/b2b/signup").permitAll() // b2b 유저 로그인, 회원가입
