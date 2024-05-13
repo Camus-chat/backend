@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaProducerService {
-
 	private final KafkaTemplate<String, String> kafkaTemplate;
 
 	public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
@@ -16,11 +15,4 @@ public class KafkaProducerService {
 		System.out.println("카프카로" + topicName + "보냄 : " + messageJson);
 		kafkaTemplate.send(topicName, messageJson);
 	}
-
-	/*
-	public void sendMessage(String message) {
-		System.out.println("카프카로보냄 : " + message);
-		kafkaTemplate.send("myTopic", message);
-	}
-	 */
 }
