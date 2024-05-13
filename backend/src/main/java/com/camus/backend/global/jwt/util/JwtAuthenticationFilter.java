@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 
@@ -51,9 +53,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			PrintWriter writer = response.getWriter();
 			writer.print("access token 만료됨");
 
-			//response status code
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
+			throw new CustomException(ErrorCode.FORBIDDEN_TOKEN_EXPIRED);
+			// //response status code
+			// response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			// return;
 		}
 
 		// 토큰이 access인지 확인 (발급시 페이로드에 명시)
@@ -62,10 +65,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			//response body
 			PrintWriter writer = response.getWriter();
 			writer.print("유효하지 않은 access token");
-
-			//response status code
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			// //response status code
+			// response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			// return;
 		}
 
 		// username, role 값을 획득

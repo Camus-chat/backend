@@ -78,7 +78,9 @@ public class SecurityConfig {
 				.requestMatchers("/member/b2b/login","/member/b2b/signup").permitAll() // b2b 유저 로그인, 회원가입
 				.requestMatchers("/guest/login", "/guest/signup").permitAll() // 게스트
 				.requestMatchers("/reissue").permitAll() // access 토큰 재발급
+				.requestMatchers("/member/b2c/check", "/member/b2b/check", "/guest/check").permitAll() // id 중복체크
 				.requestMatchers("/error").permitAll() // 에러 보기
+				// permitall이나 hasrole로 라이브러리화 할때 쓰기
 				.anyRequest().authenticated());
 
 		http

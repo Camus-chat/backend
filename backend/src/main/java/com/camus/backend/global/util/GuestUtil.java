@@ -312,4 +312,30 @@ public class GuestUtil {
 		}
 		return stringBuilder.toString();
 	}
+
+	// guest 색깔 골라주기
+	public static String chooseColorPalette(){
+		List<String> colors=Arrays.asList(
+			"red",
+			"orange",
+			"amber",
+			"yellow",
+			"lime",
+			"green",
+			"emerald",
+			"teal",
+			"cyan",
+			"sky",
+			"blue",
+			"indigo",
+			"violet",
+			"purple",
+			"fuchsia",
+			"pink",
+			"rose"
+		);
+		Collections.shuffle(colors);
+		return colors.get(0);
+	}
+	
 }

@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.global.jwt.service.RedisService;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -64,8 +66,9 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
 		//refresh 토큰이 없음
 		if (refreshToken == null) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
+			throw new CustomException(ErrorCode.NOTFOUND_TOKEN);
+			//response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			//return;
 		}
 
 		String accessUsername = jwtTokenProvider.getUsername(refreshToken);
@@ -74,21 +77,24 @@ public class CustomLogoutFilter extends GenericFilterBean {
 		try {
 			jwtTokenProvider.isExpired(refreshToken);
 		} catch (ExpiredJwtException e) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
+			throw new CustomException(ErrorCode.FORBIDDEN_TOKEN_EXPIRED);
+			// response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// return;
 		}
 
 		// 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
 		String category = jwtTokenProvider.getCategory(refreshToken);
 		if (!category.equals("refresh")) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			// response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// return;
 		}
 
 		// redis에 refresh가 저장되어 있는지 확인
 		if (!redisService.doesRefreshTokenNotExist(accessUsername)) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			// response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// return;
 		}
 
 		//로그아웃 진행

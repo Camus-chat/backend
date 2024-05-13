@@ -5,6 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
@@ -26,8 +28,8 @@ public class CustomUserDetailService implements UserDetailsService {
 		MemberCredential memberCredentialData = memberCredentialRepository.findByUsername(username);
 
 		if (memberCredentialData == null) {
-			System.out.println("유저를 찾을 수 없음!");
-			throw new UsernameNotFoundException("유저를 찾을 수 없음!!!!!! " + username);
+			// System.out.println("유저를 찾을 수 없음!");
+			throw new UsernameNotFoundException(username + " 에 해당하는 유저를 찾을 수 없습니다.");
 		}
 
 		return new CustomUserDetails(memberCredentialData);
