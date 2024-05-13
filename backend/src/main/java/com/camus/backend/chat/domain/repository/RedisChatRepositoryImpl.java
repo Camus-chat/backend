@@ -19,7 +19,7 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 	private RedisTemplate<String, String> redisTemplate;
 	private ChatModules chatModules;
 
-	public void setRedisTemplate(RedisTemplate<String, String> redisTemplate,
+	public RedisChatRepositoryImpl(RedisTemplate<String, String> redisTemplate,
 		ChatModules chatModules) {
 		this.redisTemplate = redisTemplate;
 		this.chatModules = chatModules;
@@ -32,7 +32,7 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 
 	public void addMessageToStream(UUID roomId, Map<String, String> message) {
 		MapRecord<String, String, String> record = StreamRecords.newRecord()
-			.in(roomId.toString())
+			.in(chatModules.getRedisStreamKey(roomId.toString()))
 			.ofMap(message);
 		redisTemplate.opsForStream().add(record);
 
@@ -69,6 +69,19 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			CommonMessage.Fields.sentimentType, commonMessage.getSentimentType(),
 			CommonMessage.Fields._class, commonMessage.get_class()
 		));
+	}
+
+	public void setLastMessageId(UUID roomId, String messageId) {
+		redisTemplate.opsForValue().set(chatModules.getRedisSavedLastMessageKey(roomId.toString()), messageId);
+	}
+
+	public long getLastMessageId(UUID roomId) {
+		String lastMessageId = redisTemplate.opsForValue()
+			.get(chatModules.getRedisSavedLastMessageKey(roomId.toString()));
+		if (lastMessageId != null) {
+			return Long.parseLong(lastMessageId);
+		}
+		return Long.parseLong(-1 + "");
 	}
 
 }

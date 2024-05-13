@@ -11,4 +11,9 @@ public interface RedisChatRepository {
 	public void addNoticeMessage(NoticeMessage noticeMessage);
 
 	public void addCommonMessage(CommonMessage commonMessage);
+
+	public long getLastMessageId(UUID roomId);
+
+	public void setLastMessageId(UUID roomId, String messageId);
+
 }
