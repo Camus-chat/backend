@@ -20,6 +20,8 @@ public enum ErrorCode {
 	// MISSING_PARAMETER
 	MISSING_PARAMETER_ID(HttpStatus.BAD_REQUEST, 1001, "아이디를 입력해주세요."),
 	MISSING_PARAMETER_PW(HttpStatus.BAD_REQUEST, 1002, "비밀번호를 입력해주세요."),
+	MISSING_PARAMETER_CN(HttpStatus.BAD_REQUEST, 1003, "회사명을 입력해주세요."),
+	MISSING_PARAMETER_EM(HttpStatus.BAD_REQUEST, 1004, "이메일을 입력해주세요."),
 
 	// INVALID_PARAMETER
 	INVALID_PARAMETER(HttpStatus.BAD_REQUEST, 1013, "올바르지 않은 요청입니다."),
@@ -44,7 +46,7 @@ public enum ErrorCode {
 	// FORBIDDEN
 	FORBIDDEN_TOKEN_EXPIRED(HttpStatus.FORBIDDEN, 301, "만료된 토큰입니다."),
 	FORBIDDEN_ACCESS_DENIED(HttpStatus.FORBIDDEN, 302, "권한이 없습니다."),
-	FORBIDDEN_GUEST(HttpStatus.FORBIDDEN, 303, "Guest는 5일 동안만 가능합니다."),
+	FORBIDDEN_GUEST(HttpStatus.FORBIDDEN, 303, "비회원은 5일 동안만 가능합니다."),
 
 	// 기타 에러
 	DB_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 작업에 실패했습니다.")

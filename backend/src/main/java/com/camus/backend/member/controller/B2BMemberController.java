@@ -37,9 +37,9 @@ public class B2BMemberController {
 		return ResponseEntity.ok(SuccessCode.SIGNUP);
 	}
 
-	@PostMapping("/check")
-	ResponseEntity<?> b2cIdCheck(@RequestBody SignUpDto signUpDto){
-		return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
-	}
+	// @PostMapping("/check")
+	// ResponseEntity<?> b2bIdCheck(@RequestBody SignUpDto signUpDto){
+	// 	return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
+	// }
 
 }

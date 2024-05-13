@@ -1,7 +1,10 @@
 package com.camus.backend.global.jwt.service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import com.camus.backend.global.jwt.util.JwtSettings;
 import com.camus.backend.global.jwt.util.JwtTokenProvider;
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
@@ -112,18 +116,26 @@ public class ReissueService {
 		response.setHeader("access", newAccess);
 		response.addCookie(createCookie("refresh", newRefresh, jwtSettings.getRefreshExpire()));
 
-		return ResponseEntity.ok(SuccessCode.REISSUE);
+		// 어떤 유저인지 주기
+		Map<String, String> tokenDetails = new HashMap<>();
+		tokenDetails.put("role", role);
+		response.setStatus(HttpStatus.OK.value());
+		response.setContentType("application/json");
+		try {
+			new ObjectMapper().writeValue(response.getOutputStream(), tokenDetails);
+		} catch (IOException e) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+
+		return ResponseEntity.ok(tokenDetails);
 	}
 
 	private Cookie createCookie(String key, String value, long cookieRefreshTime) {
 		Cookie cookie = new Cookie(key, value);
 		cookie.setMaxAge((int)cookieRefreshTime);
-		//cookie.setSecure(true); https 통신할거면 넣기
+		cookie.setSecure(true); //https 통신할거면 넣기
 		//cookie.setPath("/");
 		cookie.setHttpOnly(true);
 		return cookie;
 	}
-
-
-
 }

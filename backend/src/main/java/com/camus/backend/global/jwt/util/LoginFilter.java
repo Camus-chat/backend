@@ -1,8 +1,11 @@
 package com.camus.backend.global.jwt.util;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +18,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.global.jwt.service.RedisService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -83,7 +89,17 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 		// 응답
 		response.setHeader("access", accessToken);
 		response.addCookie(createCookie("refresh", refreshToken,cookieRefresh));
+
+		// 어떤 유저인지 주기
+		Map<String, String> tokenDetails = new HashMap<>();
+		tokenDetails.put("role", role);
 		response.setStatus(HttpStatus.OK.value());
+		response.setContentType("application/json");
+		try {
+			new ObjectMapper().writeValue(response.getOutputStream(), tokenDetails);
+		} catch (IOException e) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
 	}
 
 	//로그인 실패시 실행하는 메소드
@@ -96,7 +112,7 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 	private Cookie createCookie(String key, String value, long cookieRefreshTime) {
 		Cookie cookie = new Cookie(key, value);
 		cookie.setMaxAge((int)cookieRefreshTime);
-		//cookie.setSecure(true); https 통신할거면 넣기
+		cookie.setSecure(true); //https 통신할거면 넣기
 		//cookie.setPath("/");
 		cookie.setHttpOnly(true);
 		return cookie;

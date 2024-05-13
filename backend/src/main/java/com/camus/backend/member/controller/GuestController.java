@@ -18,7 +18,7 @@ import com.camus.backend.member.domain.dto.SignUpDto;
 import com.camus.backend.member.service.MemberService;
 
 @RestController
-@RequestMapping("/guest")
+//@RequestMapping("/guest")
 public class GuestController {
 
 	private final MemberService memberService;
@@ -27,7 +27,7 @@ public class GuestController {
 		this.memberService = memberService;
 	}
 
-	@PostMapping("/signup")
+	@PostMapping("/guest/signup")
 	ResponseEntity<?> guestSignUp(){
 		// String role=memberCredentialDto.getRole();
 		// boolean signUpSuccess = memberService.signUp(memberCredentialDto,role);
@@ -47,7 +47,7 @@ public class GuestController {
 	}
 
 	@PostMapping("/check")
-	ResponseEntity<?> b2cIdCheck(@RequestBody SignUpDto signUpDto){
+	ResponseEntity<?> idCheck(@RequestBody SignUpDto signUpDto){
 		return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
 	}
 }
