@@ -6,12 +6,16 @@ import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.servers.Server;
 import lombok.RequiredArgsConstructor;
 
 @OpenAPIDefinition(
 	info = @Info(title = "CAMUS",
 		description = "CAMUS api document",
-		version = "v1"))
+		version = "v1"),
+	servers = @Server(url = "http://localhost:8080", description = "test server")
+)
+
 @RequiredArgsConstructor
 @Configuration
 public class SwaggerConfig {
