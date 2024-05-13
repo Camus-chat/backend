@@ -7,17 +7,18 @@ import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.NoticeMessage;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
+import com.camus.backend.chat.service.KafkaProducer.KafkaRedisChatProducer;
 import com.camus.backend.chat.util.ChatNoticeType;
 
 @Service
 public class RedisChatService {
 	private final RedisChatRepository redisChatRepository;
-	private final KafkaProducerService kafkaProducerService;
+	private final KafkaRedisChatProducer kafkaRedisChatProducer;
 
 	RedisChatService(RedisChatRepository redisChatRepository,
-		KafkaProducerService kafkaProducerService) {
+		KafkaRedisChatProducer kafkaRedisChatProducer) {
 		this.redisChatRepository = redisChatRepository;
-		this.kafkaProducerService = kafkaProducerService;
+		this.kafkaRedisChatProducer = kafkaRedisChatProducer;
 	}
 
 	public void createChatRoomNotice(String roomId, UUID userId) {
@@ -32,7 +33,7 @@ public class RedisChatService {
 		redisChatRepository.addNoticeMessage(firstNoticeMessage);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-		// kafkaProducerService.sendMessage( , roomId);
+		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);
 
 	}
 }
