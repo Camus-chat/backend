@@ -37,33 +37,33 @@ public class SocketController {
 	// @EventListener은 한개의 매개변수만 가질 수 있다.
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectEvent event) {
-		System.out.println("소켓 연결 시작");
-		LOGGER.info("Received a new web socket connection");
+		// System.out.println("소켓 연결 시작");
+		// LOGGER.info("Received a new web socket connection");
 	}
 
 	// 사용자가 웹 소켓 연결을 끊으면 실행됨
 	@EventListener
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-		System.out.println("소켓 연결 끊음");
+		//System.out.println("소켓 연결 끊음");
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 		String sessionId = headerAccessor.getSessionId();
 
-		LOGGER.info("sessionId Disconnected : {}", sessionId);
+		//LOGGER.info("sessionId Disconnected : {}", sessionId);
 	}
 
 	// /pub/message로 메시지 발행
 	@MessageMapping("/message")
 	public void sendMessage(Map<String, Object> params) throws JsonProcessingException {
-		System.out.println("카프카로 채팅 쳤다");
+		//System.out.println("카프카로 채팅 쳤다");
 		// 구독중인 client에 메세지를 보낸다.
 
-		// 카프카에게 발송해주는 로직
-		String messageJson = objectMapper.writeValueAsString(params);
-		kafkaProducerService.sendMessage(messageJson, "myTopic");
-
-		// 클라이언트에게 직접 메시지 발송해주는 로직
-		String channelId = params.get("channelId").toString();
-		simpMessagingTemplate.convertAndSend("/subscribe/message/" + channelId, params);
+		// // 카프카에게 발송해주는 로직
+		// String messageJson = objectMapper.writeValueAsString(params);
+		// kafkaProducerService.sendMessage(messageJson, "myTopic");
+		//
+		// // 클라이언트에게 직접 메시지 발송해주는 로직
+		// String channelId = params.get("channelId").toString();
+		// simpMessagingTemplate.convertAndSend("/subscribe/message/" + channelId, params);
 	}
 
 	/*

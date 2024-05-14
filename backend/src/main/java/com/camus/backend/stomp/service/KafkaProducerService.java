@@ -13,8 +13,8 @@ public class KafkaProducerService {
 	}
 
 	public void sendMessage(String messageJson, String topicName) {
-		System.out.println("카프카로" + topicName + "보냄 : " + messageJson);
-		kafkaTemplate.send(topicName, messageJson);
+		// System.out.println("카프카로" + topicName + "보냄 : " + messageJson);
+		// kafkaTemplate.send(topicName, messageJson);
 	}
 
 	/*

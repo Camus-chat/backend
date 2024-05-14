@@ -2,11 +2,14 @@ package com.camus.backend.member.domain.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.camus.backend.member.domain.document.MemberCredential;
+
+import lombok.Getter;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -14,8 +17,12 @@ public class CustomUserDetails implements UserDetails {
 
 	private final MemberCredential memberCredential;
 
+	@Getter
+	private final UUID _id;
+
 	public CustomUserDetails(MemberCredential memberCredential) {
 		this.memberCredential = memberCredential;
+		this._id = memberCredential.get_id();
 	}
 
 	@Override
@@ -59,4 +66,5 @@ public class CustomUserDetails implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
+
 }

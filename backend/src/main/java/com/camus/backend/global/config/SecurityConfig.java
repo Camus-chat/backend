@@ -19,6 +19,7 @@ import com.camus.backend.global.jwt.util.JwtSettings;
 import com.camus.backend.global.jwt.util.JwtTokenProvider;
 import com.camus.backend.global.jwt.util.LoginFilter;
 import com.camus.backend.global.jwt.service.RedisService;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -30,13 +31,15 @@ public class SecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisService redisService;
 	private final JwtSettings jwtSettings;
+	private final MemberCredentialRepository memberCredentialRepository;
 
 	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtTokenProvider jwtTokenProvider,
-		RedisService redisService, JwtSettings jwtSettings) {
+		RedisService redisService, JwtSettings jwtSettings, MemberCredentialRepository memberCredentialRepository) {
 		this.authenticationConfiguration = authenticationConfiguration;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.redisService = redisService;
 		this.jwtSettings = jwtSettings;
+		this.memberCredentialRepository = memberCredentialRepository;
 	}
 
 	//AuthenticationManager Bean 등록
@@ -80,11 +83,12 @@ public class SecurityConfig {
 				.requestMatchers("/reissue").permitAll() // access 토큰 재발급
 				.requestMatchers("/check").permitAll() // id 중복체크
 				.requestMatchers("/error").permitAll() // 에러 보기
+				.requestMatchers("/member/b2c/info", "/member/b2c/image", "/member/b2c/nickname").hasAuthority("b2c") // b2c 회원정보 조회, 이미지 수정, 닉네임 수정
 				// permitall이나 hasrole로 라이브러리화 할때 쓰기
 				.anyRequest().authenticated());
 
 		http
-			.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),LoginFilter.class);
+			.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, memberCredentialRepository),LoginFilter.class);
 
 		http
 			.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtTokenProvider,redisService,jwtSettings), UsernamePasswordAuthenticationFilter.class);

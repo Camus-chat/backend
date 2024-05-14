@@ -15,7 +15,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	// 클라이언트가 웹 소켓 서버에 연결하는데 사용할 웹 소켓 엔드포인트 등록
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		System.out.println("엔드포인트 설정");
+		//System.out.println("엔드포인트 설정");
 		registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*")
 			// client가 sockjs로 개발되어 있을 때만 필요, client가 java면 필요없음
 			.withSockJS();

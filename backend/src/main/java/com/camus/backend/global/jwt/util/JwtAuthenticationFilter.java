@@ -2,6 +2,7 @@ package com.camus.backend.global.jwt.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.UUID;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -27,9 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	// jwt 검증함
 
 	private final JwtTokenProvider jwtTokenProvider;
+	private final MemberCredentialRepository memberCredentialRepository;
 
-	public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider){
+	public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
+		MemberCredentialRepository memberCredentialRepository){
 		this.jwtTokenProvider=jwtTokenProvider;
+		this.memberCredentialRepository = memberCredentialRepository;
 	}
 
 	@Override
@@ -74,10 +79,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		// username, role 값을 획득
 		String username = jwtTokenProvider.getUsername(accessToken);
 		String role = jwtTokenProvider.getRole(accessToken);
+		UUID uuid = memberCredentialRepository.findByUsername(username).get_id();
 
 		// memberCredential를 생성하여 값 set
 		// 세션 처리를 위한 임시객체
 		MemberCredential memberCredential = MemberCredential.builder()
+			._id(uuid)
 			.username(username)
 			.role(role)
 			.build();

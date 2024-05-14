@@ -15,7 +15,7 @@ public class KafkaConsumerService {
 
 	@KafkaListener(topics = "myTopic", groupId = "myGroup")
 	public void listen(String message) {
-		simpMessagingTemplate.convertAndSend("/subscribe/message", message);
-		System.out.println("Received message : " + message);
+		//simpMessagingTemplate.convertAndSend("/subscribe/message", message);
+		//System.out.println("Received message : " + message);
 	}
 }

@@ -11,6 +11,6 @@ public class MemberCredentialDto {
 	private String username;
 	private String password;
 	private String input1;
-	private String input2;
+	private Object input2;
 	// private String role;
 }

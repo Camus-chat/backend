@@ -7,7 +7,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class B2CProfileDto {
-	private String nickname;
-	private String profileLink;
+public class B2BProfileDto {
+	private String companyName;
+	private String companyEmail;
 }
