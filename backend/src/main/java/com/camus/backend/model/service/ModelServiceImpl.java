@@ -31,7 +31,7 @@ public class ModelServiceImpl implements ModelService {
 	@Override
 	public void predict(CommonMessage message) {
 		try {
-			httpService.sendAsyncHttpRequest(modelRequestBuilder.getMessagePred	ictRequest(message));
+			httpService.sendAsyncHttpRequest(modelRequestBuilder.getMessagePredictRequest(message));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
