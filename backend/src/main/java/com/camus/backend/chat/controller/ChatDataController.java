@@ -1,8 +1,10 @@
 package com.camus.backend.chat.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,24 +40,25 @@ public class ChatDataController {
 			+ "\n nextTimeStamp가 \"0-0\"이어야 합니다."
 	)
 	@PostMapping("/data/unread")
-	public ResponseEntity<ChatDataDto> getUnreadChatData(
+	public ResponseEntity<List<RedisSavedMessageBasicDto>> getUnreadChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 		// 사용자 데이터 받아오기
 	) {
 		UUID tempUUID = ManageConstants.tempMemUuid;
 
-		return ResponseEntity.badRequest().build();
+		return ResponseEntity.ok(
+			chatDataService.getUserUnreadMessage(
+				chatDataRequestDto.getRoomId(),
+				tempUUID
+			)
+		);
+
 	}
 
 	@PostMapping("/data")
 	public ResponseEntity<ChatDataDto> getChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
-		// 사용자 데이터 받아오기
 	) {
-		//TODO : 최신 MESSAGE가 가장 아래에
-
-		String latestRedislastMessageId = chatDataService.getLastMessageIdOfRedis(chatDataRequestDto.getRoomId());
-		long streamMessageCount = chatDataService.getStreamCountOfRedis(chatDataRequestDto.getRoomId());
 
 		UUID tempUUID = ManageConstants.tempMemUuid;
 

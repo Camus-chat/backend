@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.Message;
+import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
 import com.camus.backend.chat.domain.repository.MongoChatRepository;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.domain.repository.RedisStreamGroupRepository;
@@ -23,14 +24,6 @@ public class ChatDataService {
 		this.redisChatRepository = redisChatRepository;
 		this.mongoChatRepository = mongoChatRepository;
 		this.redisStreamGroupRepository = redisStreamGroupRepository;
-	}
-
-	public String getLastMessageIdOfRedis(
-		UUID roomId
-	) {
-		return redisChatRepository.getLatestRedisMessageId(
-			roomId
-		);
 	}
 
 	public long getStreamCountOfRedis(
@@ -51,12 +44,26 @@ public class ChatDataService {
 		);
 	}
 
-	public List<Message> getMessageFromRedis(
+	public List<RedisSavedMessageBasicDto> getUserUnreadMessage(
 		UUID roomId,
-		int page
+		UUID userId
 	) {
 
-		return new ArrayList<>();
+		String startReadRedisMessageId = redisStreamGroupRepository.getStreamConsumerAlreadyReadRedisMessageId(
+			roomId.toString(),
+			userId
+		);
+		List<RedisSavedMessageBasicDto> messages = new ArrayList<>();
+		if (redisStreamGroupRepository.getLastestRedisMessageIdFromStream(roomId.toString())
+			.equals(startReadRedisMessageId)) {
+			return messages;
+		}
+
+		messages = redisStreamGroupRepository.getMessagesFromRedis(
+			roomId.toString(),
+			startReadRedisMessageId
+		);
+		return messages;
 	}
 
 	public List<Message> getMessageFromMongo(

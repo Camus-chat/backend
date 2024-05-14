@@ -20,6 +20,10 @@ public class ChatModules {
 		return "chat:room:" + roomId + ":group";
 	}
 
+	public String getStreamUserAlreadyReadRedisMessageIdKey(String roomId, String userId) {
+		return "chat:room:" + roomId + ":user:" + userId + ":read";
+	}
+
 	public long getMogoDBStartPageIndex(
 		long lastMessageId,
 		long streamMessageCount
