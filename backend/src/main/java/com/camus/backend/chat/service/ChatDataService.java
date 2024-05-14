@@ -1,5 +1,6 @@
 package com.camus.backend.chat.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,10 +25,10 @@ public class ChatDataService {
 		this.redisStreamGroupRepository = redisStreamGroupRepository;
 	}
 
-	public long getLastMessageIdOfRedis(
+	public String getLastMessageIdOfRedis(
 		UUID roomId
 	) {
-		return redisChatRepository.getLastMessageId(
+		return redisChatRepository.getLatestRedisMessageId(
 			roomId
 		);
 	}
@@ -40,8 +41,6 @@ public class ChatDataService {
 		));
 	}
 
-	// TODO : 사용자가 안 읽은 메시지 사이즈 체크 > 300까지만 되도록 만들기
-
 	public int getUserUnreadMessageSize(
 		UUID roomId,
 		UUID userId
@@ -50,6 +49,14 @@ public class ChatDataService {
 			roomId.toString(),
 			userId
 		);
+	}
+
+	public List<Message> getMessageFromRedis(
+		UUID roomId,
+		int page
+	) {
+
+		return new ArrayList<>();
 	}
 
 	public List<Message> getMessageFromMongo(

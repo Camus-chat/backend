@@ -1,28 +1,41 @@
 package com.camus.backend.chat.domain.repository;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.StreamOffset;
+import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.stereotype.Repository;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.Message;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.util.ChatConstants;
 import com.camus.backend.chat.util.ChatModules;
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 
 @Repository
 public class RedisChatRepositoryImpl implements RedisChatRepository {
 
 	private RedisTemplate<String, String> redisTemplate;
 	private ChatModules chatModules;
+	private ChatConstants chatConstants;
 
 	public RedisChatRepositoryImpl(RedisTemplate<String, String> redisTemplate,
-		ChatModules chatModules) {
+		ChatModules chatModules,
+		ChatConstants chatConstants) {
 		this.redisTemplate = redisTemplate;
 		this.chatModules = chatModules;
+		this.chatConstants = chatConstants;
 	}
 
 	public String getStreamCount(UUID roomId) {
@@ -75,13 +88,40 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		redisTemplate.opsForValue().set(chatModules.getRedisSavedLastMessageKey(roomId.toString()), messageId);
 	}
 
-	public long getLastMessageId(UUID roomId) {
-		String lastMessageId = redisTemplate.opsForValue()
-			.get(chatModules.getRedisSavedLastMessageKey(roomId.toString()));
-		if (lastMessageId != null) {
-			return Long.parseLong(lastMessageId);
+	public String getLatestRedisMessageId(UUID roomId) {
+
+		String streamKey = chatModules.getRedisStreamKey(roomId.toString());
+		StreamOffset<String> offset = StreamOffset.fromStart(streamKey);
+		Range<String> range = Range.open("-", "+");
+		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
+		List<MapRecord<String, String, String>> records = streamOps.reverseRange(
+			streamKey,
+			Range.open("-", "+"),
+			Limit.limit().count(1)
+		);
+
+		if (records != null && !records.isEmpty()) {
+			System.out.println(records.get(0).getId().getValue());
+			return records.get(0).getId().getValue();
 		}
-		return Long.parseLong(-1 + "");
+
+		throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 	}
 
+	public List<Message> getRedisMessagesByPage(UUID roomId, int page, int userUnreadMessageSize) {
+		if (page < 0) {
+			return null;
+		}
+
+		StreamOperations<String, String, String> options = redisTemplate.opsForStream();
+		int size = 0;
+
+		if (page == 0) {
+			size = chatConstants.CHAT_MESSAGE_PAGE_SIZE - userUnreadMessageSize;
+			// TODO : 특정 메시지부터 읽어오기 > Redis에서 부여하는 Id 값을 찾아야 해서 보류
+		}
+		StreamReadOptions readOptions = StreamReadOptions.empty().count(size).block(Duration.ZERO);
+
+		return null;
+	}
 }

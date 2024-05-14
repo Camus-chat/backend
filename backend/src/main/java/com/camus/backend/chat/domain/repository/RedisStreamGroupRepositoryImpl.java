@@ -27,8 +27,10 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 	private ChatModules chatModules;
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-	public RedisStreamGroupRepositoryImpl(RedisTemplate<String, String> redisTemplate) {
+	public RedisStreamGroupRepositoryImpl(RedisTemplate<String, String> redisTemplate,
+		ChatModules chatModules) {
 		this.redisTemplate = redisTemplate;
+		this.chatModules = chatModules;
 	}
 
 	public void createStreamConsumerGroup(String roomId, UUID userId) {
@@ -39,11 +41,11 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		);
 	}
 
-	public void updateStreamConsumerGroup(String roomId, UUID userId, String messageId) {
+	public void updateStreamConsumerGroup(String roomId, UUID userId, String streamMessageId) {
 		redisTemplate.opsForHash().put(
 			chatModules.getStreamConsumerGroupKey(roomId),
 			userId.toString(),
-			messageId
+			streamMessageId
 		);
 	}
 
@@ -70,11 +72,12 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		// FIXME: 한 페이지 한계와 동일한 숫자로
 		int maxUnreadMessageSize = 300;
 		if (unreadMessageSize > maxUnreadMessageSize) {
+			// 300개 이상일 경우 최대 300개까지만 읽도록 설정
 			updateStreamConsumerGroup(roomId, userId,
 				String.valueOf(latestMessage.getMessageId() + maxUnreadMessageSize - 1));
 			return maxUnreadMessageSize;
 		} else if (unreadMessageSize < 0) {
-			return 0;
+			throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 		} else {
 			// FIXME : 강제 형변환
 			return (int)unreadMessageSize;

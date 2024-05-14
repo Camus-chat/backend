@@ -12,7 +12,7 @@ public interface RedisChatRepository {
 
 	public void addCommonMessage(CommonMessage commonMessage);
 
-	public long getLastMessageId(UUID roomId);
+	public String getLatestRedisMessageId(UUID roomId);
 
 	public void setLastMessageId(UUID roomId, String messageId);
 
