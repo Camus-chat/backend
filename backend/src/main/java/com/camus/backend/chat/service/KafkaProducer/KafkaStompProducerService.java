@@ -1,14 +1,13 @@
-package com.camus.backend.chat.service;
+package com.camus.backend.chat.service.KafkaProducer;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class KafkaProducerService {
-
+public class KafkaStompProducerService {
 	private final KafkaTemplate<String, String> kafkaTemplate;
 
-	public KafkaProducerService(KafkaTemplate<String, String> kafkaTemplate) {
+	public KafkaStompProducerService(KafkaTemplate<String, String> kafkaTemplate) {
 		this.kafkaTemplate = kafkaTemplate;
 	}
 
@@ -16,11 +15,4 @@ public class KafkaProducerService {
 		System.out.println("카프카로" + topicName + "보냄 : " + messageJson);
 		kafkaTemplate.send(topicName, messageJson);
 	}
-
-	/*
-	public void sendMessage(String message) {
-		System.out.println("카프카로보냄 : " + message);
-		kafkaTemplate.send("myTopic", message);
-	}
-	 */
 }

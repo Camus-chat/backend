@@ -6,30 +6,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.camus.backend.chat.service.KafkaProducerService;
+import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
+import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class SocketController {
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(SocketController.class);
 
-	// private final SimpMessageSendingOperations simpleMessageSendingOperations;
-	private final SimpMessagingTemplate simpMessagingTemplate;
-	private final KafkaProducerService kafkaProducerService;
+	private final KafkaStompProducerService kafkaStompProducerService;
+	private final KafkaStompConsumerService kafkaStompConsumerService;
 	private final ObjectMapper objectMapper;
 
-	public SocketController(SimpMessagingTemplate simpMessagingTemplate, KafkaProducerService kafkaProducerService,
+	public SocketController(KafkaStompProducerService kafkaStompProducerService,
+		KafkaStompConsumerService kafkaStompConsumerService,
 		ObjectMapper objectMapper) {
-		this.simpMessagingTemplate = simpMessagingTemplate;
-		this.kafkaProducerService = kafkaProducerService;
+		this.kafkaStompProducerService = kafkaStompProducerService;
+		this.kafkaStompConsumerService = kafkaStompConsumerService;
 		this.objectMapper = objectMapper;
 	}
 
@@ -52,31 +53,29 @@ public class SocketController {
 	}
 
 	// /pub/message로 메시지 발행
-	@MessageMapping("/message")
+	@MessageMapping("/message_send")
 	public void sendMessage(Map<String, Object> params) throws JsonProcessingException {
 		System.out.println("카프카로 채팅 쳤다");
 		// 구독중인 client에 메세지를 보낸다.
-
+		String topic = params.get("topic").toString();
 		// 카프카에게 발송해주는 로직
 		String messageJson = objectMapper.writeValueAsString(params);
-		kafkaProducerService.sendMessage(messageJson, "myTopic");
-
-		// 클라이언트에게 직접 메시지 발송해주는 로직
-		String channelId = params.get("channelId").toString();
-		simpMessagingTemplate.convertAndSend("/subscribe/message/" + channelId, params);
+		kafkaStompProducerService.sendMessage(messageJson, topic);
 	}
 
-	/*
-	// /pub/cache 로 메시지를 발행한다.
-	@MessageMapping("/message")
-	// simple broker용
-	// @SendTo("/sub/cache")
-	public void sendMessage(Map<String, Object> message) {
-		System.out.println("채팅 쳤다");
-		// 구독중인 client에 메세지를 보낸다.
-		// simpleMessageSendingOperations.convertAndSend("/subscribe/message/" + message.get("channelId"), message);
-		// System.out.println(message);
-		kafkaProducerService.sendMessage(message.toString());
+	@MessageMapping("/message_received")
+	public void subscribeToTopic(@Payload String message) throws Exception {
+		// JSON 문자열을 파싱하기 위한 ObjectMapper 인스턴스 생성
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode jsonNode = objectMapper.readTree(message);
+
+		// "topic" 필드 값을 추출
+		String topic = jsonNode.get("topic").asText();
+		String groupId = jsonNode.get("groupId").asText();
+
+		System.out.println("토픽 : " + topic + " ---- 그룹 : " + groupId);
+
+		// KafkaConsumerService를 사용하여 특정 토픽 구독
+		kafkaStompConsumerService.addListener(topic, groupId);
 	}
-	*/
 }
