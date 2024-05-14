@@ -7,6 +7,7 @@ pipeline {
                 dir('./backend') {
                     withCredentials([file(credentialsId: 'APPLICATION_YML', variable: 'APPLICATION_YML')]) {
                         script {
+                            sh 'rm -rf src/main/resources'
                             sh 'mkdir src/main/resources'
                             sh 'cp ${APPLICATION_YML} src/main/resources/'
                         }
