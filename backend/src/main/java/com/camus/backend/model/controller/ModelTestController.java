@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
-import com.camus.backend.model.service.ClovaService;
+import com.camus.backend.model.service.ModelService;
 
 @RestController
-@RequestMapping("clova")
-public class ClovaTestController {
+@RequestMapping("model")
+public class ModelTestController {
 
-	private final ClovaService clovaService;
-	public ClovaTestController(ClovaService clovaService){
-		this.clovaService = clovaService;
+	private final ModelService modelService;
+	public ModelTestController(ModelService clovaService){
+		this.modelService = clovaService;
 	}
-	@GetMapping("test")
-	public void test(){
+	@GetMapping("clova")
+	public void clova(){
 		List<CommonMessage> messages = new ArrayList<>();
 		CommonMessage message1 = CommonMessage.builder()
 				.senderId(UUID.randomUUID())
@@ -32,6 +32,15 @@ public class ClovaTestController {
 			.content("욕설1").build();
 		messages.add(message2);
 
-		clovaService.analysis(messages);
+		modelService.predict(messages);
+	}
+
+	@GetMapping("lambda")
+	public void lambda(){
+		CommonMessage message = CommonMessage.builder()
+			.senderId(UUID.randomUUID())
+			.content("내용1").build();
+
+		modelService.predict(message);
 	}
 }

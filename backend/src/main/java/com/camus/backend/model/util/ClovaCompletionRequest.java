@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CompletionRequest {
+public class ClovaCompletionRequest {
 	List<Map<String,String>> messages;
 	double topP;
 	int topK;
@@ -26,7 +26,7 @@ public class CompletionRequest {
 	boolean includeAiFilters;
 	int seed;
 
-	public CompletionRequest(List<CommonMessage> messageList){
+	public ClovaCompletionRequest(List<CommonMessage> messageList){
 		messages = new ArrayList<>();
 		Map<String,String> messageMap = new HashMap<>();
 		List<UUID> userList = new ArrayList<>();

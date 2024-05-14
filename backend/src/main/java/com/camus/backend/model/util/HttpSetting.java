@@ -7,11 +7,13 @@ import lombok.Getter;
 
 @Getter
 @Component
-public class ClovaSetting {
+public class HttpSetting {
 	@Value("${clova.host}")
-	private String host;
+	private String clovaHost;
 	@Value("${clova.api-key}")
-	private String apiKey;
+	private String clovaApiKey;
 	@Value("${clova.api-key-primary}")
-	private String apiKeyPrimaryVal;
+	private String clovaApiKeyPrimaryVal;
+	@Value("${lambda.endpoint}")
+	private String lambdaEndpoint;
 }
