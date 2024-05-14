@@ -4,6 +4,7 @@ import static com.camus.backend.manage.util.ChannelUtil.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -13,7 +14,6 @@ import com.camus.backend.manage.domain.document.Channel;
 import com.camus.backend.manage.domain.document.ChannelList;
 import com.camus.backend.manage.domain.dto.ChannelDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
-import com.camus.backend.manage.domain.dto.ChannelListDto;
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
 import com.camus.backend.manage.util.ManageConstants;
@@ -85,13 +85,23 @@ public class ChannelService {
 	}
 
 	// FeatureID 501-1 : 채널 리스트 반환 메서드
-	public ChannelListDto getChannelList(
+	public List<ChannelDto> getChannelList(
 		// TODO : 사용자 인증 정보 받기
 	) {
+		ChannelList channelList = channelListRepository.getChannelListByMemberId(ManageConstants.tempMemUuid);
 
-		return new ChannelListDto(channelListRepository.getChannelListByMemberId(
-			ManageConstants.tempMemUuid
-		));
+		List<ChannelDto> channelDtoList = new ArrayList<>();
+		for (int i = 0; i < channelList.getChannels().size(); i++) {
+			Channel channel = channelList.getChannels().get(i);
+			// 유효 채널 검사
+			if (!channel.getIsValid())
+				continue;
+			channelDtoList.add(
+				new ChannelDto(channel)
+			);
+		}
+
+		return channelDtoList;
 
 	}
 
