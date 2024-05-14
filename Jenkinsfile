@@ -4,6 +4,10 @@ pipeline {
     stages {
         stage('ECR Upload') {
             steps{
+                withCredentials([file(credentialsId: 'APPLICATION_YML', variable: 'APPLICATION_YML')]) {
+                    sh 'cp ${APPLICATION_YML} backend/src/main/resources/'
+                }
+
                 dir('./backend') {
                     sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ECR_REPOSITORY_URI}'
                     sh 'docker build -t ${DOCKER_IMAGE_NAME} .'
