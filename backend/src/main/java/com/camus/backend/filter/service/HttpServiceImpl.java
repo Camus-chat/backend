@@ -1,4 +1,4 @@
-package com.camus.backend.model.service;
+package com.camus.backend.filter.service;
 
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;

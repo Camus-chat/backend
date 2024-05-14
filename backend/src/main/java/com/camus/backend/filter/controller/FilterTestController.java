@@ -1,4 +1,4 @@
-package com.camus.backend.model.controller;
+package com.camus.backend.filter.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
-import com.camus.backend.model.service.ModelService;
+import com.camus.backend.filter.service.FilterService;
 
 @RestController
 @RequestMapping("model")
-public class ModelTestController {
+public class FilterTestController {
 
-	private final ModelService modelService;
+	private final FilterService filterService;
 
 	private final FutureCallback<SimpleHttpResponse> testCallback;
-	public ModelTestController(ModelService clovaService){
-		this.modelService = clovaService;
+	public FilterTestController(FilterService clovaService){
+		this.filterService = clovaService;
 		this.testCallback = new FutureCallback<>() {
 			@Override
 			public void completed(SimpleHttpResponse simpleHttpResponse) {
@@ -51,8 +51,8 @@ public class ModelTestController {
 			.content("욕설1").build();
 		messages.add(message2);
 
-		modelService.token(messages, testCallback);
-		modelService.predict(messages, testCallback);
+		filterService.token(messages, testCallback);
+		filterService.predict(messages, testCallback);
 	}
 
 	@GetMapping("lambda")
@@ -61,6 +61,14 @@ public class ModelTestController {
 			.senderId(UUID.randomUUID())
 			.content("내용1").build();
 
-		modelService.predict(message, testCallback);
+		filterService.predict(message, testCallback);
+	}
+
+	@GetMapping("bad")
+	public void bad(){
+		CommonMessage message = CommonMessage.builder()
+			.senderId(UUID.randomUUID())
+			.content("시발").build();
+		System.out.println(filterService.isBadWord(message));
 	}
 }

@@ -1,4 +1,4 @@
-package com.camus.backend.model.util;
+package com.camus.backend.filter.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
