@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.service.RedisChatService;
 import com.camus.backend.manage.util.ManageConstants;
 
@@ -16,9 +17,12 @@ import com.camus.backend.manage.util.ManageConstants;
 public class TestController {
 
 	private final RedisChatService redisChatService;
+	private final ChatDataService chatDataService;
 
-	private TestController(RedisChatService redisChatService) {
+	private TestController(RedisChatService redisChatService,
+		ChatDataService chatDataService) {
 		this.redisChatService = redisChatService;
+		this.chatDataService = chatDataService;
 	}
 
 	@PostMapping("/redisCreateRoomNoticeTest")
@@ -31,6 +35,14 @@ public class TestController {
 			roomId.toString(),
 			tempMemberId
 		);
+
 		return ResponseEntity.ok("ok");
+	}
+
+	@PostMapping("/getRedisMessageIdTest")
+	public ResponseEntity<String> getRedisMessageIdTest(
+		@RequestBody UUID roomId
+	) {
+		return ResponseEntity.ok(chatDataService.getLastMessageIdOfRedis(roomId));
 	}
 }
