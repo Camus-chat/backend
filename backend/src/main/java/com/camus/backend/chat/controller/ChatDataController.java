@@ -1,6 +1,7 @@
 package com.camus.backend.chat.controller;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,11 +9,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.camus.backend.chat.domain.dto.ChatDataDto;
 import com.camus.backend.chat.domain.dto.ChatDataRequestDto;
+import com.camus.backend.chat.domain.dto.PaginationDto;
 import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.manage.util.ManageConstants;
+
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/chat")
@@ -27,27 +32,52 @@ public class ChatDataController {
 		this.chatModules = chatModules;
 	}
 
-	@PostMapping("/data")
-	public ResponseEntity<List<RedisSavedMessageBasicDto>> getChatData(
+	@Operation(
+		summary = "읽지 않은 채팅방 채팅 내역",
+		description = "읽지 않은 채팅방의 채팅 내역을 반환합니다. "
+			+ "\n nextTimeStamp가 \"0-0\"이어야 합니다."
+	)
+	@PostMapping("/data/unread")
+	public ResponseEntity<ChatDataDto> getUnreadChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 		// 사용자 데이터 받아오기
 	) {
-		long lastMessageId = chatDataService.getLastMessageIdOfRedis(chatDataRequestDto.getRoomId());
+		UUID tempUUID = ManageConstants.tempMemUuid;
+
+		return ResponseEntity.badRequest().build();
+	}
+
+	@PostMapping("/data")
+	public ResponseEntity<ChatDataDto> getChatData(
+		@RequestBody ChatDataRequestDto chatDataRequestDto
+		// 사용자 데이터 받아오기
+	) {
+		//TODO : 최신 MESSAGE가 가장 아래에
+
+		String latestRedislastMessageId = chatDataService.getLastMessageIdOfRedis(chatDataRequestDto.getRoomId());
 		long streamMessageCount = chatDataService.getStreamCountOfRedis(chatDataRequestDto.getRoomId());
 
-		String tempUUID = ManageConstants.tempMemUuid.toString();
+		UUID tempUUID = ManageConstants.tempMemUuid;
 
-		// TODO : 사용자가 안 읽은 메시지 사이즈 체크 > 300까지만 되도록 만들기
+		int userUnreadMessageSize = chatDataService.getUserUnreadMessageSize(
+			chatDataRequestDto.getRoomId(),
+			tempUUID
+		);
 
-		if (chatDataRequestDto.getPage() == 0) {
-
-			// 0 페이지기 때문에 Redis에서 내가 읽지 않은 시점부터의 메시지를 가져온다
-			// 300까지 - lastMesageId가 작으면 그 밑까지만.
+		if (chatDataRequestDto.getNextMessageTimeStamp().equals("0-0")) {
+			// 안 읽은 사이즈가 0이면
+			if (userUnreadMessageSize == 0)
+				return ResponseEntity.ok(
+					new ChatDataDto(
+						new ArrayList<RedisSavedMessageBasicDto>(),
+						new PaginationDto("0-0", 0)
+					)
+				);
+			// 읽은 사이즈가 1 이상이면
 
 		}
 
-		if (chatDataRequestDto.getPage() <=
-			chatModules.getMogoDBStartPageIndex(lastMessageId, streamMessageCount)
+		if (!chatDataRequestDto.getNextMessageTimeStamp().equals("0-0")
 		) {
 
 			// 여기는 내내 Redis
