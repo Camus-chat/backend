@@ -9,7 +9,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
 	// private static final Logger LOGGER = LoggerFactory.getLogger( WebSocketConfig.class );
 
 	// 클라이언트가 웹 소켓 서버에 연결하는데 사용할 웹 소켓 엔드포인트 등록
@@ -25,8 +24,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		System.out.println("pubsub 설정");
-		// simplebroker용. sub으로 시작되는 요청을 구독한 모든 사용자들에게 메시지를 broadcast한다.
-		// registry.enableSimpleBroker("/sub");
 		// pub로 시작되는 메시지는 message-handling methods로 라우팅된다.
 		registry.setApplicationDestinationPrefixes("/pub");
 	}

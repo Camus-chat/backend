@@ -1,6 +1,7 @@
 package com.camus.backend.member.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,8 @@ public class MemberService {
 		// TODO : 여기서 인증 클래스를 받아야 함.
 	) {
 		//TODO : 여기서 Id 값을 넣어줘야됨.
-		Optional<B2CProfile> memberProfile = memberProfileRepository.findProfileById("0000", B2CProfile.class);
+		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
+		Optional<B2CProfile> memberProfile = memberProfileRepository.findProfileById(uuid, B2CProfile.class);
 
 		return memberProfile.map(profile -> B2CProfileDto.builder()
 				.nickname(profile.getNickname())
@@ -54,7 +56,7 @@ public class MemberService {
 		B2CUpdateNicknameDto b2CUpdateNicknameDto
 	) {
 		// TODO : uuid 삭제
-		String uuid = "0000";
+		UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
 		B2CProfile memberProfile = memberProfileRepository.findProfileById(uuid, B2CProfile.class)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_USER));
 

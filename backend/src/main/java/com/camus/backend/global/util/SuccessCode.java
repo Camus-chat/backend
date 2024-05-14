@@ -13,12 +13,13 @@ public enum SuccessCode {
 	NICKNAME_EDIT("MEMBER", "닉네임 변경 완료"),
 
 	// CHANEL
-	CHANNEL_DISABLE("CHANEL", "채널 링크 비활성화 성공"),
-	CHANEL_EDIT("CHANEL", "채널명 변경 성공"),
+	CHANNEL_DISABLE("CHANNEL", "채널 링크 비활성화 성공"),
+	CHANNEL_EDIT("CHANNEL", "채널명 변경 성공"),
 
 	// ROOM
 	ROOM_DISABLE("ROOM", "채팅방 닫기 성공"),
-	
+	ROOM_ENTRY("ROOM", "채팅방 입장 성공"),
+
 	;
 
 	private final String okResponse = "OK";
