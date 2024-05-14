@@ -1,10 +1,10 @@
 HELP.md
 .gradle
 build/
-*.yml
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+application.yml
 
 ### STS ###
 .apt_generated
