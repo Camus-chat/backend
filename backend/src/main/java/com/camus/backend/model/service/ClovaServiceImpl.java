@@ -1,8 +1,10 @@
 package com.camus.backend.model.service;
 
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,11 +30,25 @@ public class ClovaServiceImpl implements ClovaService {
 	}
 
 	@Override
-	public List<String> analysis(List<CommonMessage> messages){
+	public void analysis(List<CommonMessage> messages){
 		CompletionRequest completionRequest = new CompletionRequest(messages);
-		completionExecutor.token(completionRequest);
-		completionExecutor.execute(completionRequest);
-		return null;
+		try {
+			completionExecutor.token(completionRequest).thenAccept(response -> {
+				System.out.println(response.body());
+			}).exceptionally(e -> {
+				e.printStackTrace();
+				return null;
+			});
+
+			completionExecutor.execute(completionRequest).thenAccept(response -> {
+				System.out.println(response.body());
+			}).exceptionally(e -> {
+				e.printStackTrace();
+				return null;
+			});
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	// private void tokenCount(List<CommonMessage> messages) {

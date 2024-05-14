@@ -7,6 +7,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -26,48 +27,41 @@ public class CompletionExecutor {
 		// this.requestId = requestId;
 	}
 
-	public void token(CompletionRequest completionRequest){
-		System.out.println(host);
-		System.out.println(apiKey);
-		System.out.println(apiKeyPrimaryVal);
-		try {
-			HttpClient client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(host + "/testapp/v1/api-tools/chat-tokenize/"+modelName))
-				.header("X-NCP-CLOVASTUDIO-API-KEY", apiKey)
-				.header("X-NCP-APIGW-API-KEY", apiKeyPrimaryVal)
-				// .header("X-NCP-CLOVASTUDIO-REQUEST-ID", "REQ" + System.currentTimeMillis())
-				.header("Content-Type", "application/json; charset=utf-8")
-				// .header("Accept", "text/event-stream")
-				.POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(completionRequest)))
-				.build();
+	public CompletableFuture<HttpResponse<String>> token(CompletionRequest completionRequest) throws Exception {
+		// System.out.println(host);
+		// System.out.println(apiKey);
+		// System.out.println(apiKeyPrimaryVal);
 
-			System.out.println(request.toString());
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-			System.out.println(response.body());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(URI.create(host + "/testapp/v1/api-tools/chat-tokenize/"+modelName))
+			.header("X-NCP-CLOVASTUDIO-API-KEY", apiKey)
+			.header("X-NCP-APIGW-API-KEY", apiKeyPrimaryVal)
+			// .header("X-NCP-CLOVASTUDIO-REQUEST-ID", "REQ" + System.currentTimeMillis())
+			.header("Content-Type", "application/json; charset=utf-8")
+			// .header("Accept", "text/event-stream")
+			.POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(completionRequest)))
+			.build();
 
+		System.out.println(request.toString());
+		CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+
+		return future;
 	}
 
-	public void execute(CompletionRequest completionRequest) {
-		try {
-			HttpClient client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(host + "/testapp/v1/tasks/a3r3v845/chat-completions"))
-				.header("X-NCP-CLOVASTUDIO-API-KEY", apiKey)
-				.header("X-NCP-APIGW-API-KEY", apiKeyPrimaryVal)
-				// .header("X-NCP-CLOVASTUDIO-REQUEST-ID", "REQ" + System.currentTimeMillis())
-				.header("Content-Type", "application/json; charset=utf-8")
-				// .header("Accept", "text/event-stream")
-				.POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(completionRequest)))
-				.build();
+	public CompletableFuture<HttpResponse<String>> execute(CompletionRequest completionRequest) throws Exception {
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(URI.create(host + "/testapp/v1/tasks/a3r3v845/chat-completions"))
+			.header("X-NCP-CLOVASTUDIO-API-KEY", apiKey)
+			.header("X-NCP-APIGW-API-KEY", apiKeyPrimaryVal)
+			// .header("X-NCP-CLOVASTUDIO-REQUEST-ID", "REQ" + System.currentTimeMillis())
+			.header("Content-Type", "application/json; charset=utf-8")
+			// .header("Accept", "text/event-stream")
+			.POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(completionRequest)))
+			.build();
 
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-			System.out.println(response.body());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+		return future;
 	}
 }

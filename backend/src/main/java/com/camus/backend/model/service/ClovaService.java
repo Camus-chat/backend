@@ -5,5 +5,5 @@ import java.util.List;
 import com.camus.backend.chat.domain.document.CommonMessage;
 
 public interface ClovaService {
-	public List<String> analysis(List<CommonMessage> messages);
+	public void analysis(List<CommonMessage> messages);
 }
