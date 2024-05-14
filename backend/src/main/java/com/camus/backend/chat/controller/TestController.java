@@ -39,10 +39,4 @@ public class TestController {
 		return ResponseEntity.ok("ok");
 	}
 
-	@PostMapping("/getRedisMessageIdTest")
-	public ResponseEntity<String> getRedisMessageIdTest(
-		@RequestBody UUID roomId
-	) {
-		return ResponseEntity.ok(chatDataService.getLastMessageIdOfRedis(roomId));
-	}
 }
