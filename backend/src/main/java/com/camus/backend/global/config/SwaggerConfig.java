@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 	info = @Info(title = "CAMUS",
 		description = "CAMUS api document",
 		version = "v1"),
-	servers = @Server(url = "http://localhost:8080", description = "test server")
+	servers = @Server(url = "http://camus.life", description = "be-dev")
 )
 
 @RequiredArgsConstructor
