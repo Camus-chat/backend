@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.dto.*;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -12,9 +13,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.stereotype.Repository;
 
-import com.camus.backend.chat.domain.dto.RedisSavedCommonMessageDto;
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
-import com.camus.backend.chat.domain.dto.RedisSavedNoticeMessageDto;
 import com.camus.backend.chat.util.ChatConstants;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.global.Exception.CustomException;
@@ -57,38 +55,23 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		}
 	}
 
-	// FIXME : 사용자가 안 읽은 메시지 갯수 가져오기
-	public int getUserUnreadMessageSize(String roomId, UUID userId) {
-
-		// String streamKey = chatModules.getRedisStreamKey(roomId);
-		//
-		// RedisSavedMessageBasicDto latestMessage = getLatestMessageFromStream(roomId);
-		//
-		// String consumerReadMessageId = getStreamConsumerUnreadRedisMessageId(roomId, userId);
-		//
-		// long unreadMessageSize = latestMessage.getMessageId() - consumerReadMessageId;
-		//
-		// // 읽어올 메시지 갯수에 대한 설정 (안 읽은 메시지 사이즈에 대한 트레킹)
-		// if (unreadMessageSize > chatConstants.CHAT_MESSAGE_PAGE_SIZE) {
-		// 	updateStreamConsumerGroup(roomId, userId,
-		// 		String.valueOf(latestMessage.getMessageId() + chatConstants.CHAT_MESSAGE_PAGE_SIZE - 1));
-		// 	return chatConstants.CHAT_MESSAGE_PAGE_SIZE;
-		// } else if (unreadMessageSize < 0) {
-		// 	throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
-		// } else {
-		// 	// FIXME : 강제 형변환
-		// 	return (int)unreadMessageSize;
-		// }
-		return 0;
+	// 이전에 불러와서 쏴준 내용을 기반으로 메시지 읽은 위치 기록
+	public void updateStreamConsumerAlreadyReadRedisMessageId(String roomId, UUID userId, String latestRedisMessageId) {
+		redisTemplate.opsForHash().put(
+			chatModules.getStreamConsumerGroupKey(roomId),
+			chatModules.getStreamUserAlreadyReadRedisMessageIdKey(roomId, userId.toString()),
+			latestRedisMessageId
+		);
 	}
+
 
 	// FEATUREID: 가장 마지막 메시지 가져오는 메소드
 	public RedisSavedMessageBasicDto getLatestMessageFromStream(String roomId) {
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
-		Range<String> range = Range.open("-", "-");
+		Range<String> range = Range.open("-", "+");
 
-		List<MapRecord<String, String, String>> messages = streamOps.range(streamKey, range,
+		List<MapRecord<String, String, String>> messages = streamOps.reverseRange(streamKey, range,
 			Limit.limit().count(1));
 
 		if (messages.isEmpty()) {
@@ -98,24 +81,17 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		MapRecord<String, String, String> message = messages.get(0);
 
 		Map<String, String> valueMap = message.getValue();
-		String className = valueMap.get("_class");
 
-		RedisSavedMessageBasicDto msg;
-		switch (className) {
-			case "NoticeMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedNoticeMessageDto.class);
-			case "CommonMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedCommonMessageDto.class);
-			default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
-		}
-		return msg;
+		return convertToRedisSavedMessageBasicDto(valueMap);
 
 	}
 
-	public String getLastestRedisMessageIdFromStream(String roomId) {
+	public String getLatestRedisMessageIdFromStream(String roomId) {
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
-		Range<String> range = Range.open("-", "-");
+		Range<String> range = Range.open("-", "+");
 
-		List<MapRecord<String, String, String>> messages = streamOps.range(streamKey, range,
+		List<MapRecord<String, String, String>> messages = streamOps.reverseRange(streamKey, range,
 			Limit.limit().count(1));
 
 		if (messages.isEmpty()) {
@@ -127,11 +103,11 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		return message.getId().getValue();
 	}
 
-	public List<RedisSavedMessageBasicDto> getMessagesFromRedis(String roomId, String startRedisId) {
+	public List<RedisSavedMessageBasicDto> getMessagesFromRedisByEndId(String roomId, String endRedisId) {
 
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
-		Range<String> range = Range.leftOpen("-", startRedisId);
+		Range<String> range = Range.rightOpen(endRedisId, "+");
 		List<MapRecord<String, String, String>> messages = streamOps.range(streamKey, range,
 			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE));
 
@@ -141,17 +117,46 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		List<RedisSavedMessageBasicDto> result = new ArrayList<>();
 		for (MapRecord<String, String, String> message : messages) {
 			Map<String, String> valueMap = message.getValue();
-			String className = valueMap.get("_class");
-			RedisSavedMessageBasicDto msg;
-			switch (className) {
-				case "NoticeMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedNoticeMessageDto.class);
-				case "CommonMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedCommonMessageDto.class);
-				default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
-			}
+			RedisSavedMessageBasicDto msg = convertToRedisSavedMessageBasicDto(valueMap);
 			result.add(msg);
 		}
 
 		return result;
 	}
+
+	// pagination을 위한 nextMessageId기록 포함 DTo반환
+	public ChatDataListDto getMessagesFromRedisByStartId(String roomId, String startRedisId) {
+		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
+		String streamKey = chatModules.getRedisStreamKey(roomId);
+		Range<String> range = Range.leftOpen("-", startRedisId);
+		List<MapRecord<String, String, String>> messages = streamOps.range(streamKey, range,
+			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE));
+
+		if (messages.isEmpty()) {
+			return new ChatDataListDto(			);
+		}
+		List<RedisSavedMessageBasicDto> result = new ArrayList<>();
+		for (MapRecord<String, String, String> message : messages) {
+			Map<String, String> valueMap = message.getValue();
+			RedisSavedMessageBasicDto msg = convertToRedisSavedMessageBasicDto(valueMap);
+			result.add(msg);
+		}
+
+		return new ChatDataListDto(result, new PaginationDto(
+				messages.get(messages.size()-1).getId().toString(),
+				result.size()));
+	}
+
+	private RedisSavedMessageBasicDto convertToRedisSavedMessageBasicDto(Map<String, String> valueMap) {
+		String className = valueMap.get("_class");
+		RedisSavedMessageBasicDto msg;
+		switch (className) {
+			case "NoticeMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedNoticeMessageDto.class);
+			case "CommonMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedCommonMessageDto.class);
+			default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+		}
+		return msg;
+	}
+
 
 }

@@ -98,7 +98,6 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			// 상속 클래스의 특정 필드
 			CommonMessage.Fields.senderId, commonMessage.getSenderId().toString(),
 			CommonMessage.Fields.filteredType, commonMessage.getFilteredType(),
-			CommonMessage.Fields.sentimentType, commonMessage.getSentimentType(),
 			CommonMessage.Fields._class, commonMessage.get_class()
 		));
 	}

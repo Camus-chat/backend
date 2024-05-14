@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.camus.backend.chat.domain.dto.ChatDataDto;
+import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.ChatDataRequestDto;
 import com.camus.backend.chat.domain.dto.PaginationDto;
 import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
@@ -40,7 +39,7 @@ public class ChatDataController {
 			+ "\n nextTimeStamp가 \"0-0\"이어야 합니다."
 	)
 	@PostMapping("/data/unread")
-	public ResponseEntity<List<RedisSavedMessageBasicDto>> getUnreadChatData(
+	public ResponseEntity<ChatDataListDto> getUnreadChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 		// 사용자 데이터 받아오기
 	) {
@@ -55,41 +54,45 @@ public class ChatDataController {
 
 	}
 
+	@Operation(
+			summary = "채팅방을 나갈 때를 트리거 하는 api입니다.",
+			description = "여태까지 읽은 가장 최신 메시지 기록을 재작성합니다."
+	)
+	@PostMapping("/room/exit")
+	public ResponseEntity<String> exitRoom(
+		@RequestBody ChatDataRequestDto chatDataRequestDto
+	) {
+		UUID tempUUID = ManageConstants.tempMemUuid;
+
+		chatDataService.exitRoomUpdateAlreadyRead(
+			chatDataRequestDto.getRoomId(),
+			tempUUID
+		);
+
+		return ResponseEntity.ok("OK");
+	}
+
+	@Operation(
+		summary = "채팅방 채팅 내역 무한스크롤",
+		description = "채팅방의 채팅 내역을 반환합니다. "
+			+ "\n nextTimeStamp를 통해 다음 페이지를 요청합니다."
+	)
 	@PostMapping("/data")
-	public ResponseEntity<ChatDataDto> getChatData(
+	public ResponseEntity<ChatDataListDto> getChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 	) {
 
 		UUID tempUUID = ManageConstants.tempMemUuid;
 
-		int userUnreadMessageSize = chatDataService.getUserUnreadMessageSize(
-			chatDataRequestDto.getRoomId(),
-			tempUUID
+
+		return ResponseEntity.ok(
+			chatDataService.getMessagesByPagination(
+				chatDataRequestDto.getRoomId(),
+				chatDataRequestDto.getNextMessageTimeStamp()
+			)
 		);
 
-		if (chatDataRequestDto.getNextMessageTimeStamp().equals("0-0")) {
-			// 안 읽은 사이즈가 0이면
-			if (userUnreadMessageSize == 0)
-				return ResponseEntity.ok(
-					new ChatDataDto(
-						new ArrayList<RedisSavedMessageBasicDto>(),
-						new PaginationDto("0-0", 0)
-					)
-				);
-			// 읽은 사이즈가 1 이상이면
 
-		}
-
-		if (!chatDataRequestDto.getNextMessageTimeStamp().equals("0-0")
-		) {
-
-			// 여기는 내내 Redis
-			return ResponseEntity.badRequest().build();
-		}
-
-		// TODO  : Mongo에서 가져옴
-
-		return ResponseEntity.badRequest().build();
 	}
 
 	;
