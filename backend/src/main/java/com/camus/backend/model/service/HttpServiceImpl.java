@@ -16,24 +16,10 @@ public class HttpServiceImpl implements HttpService {
 		this.httpClient = httpClient;
 	}
 
-	public void sendAsyncHttpRequest(AsyncRequestProducer producer) {
+	public void sendAsyncHttpRequest(AsyncRequestProducer producer, FutureCallback<SimpleHttpResponse> futureCallback) {
 
 		AsyncResponseConsumer<SimpleHttpResponse> consumer = SimpleResponseConsumer.create();
-		httpClient.execute(producer, consumer, new FutureCallback<>() {
-			@Override
-			public void completed(SimpleHttpResponse simpleHttpResponse) {
-				System.out.println(simpleHttpResponse.getCode());
-				System.out.println(simpleHttpResponse.getBody().getBodyText());
-			}
-			@Override
-			public void failed(Exception e) {
-				System.out.println(e);
-			}
-			@Override
-			public void cancelled() {
-				System.out.println("cancelled");
-			}
-		});
+		httpClient.execute(producer, consumer, futureCallback);
 
 	}
 }
