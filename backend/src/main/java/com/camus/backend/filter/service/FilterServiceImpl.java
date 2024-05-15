@@ -1,14 +1,14 @@
 package com.camus.backend.filter.service;
 
-import java.util.List;
-
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.springframework.stereotype.Service;
 
-import com.camus.backend.chat.domain.document.CommonMessage;
+import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
+import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.util.AhoCorasick;
 import com.camus.backend.filter.util.BadWords;
+import com.camus.backend.filter.util.component.FilterModule;
 import com.camus.backend.filter.util.component.FilterRequestBuilder;
 import com.camus.backend.filter.util.ClovaCompletionRequest;
 
@@ -17,44 +17,49 @@ public class FilterServiceImpl implements FilterService {
 	private final FilterRequestBuilder filterRequestBuilder;
 	private final HttpService httpService;
 	private final AhoCorasick ahoCorasick;
+	private final FilterModule filterModule;
 
-	public FilterServiceImpl(FilterRequestBuilder modelRequestBuilder, HttpService httpService){
+	public FilterServiceImpl(FilterRequestBuilder modelRequestBuilder,
+		HttpService httpService,
+		FilterModule filterModule){
 		this.filterRequestBuilder = modelRequestBuilder;
 		this.httpService = httpService;
 		ahoCorasick = new AhoCorasick(BadWords.koreaBadWords);
+		this.filterModule = filterModule;
 	}
-	public void token(List<CommonMessage> messages, FutureCallback<SimpleHttpResponse> futureCallback) {
+	public void token(ContextFilteringRequest request) {
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder.
-					getMessagesTokenRequest(new ClovaCompletionRequest(messages))
-				, futureCallback);
+					getMessagesTokenRequest(new ClovaCompletionRequest(request))
+				, filterModule.GetTokenPredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void predict(List<CommonMessage> messages, FutureCallback<SimpleHttpResponse> futureCallback) {
+	public void predict(ContextFilteringRequest request) {
 		try {
-			httpService.sendAsyncHttpRequest(filterRequestBuilder.getMessagesPredictRequest(new ClovaCompletionRequest(messages))
-			, futureCallback);
+			httpService.sendAsyncHttpRequest(filterRequestBuilder.getMessagesPredictRequest(new ClovaCompletionRequest(request))
+			,  filterModule.getContextPredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void predict(CommonMessage message, FutureCallback<SimpleHttpResponse> futureCallback) {
+	public void predict(SingleFilteringRequest request) {
 		try {
-			httpService.sendAsyncHttpRequest(filterRequestBuilder.getMessagePredictRequest(message), futureCallback);
+			httpService.sendAsyncHttpRequest(filterRequestBuilder
+				.getMessagePredictRequest(request), filterModule.GetSinglePredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public boolean isBadWord(CommonMessage message) {
-		return ahoCorasick.containsAny(message.getContent());
+	public boolean isBadWord(SingleFilteringRequest request) {
+		return ahoCorasick.containsAny(request.getSimpleMessage().getContent());
 	}
 
 }

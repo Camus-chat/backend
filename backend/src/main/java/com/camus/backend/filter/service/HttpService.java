@@ -6,5 +6,5 @@ import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 
 public interface HttpService {
 
-	public void sendAsyncHttpRequest(AsyncRequestProducer producer, FutureCallback<SimpleHttpResponse> futureCallback);
+	void sendAsyncHttpRequest(AsyncRequestProducer producer, FutureCallback<SimpleHttpResponse> futureCallback);
 }

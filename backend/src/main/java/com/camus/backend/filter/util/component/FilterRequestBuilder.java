@@ -7,7 +7,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.springframework.stereotype.Component;
 
-import com.camus.backend.chat.domain.document.Message;
+import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.util.ClovaCompletionRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.core5.http.ContentType;
@@ -63,9 +63,9 @@ public class FilterRequestBuilder {
 			.build();
 	}
 
-	public AsyncRequestProducer getMessagePredictRequest(Message message) throws  Exception {
+	public AsyncRequestProducer getMessagePredictRequest(SingleFilteringRequest request) throws  Exception {
 		return AsyncRequestBuilder.post(lambdaEndpoint)
-			.setEntity(new StringAsyncEntityProducer(objectMapper.writeValueAsString(Map.of("text",message.getContent())), ContentType.APPLICATION_JSON))
+			.setEntity(new StringAsyncEntityProducer(objectMapper.writeValueAsString(Map.of("text",request.getSimpleMessage().getContent())), ContentType.APPLICATION_JSON))
 			.build();
 	}
 }
