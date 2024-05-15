@@ -2,8 +2,6 @@ package com.camus.backend.global.Exception;
 
 import org.springframework.http.HttpStatus;
 
-import com.amazonaws.http.SdkHttpMetadata;
-
 import lombok.Getter;
 
 @Getter

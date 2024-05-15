@@ -1,9 +1,5 @@
 package com.camus.backend.member.controller;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,9 +7,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.util.SuccessCode;
@@ -21,8 +15,9 @@ import com.camus.backend.member.domain.dto.B2CProfileDto;
 import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
 import com.camus.backend.member.domain.dto.MemberCredentialDto;
-import com.camus.backend.member.domain.dto.SignUpDto;
 import com.camus.backend.member.service.MemberService;
+
+
 
 @RestController
 @RequestMapping("/member/b2c")
@@ -94,6 +89,5 @@ public class B2CMemberController {
 				.body(e.getErrorKey());
 		}
 	}
-
 
 }

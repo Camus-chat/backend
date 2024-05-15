@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+
+import com.camus.backend.chat.service.RedisChatService;
+
 import com.camus.backend.manage.domain.repository.RoomRepository;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;
@@ -14,8 +17,12 @@ public class RoomService {
 
 	private final RoomRepository roomRepository;
 
-	RoomService(RoomRepository roomRepository) {
+	private final RedisChatService redisChatService;
+
+	RoomService(RoomRepository roomRepository, RedisChatService redisChatService) {
 		this.roomRepository = roomRepository;
+		this.redisChatService = redisChatService;
+
 	}
 
 	// FeatureID 511-1 : 기존 채널 참여 여부 확인
@@ -39,8 +46,9 @@ public class RoomService {
 		// 그룹 채널 생성 시 바로 방 생성
 		UUID newRoomId = roomRepository.createGroupRoom(channelKey, ownerId);
 
-		// TODO : Redis에도 올리기
-
+		// 레디스에 해당 방 생성 notice 올리기
+		redisChatService.createChatRoomNotice(newRoomId.toString(), ownerId);
+		System.out.println("newRoomId :" + newRoomId.toString());
 		return newRoomId;
 	}
 

@@ -84,7 +84,16 @@ public class SecurityConfig {
 				.requestMatchers("/check").permitAll() // id 중복체크
 				.requestMatchers("/error").permitAll() // 에러 보기
 				.requestMatchers("/member/b2c/info", "/member/b2c/image", "/member/b2c/nickname").hasAuthority("b2c") // b2c 회원정보 조회, 이미지 수정, 닉네임 수정
-				.requestMatchers("/member/b2b/info", "/member/b2c/modify").hasAuthority("b2b") // b2b 회원정보 조회, 회원정보 수정
+				.requestMatchers("/member/b2b/info", "/member/b2b/modify").hasAuthority("b2b") // b2b 회원정보 조회, 회원정보 수정
+				.requestMatchers("/chat/data/unread", "/chat/room/exit", "/chat/room/data").permitAll() // ChatDataController
+				.requestMatchers("/test/redisCreateRoomNoticeTest", "/test/redisSendMessagesTest").permitAll() // TestController
+				.requestMatchers("/channel/tempSave", "/channel/create", "/channel/list", "/channel/disable", "/channel/edit").permitAll() // ChannelController
+				.requestMatchers("/room/list", "/channel/create", "/channel/list", "/channel/disable", "/channel/edit").permitAll() // RoomController
+				.requestMatchers("/model/clova", "/model/lambda").permitAll() // ModelTestController
+				.requestMatchers("/statistic/member", "/statistic/channel").permitAll() // StatisticController
+
+
+
 				// permitall이나 hasrole로 라이브러리화 할때 쓰기
 				.anyRequest().authenticated());
 

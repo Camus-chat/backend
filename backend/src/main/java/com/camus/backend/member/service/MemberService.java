@@ -32,6 +32,7 @@ import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 import com.camus.backend.member.domain.dto.MemberCredentialDto;
+
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 import com.camus.backend.member.domain.repository.MemberProfileRepository;
 
@@ -69,7 +70,7 @@ public class MemberService {
 		}
 
 		// username 유효성 검사
-		if(username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)){
+		if (username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)) {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
 		}
 
@@ -79,7 +80,6 @@ public class MemberService {
 		}
 
 		// password 유효성 검사
-
 
 		// // 이미 사용되는 username이면 생성 못함
 		// Boolean isExist=memberCredentialRepository.existsByUsername(username);
@@ -178,11 +178,11 @@ public class MemberService {
 	}
 
 	// b2c 회원정보 가져오기
-	public B2CProfileDto getB2CInfo(){
+	public B2CProfileDto getB2CInfo() {
 
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID uuid = userDetails.get_id();
 
 		// 사용자의 profile 가져오기
@@ -204,11 +204,11 @@ public class MemberService {
 	}
 
 	// b2c 프로필 이미지 변경
-	public void changeImage(B2CUpdateImageDto b2CUpdateImageDto){
+	public void changeImage(B2CUpdateImageDto b2CUpdateImageDto) {
 
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID uuid = userDetails.get_id();
 
 		// 사용자의 profile 가져오기
@@ -221,7 +221,7 @@ public class MemberService {
 		// 타입 체크
 		if (memberProfile instanceof B2CProfile b2cProfile) {
 			String newProfileLink;
-			
+
 			// 새로 업로드 하고 링크 바꿔주기
 			try {
 				newProfileLink = uploadFile(b2CUpdateImageDto.getNewProfileImage());
@@ -232,18 +232,17 @@ public class MemberService {
 		} else {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
-		
+
 		// 수정사항 저장
 		memberProfileRepository.save(memberProfile);
 	}
 
-
 	// b2c 닉네임 변경
-	public void changeNickname(B2CUpdateNicknameDto b2CUpdateNicknameDto){
+	public void changeNickname(B2CUpdateNicknameDto b2CUpdateNicknameDto) {
 
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID uuid = userDetails.get_id();
 
 		// 사용자의 profile 가져오기
@@ -255,7 +254,7 @@ public class MemberService {
 
 		// 타입 체크
 		if (memberProfile instanceof B2CProfile b2cProfile) {
-			String newNickname=b2CUpdateNicknameDto.getNewNickname();
+			String newNickname = b2CUpdateNicknameDto.getNewNickname();
 			((B2CProfile)memberProfile).setNickname(newNickname);
 		} else {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
@@ -266,11 +265,11 @@ public class MemberService {
 	}
 
 	// b2b 회원정보 가져오기
-	public B2BProfileDto getB2BInfo(){
+	public B2BProfileDto getB2BInfo() {
 
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID uuid = userDetails.get_id();
 
 		// 사용자의 profile 가져오기
@@ -292,11 +291,11 @@ public class MemberService {
 	}
 
 	// b2b 정보 수정
-	public void changeB2BInfo(B2BUpdateDto b2bUpdateDto){
+	public void changeB2BInfo(B2BUpdateDto b2bUpdateDto) {
 
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID uuid = userDetails.get_id();
 
 		// 사용자의 profile 가져오기
@@ -308,8 +307,8 @@ public class MemberService {
 
 		// 타입 체크
 		if (memberProfile instanceof B2BProfile b2bProfile) {
-			String newCompanyName=b2bUpdateDto.getNewCompanyName();
-			String newCompanyEmail= b2bUpdateDto.getNewCompanyEmail();
+			String newCompanyName = b2bUpdateDto.getNewCompanyName();
+			String newCompanyEmail = b2bUpdateDto.getNewCompanyEmail();
 			((B2BProfile)memberProfile).setCompanyName(newCompanyName);
 			((B2BProfile)memberProfile).setCompanyEmail(newCompanyEmail);
 		} else {

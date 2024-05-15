@@ -1,5 +1,7 @@
 package com.camus.backend.manage.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -11,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.manage.domain.dto.ChannelDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
+
 import com.camus.backend.manage.domain.dto.ChannelListDto;
+
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.service.ChannelService;
 
@@ -56,10 +60,9 @@ public class ChannelController {
 		description = "채널 리스트를 반환합니다."
 	)
 	@GetMapping("/list")
-	public ResponseEntity<ChannelListDto> getChannelList(
+	public ResponseEntity<List<ChannelDto>> getChannelList(
 		// TODO : 사용자 인증 정보 - 회원일 때만
 	) {
-
 		return ResponseEntity.ok(channelService.getChannelList(
 			// TODO : 여기서 사용자 정보 넘기기
 		));

@@ -46,6 +46,7 @@ public enum ErrorCode {
 	// FORBIDDEN
 	FORBIDDEN_TOKEN_EXPIRED(HttpStatus.FORBIDDEN, 301, "만료된 토큰입니다."),
 	FORBIDDEN_ACCESS_DENIED(HttpStatus.FORBIDDEN, 302, "권한이 없습니다."),
+
 	FORBIDDEN_GUEST(HttpStatus.FORBIDDEN, 303, "비회원은 5일 동안만 가능합니다."),
 
 	// 기타 에러
