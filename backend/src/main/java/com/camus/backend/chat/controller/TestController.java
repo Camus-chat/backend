@@ -1,7 +1,11 @@
 package com.camus.backend.chat.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.document.CommonMessage;
+import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,11 +22,14 @@ public class TestController {
 
 	private final RedisChatService redisChatService;
 	private final ChatDataService chatDataService;
+	private final RedisChatRepository redisChatRepository;
 
 	private TestController(RedisChatService redisChatService,
-		ChatDataService chatDataService) {
+		ChatDataService chatDataService,
+						   RedisChatRepository redisChatRepository) {
 		this.redisChatService = redisChatService;
 		this.chatDataService = chatDataService;
+		this.redisChatRepository = redisChatRepository;
 	}
 
 	@PostMapping("/redisCreateRoomNoticeTest")
@@ -39,10 +46,23 @@ public class TestController {
 		return ResponseEntity.ok("ok");
 	}
 
-	@PostMapping("/getRedisMessageIdTest")
-	public ResponseEntity<String> getRedisMessageIdTest(
+	@PostMapping("/redisSendMessagesTest")
+	public ResponseEntity<String> redisSendMessagesTest(
 		@RequestBody UUID roomId
 	) {
-		return ResponseEntity.ok(chatDataService.getLastMessageIdOfRedis(roomId));
+		UUID tempMemberId = ManageConstants.tempMemUuid;
+		redisChatRepository.addCommonMessage(
+				CommonMessage.builder()
+						.roomId(roomId)
+						.senderId(tempMemberId)
+						.content("test입니다. 테스트라구요")
+						.filteredType("1")
+						._class("CommonMessage")
+						.createdDate(LocalDateTime.now())
+						.build()
+		);
+
+		return ResponseEntity.ok("ok");
 	}
+
 }

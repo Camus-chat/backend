@@ -6,9 +6,12 @@ import com.camus.backend.chat.domain.document.NoticeMessage;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
+@Document
 public class RedisSavedNoticeMessageDto extends RedisSavedMessageBasicDto {
 	private UUID target;
 	private String noticeType;

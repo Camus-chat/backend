@@ -2,6 +2,7 @@ package com.camus.backend.chat.domain.dto;
 
 import java.util.List;
 
+import com.camus.backend.chat.domain.document.Message;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ChatDataDto {
+public class ChatDataListDto {
 	private List<RedisSavedMessageBasicDto> messageList;
-	private PaginationDto pagination;
-
+	private PaginationDto paginationDto;
 }
