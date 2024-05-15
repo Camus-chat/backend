@@ -131,4 +131,5 @@ public class ChannelService {
 		channelListRepository.editChannelInfo(uuid, channelInfoDto);
 	}
 
+
 }

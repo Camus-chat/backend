@@ -20,4 +20,9 @@ public interface CustomRoomRepository {
 	List<UUID> getRoomListByOwnerId(UUID ownerId);
 
 	CompletableFuture<RoomDto> getRoomInfoByRoomId(UUID roomId);
+
+	UUID createPrivateRoom(UUID channelKey, UUID ownerId, UUID guestId);
+
+	UUID getGroupRoomByChannelKey(UUID channelKey, UUID guestId);
+
 }
