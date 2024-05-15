@@ -56,8 +56,8 @@ public class FilterTestController {
 		CommonMessage message = CommonMessage.builder()
 			.senderId(UUID.randomUUID())
 			.content("내용1").build();
-
-		filterService.predict(new SingleFilteringRequest(message, FilteringLevel.HIGH));
+		kafkaFilterProducer.sendMessage(new SingleFilteringRequest(message, FilteringLevel.HIGH));
+		// filterService.predict(new SingleFilteringRequest(message, FilteringLevel.HIGH));
 	}
 
 	@GetMapping("bad")
