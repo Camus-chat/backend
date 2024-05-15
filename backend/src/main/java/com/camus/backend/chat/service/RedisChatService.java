@@ -38,4 +38,21 @@ public class RedisChatService {
 		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);
 
 	}
+
+	public void newUserEnterRoomNotice(String roomId, UUID userId) {
+		NoticeMessage newUserEnterRoomNotice = NoticeMessage.builder()
+			.roomId(UUID.fromString(roomId))
+			.createdDate(LocalDateTime.now())
+			.content(ChatNoticeType.ENTER_ROOM.getNoticeContent())
+			.target(userId)
+			.noticeType(ChatNoticeType.ENTER_ROOM.getNoticeType())
+			.build();
+
+		redisChatRepository.addNoticeMessage(newUserEnterRoomNotice);
+		redisChatRepository.updateStreamConsumerGroup(roomId
+			, userId, redisChatRepository.getLatestRedisMessageId(roomId));
+
+		// TODO : KafKa에 redis에 저장됐다 메시지 전송
+		kafkaRedisChatProducer.sendNoticeMessage(newUserEnterRoomNotice);
+	}
 }

@@ -35,6 +35,7 @@ public class CustomChannelListRepositoryImpl implements CustomChannelListReposit
 
 		checkDBOperation(result);
 
+		System.out.println(channel.toString());
 		if (result.getMatchedCount() == 0) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
@@ -82,6 +83,31 @@ public class CustomChannelListRepositoryImpl implements CustomChannelListReposit
 		if (result.getMatchedCount() == 0) {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
+	}
+
+	public void addRoomIdToChannel(UUID roomId, UUID channelKey) {
+		Query query = new Query(Criteria.where("channels._id").is(channelKey));
+		Update update = new Update().push("channels.$.chatRoomList", roomId);
+		UpdateResult result = mongoTemplate.updateFirst(query, update, ChannelList.class);
+
+		checkDBOperation(result);
+
+		if (result.getMatchedCount() == 0 && result.getUpsertedId() == null) {
+			System.out.println("여기임?");
+			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
+		}
+	}
+
+	public UUID getChannelKeyByChannelLink(UUID channelLink) {
+		Query query = new Query(Criteria.where("channels.link").is(channelLink));
+		ChannelList channelList = mongoTemplate.findOne(query, ChannelList.class);
+		if (channelList == null) {
+			System.out.println("여기임?");
+			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
+		}
+
+		return channelList.getChannels().stream().filter(ch -> ch.getLink().equals(channelLink))
+				.findFirst().get().getKey();
 	}
 
 }

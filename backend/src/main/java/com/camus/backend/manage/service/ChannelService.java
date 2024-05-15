@@ -81,7 +81,7 @@ public class ChannelService {
 		}
 
 		channelListRepository.addChannelToMemberChannels(uuid, newChannel);
-		return new ChannelDto(createChannelDto, newChannel.getKey());
+		return new ChannelDto(createChannelDto, newChannel.getLink());
 	}
 
 	// FeatureID 501-1 : 채널 리스트 반환 메서드
@@ -130,5 +130,6 @@ public class ChannelService {
 
 		channelListRepository.editChannelInfo(uuid, channelInfoDto);
 	}
+
 
 }
