@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -102,10 +103,11 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		));
 	}
 
+
 	//FIXME : 과연 사용할 필요가 있는가?
 	public String getLatestRedisMessageId(String roomId) {
 
-		String streamKey = chatModules.getRedisStreamKey(roomId.toString());
+		String streamKey = chatModules.getRedisStreamKey(roomId);
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		List<MapRecord<String, String, String>> records = streamOps.reverseRange(
 			streamKey,
@@ -120,5 +122,7 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 
 		throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 	}
+
+
 
 }

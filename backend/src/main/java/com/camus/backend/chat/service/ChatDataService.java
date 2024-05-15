@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.PaginationDto;
 import com.camus.backend.chat.util.ChatModules;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.Message;
@@ -134,6 +135,35 @@ public class ChatDataService {
 			new PaginationDto(nextMessageId, messages.size())
 		);
 
+	}
+
+	// roomId 기반 : 가장 최근 메시지를 받아온다.
+	public RedisSavedMessageBasicDto getLatestRedisMessageId(String roomId) {
+		return redisStreamGroupRepository.getLatestMessageFromStream(roomId);
+	}
+
+	// 안 읽은 메시지의 갯수를 반환한다.
+	public int UnreadMessageCountByUserId(UUID roomId, UUID userId) {
+		String alreadyReadRedisMessageId = redisStreamGroupRepository.getStreamConsumerAlreadyReadRedisMessageId(
+			roomId.toString(),
+			userId
+		);
+
+		long alreadyReadMessageId = redisStreamGroupRepository.getMessageIdByRedisId(alreadyReadRedisMessageId, roomId.toString());
+		System.out.println("여긴가요");
+		long latestMessageId = getStreamCountOfRedis(roomId);
+
+		long unreadCount = latestMessageId - alreadyReadMessageId -1;
+
+		// FIXME : unreadCount가 100개 이상이면 100개로 제한
+		if(unreadCount > 100){
+			return 100;
+		}
+		if(unreadCount < 0){
+			throw new RuntimeException("unreadCount is negative");
+		}
+
+		return (int) unreadCount;
 	}
 
 
