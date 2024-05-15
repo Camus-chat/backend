@@ -3,6 +3,7 @@ package com.camus.backend.manage.domain.dto;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,6 +21,9 @@ public class RoomDto {
 
 	private ArrayList<UUID> userList;
 	private boolean isClosed;
+
+	private LastMessageInfo lastMessage;
+	private int unreadCount;
 
 
 }
