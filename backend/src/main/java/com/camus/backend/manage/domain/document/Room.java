@@ -4,14 +4,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
 @Document(collection = "CHAT_ROOM")
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Room {
 
 	private UUID _id;

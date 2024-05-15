@@ -1,18 +1,15 @@
 package com.camus.backend.manage.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import com.camus.backend.manage.domain.dto.RoomDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.dto.RoomIdDto;
-import com.camus.backend.manage.domain.dto.RoomListDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.ManageConstants;
@@ -34,10 +31,13 @@ public class RoomController {
 		summary = "방 리스트 조회",
 		description = "전체 채팅방 리스트를 조회하는 api"
 	)
-	@GetMapping("/list")
-	public ResponseEntity<RoomListDto> getRoomList() {
-		// TODO : ROOM 받아오는 로직 구현 -> Redis
-		return ResponseEntity.ok(RoomListDto.builder().roomList(new ArrayList<>()).build());
+	@PostMapping("/list")
+	public ResponseEntity<List<RoomDto>> getRoomList(
+			// 사용자 정보 받기
+	) {
+		UUID tempMemberId = ManageConstants.tempMemUuid;
+
+		return ResponseEntity.ok(roomService.getRoomListByOwnerId(tempMemberId));
 	}
 
 	// FeatureID : 게스트 ROOM 입장하기 & 생성하기

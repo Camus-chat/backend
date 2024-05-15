@@ -10,4 +10,5 @@ import lombok.Setter;
 public class ChannelStatus {
 	private boolean valid;
 	private String type;
+	private String title;
 }
