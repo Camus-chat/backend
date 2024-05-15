@@ -3,11 +3,16 @@ package com.camus.backend.manage.domain.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.manage.domain.document.ChannelList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import com.camus.backend.manage.domain.document.Channel;
@@ -32,12 +37,70 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		}
 	}
 
+	public List<UUID> getRoomListByOwnerId(UUID ownerId){
+		Query query = new Query(Criteria.where("_id").is(ownerId));
+		query.fields().include("channels");
+		ChannelList channelList = mongoTemplate.findOne(query, ChannelList.class);
+		if(channelList == null){
+			System.out.println("channelList is null");
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+		List<UUID> roomIdList = new ArrayList<>();
+		for(Channel channel : channelList.getChannels()){
+			roomIdList.addAll(channel.getChatRoomList());
+		}
+		return roomIdList;
+	}
+
+
+	@Async
+	public CompletableFuture<RoomDto> getRoomInfoByRoomId(UUID roomId) {
+		// Room 객체를 검색합니다.
+		Query query = new Query(Criteria.where("_id").is(roomId));
+		Room room = mongoTemplate.findOne(query, Room.class);
+
+		if (room == null) {
+			System.out.println("방 못찾음");
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		// 임베디드 문서 내의 key 필드를 기준으로 ChannelList 문서를 검색합니다.
+		Query channelQuery = new Query(Criteria.where("channels.key").is(room.getKey()));
+		ChannelList channelList = mongoTemplate.findOne(channelQuery, ChannelList.class);
+
+		if (channelList == null || channelList.getChannels() == null) {
+			System.out.println("채널 리스트 못찾음");
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		// channels 리스트에서 키가 일치하는 채널을 찾습니다.
+		Channel channel = channelList.getChannels().stream()
+				.filter(ch -> ch.getKey().equals(room.getKey()))
+				.findFirst()
+				.orElse(null);
+
+		if (channel == null) {
+			System.out.println("채널을 못찾음");
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		// RoomDto 객체를 생성합니다.
+		RoomDto roomInfo = new RoomDto();
+		roomInfo.set_id(room.get_id());
+		roomInfo.setChannelType(channel.getType());
+		roomInfo.setChannelTitle(channel.getTitle());
+		roomInfo.setUserList(room.getUserList());
+		roomInfo.setClosed(room.isClosed());
+
+		return CompletableFuture.completedFuture(roomInfo);
+	}
+
 	public List<UUID> getUserListById(UUID id) {
 		Query query = new Query(Criteria.where("_id").is(id));
 		query.fields().include("userList");
-		RoomDto roomDto = mongoTemplate.findOne(query, RoomDto.class);
-		if (roomDto != null) {
-			return roomDto.getUserList();
+		Room room = mongoTemplate.findOne(query, Room.class);
+		if (room != null) {
+			return room.getUserList();
 		} else {
 			return new ArrayList<>();
 		}
@@ -47,9 +110,9 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		Query query = new Query(Criteria.where("link").is(channelLink));
 		Channel channel = mongoTemplate.findOne(query, Channel.class);
 		if (channel != null) {
-			return new ChannelStatus(channel.getIsValid(), channel.getType());
+			return new ChannelStatus(channel.getIsValid(), channel.getType(), channel.getTitle());
 		} else {
-			return new ChannelStatus(false, null);
+			return new ChannelStatus(false, null, null);
 		}
 	}
 

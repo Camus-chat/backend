@@ -1,8 +1,13 @@
 package com.camus.backend.manage.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
+import com.camus.backend.manage.domain.dto.RoomDto;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.service.RedisChatService;
@@ -33,6 +38,19 @@ public class RoomService {
 		}
 
 		return new RoomEntryManager(false, null);
+	}
+
+	public List<RoomDto> getRoomListByOwnerId(UUID ownerId) {
+		List<UUID> roomIdList = roomRepository.getRoomListByOwnerId(ownerId);
+		List<CompletableFuture<RoomDto>> futures = new ArrayList<>();
+
+		for (UUID roomId : roomIdList) {
+			futures.add(roomRepository.getRoomInfoByRoomId(roomId));
+		}
+
+        return futures.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
 	}
 
 	// FeatureID 511-2 : 새로운 Rooom 생성 및 channel 정보에 추가
