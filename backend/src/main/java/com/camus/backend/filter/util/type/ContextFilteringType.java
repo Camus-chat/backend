@@ -13,9 +13,16 @@ public enum ContextFilteringType {
 	private final String value;
 
 	// 생성자를 private으로 선언하여, enum 외부에서 인스턴스화를 방지합니다.
-	private ContextFilteringType(String value) {
+	ContextFilteringType(String value) {
 		this.value = value;
 	}
-
+	public static ContextFilteringType fromString(String name) {
+		for (ContextFilteringType type : ContextFilteringType.values()) {
+			if (type.value.equals(name)) {
+				return type;
+			}
+		}
+		return null; // 또는 기본값 반환
+	}
 }
 

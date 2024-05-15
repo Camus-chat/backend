@@ -19,6 +19,7 @@ import com.camus.backend.filter.util.component.FilterConstants;
 import com.camus.backend.filter.util.component.FilterModule;
 import com.camus.backend.filter.util.type.FilteredType;
 import com.camus.backend.filter.util.type.FilteringLevel;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
 
@@ -28,15 +29,17 @@ public class KafkaFilterConsumer {
 	private final ConcurrentKafkaListenerContainerFactory<String, Object> factory;
 	private final FilterService filterService;
 	private final FilterConstants filterConstants;
-
+	private final ObjectMapper objectMapper;
 	public KafkaFilterConsumer(KafkaTemplate<String, Object> kafkaTemplate,
 		ConcurrentKafkaListenerContainerFactory<String, Object> factory,
 		FilterService filterService,
-		FilterConstants filterConstants) {
+		FilterConstants filterConstants,
+		ObjectMapper objectMapper) {
 		this.kafkaTemplate = kafkaTemplate;
 		this.filterConstants = filterConstants;
 		this.filterService = filterService;
 		this.factory = factory;
+		this.objectMapper = objectMapper;
 	}
 
 	@PostConstruct
@@ -46,7 +49,8 @@ public class KafkaFilterConsumer {
 		container.getContainerProperties().setGroupId(filterConstants.FILTERING_GROUP_ID);
 		container.setupMessageListener((MessageListener<String, Object>)message -> {
 			try {
-				FilteringRequest request = (FilteringRequest) message.value();
+				FilteringRequest request = objectMapper.readValue(message.value().toString(), FilteringRequest.class);
+				System.out.println(11);
 				if (request instanceof SingleFilteringRequest singleFilteringRequest){
 					if (filterService.isBadWord(singleFilteringRequest)){
 						System.out.println("consumer: "+ FilteredType.MALICIOUS_SIMPLE);

@@ -122,7 +122,7 @@ public class FilterModule {
 							if (resultArr.length != request.getUserMessages().size()) throw new RuntimeException("clova predict failed");
 							FilteredType[] resultTypeArr = new FilteredType[resultArr.length];
 							for (int i=0; i<resultArr.length; i++){
-								switch (ContextFilteringType.valueOf(resultArr[i])){
+								switch (ContextFilteringType.fromString(resultArr[i])){
 									case MALICIOUS -> resultTypeArr[i] = FilteredType.MALICIOUS_CLOVA;
 									case HATE -> {
 										if (request.getFilteringLevel()==FilteringLevel.HIGH) {
