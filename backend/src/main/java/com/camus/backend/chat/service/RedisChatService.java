@@ -31,6 +31,8 @@ public class RedisChatService {
 			.build();
 
 		redisChatRepository.addNoticeMessage(firstNoticeMessage);
+		redisChatRepository.createStreamConsumerGroup(roomId
+			, userId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
 		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);

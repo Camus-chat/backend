@@ -1,6 +1,5 @@
 package com.camus.backend.chat.domain.repository;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -8,8 +7,6 @@ import java.util.UUID;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.stream.MapRecord;
-import org.springframework.data.redis.connection.stream.StreamOffset;
-import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StreamOperations;
@@ -38,20 +35,42 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		this.chatConstants = chatConstants;
 	}
 
+	// 각 사용자의 Stream 별 읽은 메시지 위치를 기록하는 곳
+	public void createStreamConsumerGroup(String roomId, UUID ownerUserId) {
+		// 최초 사용자는 Owner / 자신의 참여 메시지를 읽은 것으로 처리
+		redisTemplate.opsForHash().put(
+			chatModules.getStreamConsumerGroupKey(roomId),
+			chatModules.getStreamUserAlreadyReadRedisMessageIdKey(roomId, ownerUserId.toString()),
+			getLatestRedisMessageId(roomId));
+	}
+
+	public void updateStreamConsumerGroup(String roomId, UUID userId, String streamMessageId) {
+		redisTemplate.opsForHash().put(
+			chatModules.getStreamConsumerGroupKey(roomId),
+			userId.toString(),
+			streamMessageId
+		);
+	}
+
+	// STREAM의 내부 메시지 갯수에 대한 트레킹을 하는 Count Stream
 	public String getStreamCount(UUID roomId) {
 		String count = redisTemplate.opsForValue().get(chatModules.getRedisCountKey(roomId.toString()));
 		return count != null ? count : "0";
 	}
 
+	public void updateStreamCount(UUID roomId) {
+		redisTemplate.opsForValue().increment(chatModules.getRedisCountKey(roomId.toString()));
+	}
+
+	// Redis Stream에 메시지를 추가하는 메소드
 	public void addMessageToStream(UUID roomId, Map<String, String> message) {
 		MapRecord<String, String, String> record = StreamRecords.newRecord()
 			.in(chatModules.getRedisStreamKey(roomId.toString()))
 			.ofMap(message);
 		redisTemplate.opsForStream().add(record);
 
-		redisTemplate.opsForValue().increment(
-			chatModules.getRedisCountKey(roomId.toString())
-		);
+		// 현재 스트림의 메시지 갯수 증가
+		this.updateStreamCount(roomId);
 	}
 
 	public void addNoticeMessage(NoticeMessage noticeMessage) {
@@ -79,20 +98,14 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			// 상속 클래스의 특정 필드
 			CommonMessage.Fields.senderId, commonMessage.getSenderId().toString(),
 			CommonMessage.Fields.filteredType, commonMessage.getFilteredType(),
-			CommonMessage.Fields.sentimentType, commonMessage.getSentimentType(),
 			CommonMessage.Fields._class, commonMessage.get_class()
 		));
 	}
 
-	public void setLastMessageId(UUID roomId, String messageId) {
-		redisTemplate.opsForValue().set(chatModules.getRedisSavedLastMessageKey(roomId.toString()), messageId);
-	}
-
-	public String getLatestRedisMessageId(UUID roomId) {
+	//FIXME : 과연 사용할 필요가 있는가?
+	public String getLatestRedisMessageId(String roomId) {
 
 		String streamKey = chatModules.getRedisStreamKey(roomId.toString());
-		StreamOffset<String> offset = StreamOffset.fromStart(streamKey);
-		Range<String> range = Range.open("-", "+");
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		List<MapRecord<String, String, String>> records = streamOps.reverseRange(
 			streamKey,
@@ -108,20 +121,4 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 	}
 
-	public List<Message> getRedisMessagesByPage(UUID roomId, int page, int userUnreadMessageSize) {
-		if (page < 0) {
-			return null;
-		}
-
-		StreamOperations<String, String, String> options = redisTemplate.opsForStream();
-		int size = 0;
-
-		if (page == 0) {
-			size = chatConstants.CHAT_MESSAGE_PAGE_SIZE - userUnreadMessageSize;
-			// TODO : 특정 메시지부터 읽어오기 > Redis에서 부여하는 Id 값을 찾아야 해서 보류
-		}
-		StreamReadOptions readOptions = StreamReadOptions.empty().count(size).block(Duration.ZERO);
-
-		return null;
-	}
 }

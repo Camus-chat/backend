@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RedisSavedMessageBasicDto {
-	private String messageType; // Notice, Common
+	private String _class; // Notice, Common
 	private Long messageId;
 	private UUID roomId;
 	private LocalDateTime createdDate;
@@ -23,7 +23,7 @@ public class RedisSavedMessageBasicDto {
 
 	public RedisSavedMessageBasicDto(CommonMessage commonMessage) {
 		//FIXME : messageType을 enum으로 변경
-		this.messageType = "Common";
+		this._class = "Common";
 		this.messageId = commonMessage.getMessageId();
 		this.roomId = commonMessage.getRoomId();
 		this.createdDate = commonMessage.getCreatedDate();
@@ -32,7 +32,7 @@ public class RedisSavedMessageBasicDto {
 
 	public RedisSavedMessageBasicDto(NoticeMessage noticeMessage) {
 		//FIXME : messageType을 enum으로 변경
-		this.messageType = "Notice";
+		this._class = "Notice";
 		this.messageId = noticeMessage.getMessageId();
 		this.roomId = noticeMessage.getRoomId();
 		this.createdDate = noticeMessage.getCreatedDate();
@@ -42,7 +42,7 @@ public class RedisSavedMessageBasicDto {
 	@Override
 	public String toString() {
 		return "RedisSavedMessageBasicDto{" +
-			"messageType='" + messageType + '\'' +
+			"messageType='" + _class + '\'' +
 			", messageId=" + messageId +
 			", roomId=" + roomId +
 			", createdDate=" + createdDate +
