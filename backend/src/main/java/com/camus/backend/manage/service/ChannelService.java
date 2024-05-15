@@ -41,16 +41,16 @@ public class ChannelService {
 	// FIXME : 사용자가 가입하면 곧바로 리스트 생성해야된다.
 	public void createChannelList(
 		// 인증정보 보내주라
-
+		UUID memberUuid
 	) {
 
 		// 요청을 한 사용자의 uuid 구하기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		UUID userUuid = userDetails.get_id();
+		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		// UUID userUuid = userDetails.get_id();
 
 		ChannelList newChannelList = ChannelList.builder()
-			._id(userUuid)
+			._id(memberUuid)
 			.channels(new ArrayList<>())
 			.build();
 		channelListRepository.save(newChannelList);

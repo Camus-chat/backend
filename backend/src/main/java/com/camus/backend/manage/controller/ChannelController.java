@@ -32,11 +32,11 @@ public class ChannelController {
 	}
 
 	// FIXME : 지워주세요 tempSave
-	@PostMapping("/tempSave")
-	public ResponseEntity<SuccessCode> tempSave() {
-		channelService.createChannelList();
-		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
-	}
+	// @PostMapping("/tempSave")
+	// public ResponseEntity<SuccessCode> tempSave() {
+	// 	channelService.createChannelList();
+	// 	return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
+	// }
 
 	// FeatureID 501-1
 	@Operation(

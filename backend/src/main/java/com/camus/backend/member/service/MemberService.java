@@ -2,11 +2,15 @@ package com.camus.backend.member.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,7 +23,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.global.jwt.service.RedisService;
+import com.camus.backend.global.jwt.util.JwtSettings;
+import com.camus.backend.global.jwt.util.JwtTokenProvider;
 import com.camus.backend.global.util.GuestUtil;
+import com.camus.backend.manage.service.ChannelService;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.document.MemberProfile.B2BProfile;
 import com.camus.backend.member.domain.document.MemberProfile.B2CProfile;
@@ -35,6 +43,7 @@ import com.camus.backend.member.domain.dto.MemberCredentialDto;
 
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 import com.camus.backend.member.domain.repository.MemberProfileRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class MemberService {
@@ -49,14 +58,23 @@ public class MemberService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final MemberProfileRepository memberProfileRepository;
 	private final AmazonS3Client amazonS3Client;
+	private final ChannelService channelService;
+	private final JwtSettings jwtSettings;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final RedisService redisService;
 
 	public MemberService(MemberCredentialRepository memberCredentialRepository,
 		BCryptPasswordEncoder bCryptPasswordEncoder, MemberProfileRepository memberProfileRepository,
-		AmazonS3Client amazonS3Client) {
+		AmazonS3Client amazonS3Client, ChannelService channelService, JwtSettings jwtSettings,
+		JwtTokenProvider jwtTokenProvider, RedisService redisService) {
 		this.memberCredentialRepository = memberCredentialRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.memberProfileRepository = memberProfileRepository;
 		this.amazonS3Client = amazonS3Client;
+		this.channelService = channelService;
+		this.jwtSettings = jwtSettings;
+		this.jwtTokenProvider = jwtTokenProvider;
+		this.redisService = redisService;
 	}
 
 	// 회원가입(db에 넣기) 후 프론트에 아이디, 비번 보내기
@@ -79,8 +97,6 @@ public class MemberService {
 			throw new CustomException(ErrorCode.MISSING_PARAMETER_PW);
 		}
 
-		// password 유효성 검사
-
 		// // 이미 사용되는 username이면 생성 못함
 		// Boolean isExist=memberCredentialRepository.existsByUsername(username);
 		// if(isExist){
@@ -90,8 +106,11 @@ public class MemberService {
 		// 비밀번호 암호화
 		String encodedPassword = bCryptPasswordEncoder.encode(password);
 
+		// 사용자 uuid 생성
+		UUID memberUuid = UUID.randomUUID();
+
 		MemberCredential newMemberCredential = MemberCredential.builder()
-			._id(UUID.randomUUID())
+			._id(memberUuid)
 			.username(username)
 			.password(encodedPassword)
 			.role(role)
@@ -100,9 +119,16 @@ public class MemberService {
 
 		memberCredentialRepository.save(newMemberCredential);
 
+		// 채널리스트 생성
+		channelService.createChannelList(memberUuid);
+
 		MemberProfile memberProfile;
 		if ("b2b".equals(role)) {
 			memberProfile = new B2BProfile();
+
+			// 프로필 ID 설정
+			memberProfile.set_id(newMemberCredential.get_id());
+
 			String companyName = memberCredentialDto.getInput1();
 			String companyEmail = (String)memberCredentialDto.getInput2();
 
@@ -119,6 +145,10 @@ public class MemberService {
 			((B2BProfile)memberProfile).setCompanyEmail(companyEmail);
 		} else if ("b2c".equals(role)) {
 			memberProfile = new B2CProfile();
+
+			// 프로필 ID 설정
+			memberProfile.set_id(newMemberCredential.get_id());
+
 			String nickname = memberCredentialDto.getInput1();
 			String profileLink = null;
 			try {
@@ -129,15 +159,20 @@ public class MemberService {
 			((B2CProfile)memberProfile).setNickname(nickname);
 			((B2CProfile)memberProfile).setProfileLink(profileLink);
 		} else {
-			memberProfile = new GuestProfile();
-			String nickname = GuestUtil.makeNickname();
-			String profilePalette = GuestUtil.chooseColorPalette();
-			((GuestProfile)memberProfile).setNickname(nickname);
-			((GuestProfile)memberProfile).setProfilePalette(profilePalette);
+
+			// // guest 로직
+			// memberProfile = new GuestProfile();
+			// 프로필 ID 설정
+			// memberProfile.set_id(newMemberCredential.get_id());
+			// String nickname = GuestUtil.makeNickname();
+			// String profilePalette = GuestUtil.chooseColorPalette();
+			// ((GuestProfile)memberProfile).setNickname(nickname);
+			// ((GuestProfile)memberProfile).setProfilePalette(profilePalette);
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
 
-		// 프로필 ID 설정
-		memberProfile.set_id(newMemberCredential.get_id());
+		// // 프로필 ID 설정
+		// memberProfile.set_id(newMemberCredential.get_id());
 
 		// 프로필 저장
 		memberProfileRepository.save(memberProfile);
@@ -151,6 +186,76 @@ public class MemberService {
 
 		// 저장 후 username과 암호화된 password를 리스트로 반환
 		return;
+	}
+
+	// guest 회원가입
+	// 토큰 닉네임 프사 주기
+	public List<String> guestSignUp(MemberCredentialDto memberCredentialDto){
+
+		String username = memberCredentialDto.getUsername();
+		String password = memberCredentialDto.getPassword();
+
+		// username 받았는지 검사
+		if (username == null || username.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.MISSING_PARAMETER_ID);
+		}
+
+		// username 유효성 검사
+		if (username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		}
+
+		// password 받았는지 검사
+		if (password == null || password.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.MISSING_PARAMETER_PW);
+		}
+
+		// 비밀번호 암호화
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+
+		// 사용자 uuid 생성
+		UUID memberUuid = UUID.randomUUID();
+
+		String guestRole = "guest";
+
+		MemberCredential newMemberCredential = MemberCredential.builder()
+			._id(memberUuid)
+			.username(username)
+			.password(encodedPassword)
+			.role(guestRole)
+			.loginTime(LocalDateTime.now())
+			.build();
+
+		memberCredentialRepository.save(newMemberCredential);
+
+		// 채널리스트 생성
+		channelService.createChannelList(memberUuid);
+
+		// 프로필 생성
+		GuestProfile memberProfile = new GuestProfile();
+		// 프로필 ID 설정
+		memberProfile.set_id(newMemberCredential.get_id());
+		String nickname = GuestUtil.makeNickname();
+		String profilePalette = GuestUtil.chooseColorPalette();
+		memberProfile.setNickname(nickname);
+		memberProfile.setProfilePalette(profilePalette);
+
+		// 프로필 저장
+		memberProfileRepository.save(memberProfile);
+
+		// 게스트 access
+		String accessToken = jwtTokenProvider.createToken("access",username,guestRole, jwtSettings.getAccessExpire());
+		String refreshToken;
+		long cookieRefresh=jwtSettings.getGuestExpire();
+
+		// 게스트 refresh 주기
+		refreshToken = jwtTokenProvider.createToken("refresh",username,guestRole, cookieRefresh);
+
+		// redis에 refresh token 저장
+		redisService.storeRefreshToken(username, refreshToken, cookieRefresh);
+		
+		// 엑세스 리프레시 닉네임 프사
+		return List.of(accessToken, refreshToken, nickname, profilePalette);
 	}
 
 	// id가 db에 있는지 체크. 있으면 false 없으면 true

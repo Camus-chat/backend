@@ -38,12 +38,14 @@ public class GuestController {
 			.password("guestPwd")
 			.build();
 
-		memberService.signUp(memberCredentialDto,"guest");
+		// memberService.guestSignUp(memberCredentialDto);
+
+		// memberService.signUp(memberCredentialDto,"guest");
 		// List<String> credentials = memberService.signUp(memberCredentialDto,"guest");
 		// if (credentials.isEmpty()) {
 		// 	return ResponseEntity.badRequest().body("게스트 생성 에러입니다.");
 		// }
-		return ResponseEntity.ok(SuccessCode.SIGNUP);
+		return ResponseEntity.ok(memberService.guestSignUp(memberCredentialDto));
 	}
 
 	@PostMapping("/check")
