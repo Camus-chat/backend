@@ -88,12 +88,9 @@ public class SecurityConfig {
 				.requestMatchers("/chat/data/unread", "/chat/room/exit", "/chat/room/data").permitAll() // ChatDataController
 				.requestMatchers("/test/redisCreateRoomNoticeTest", "/test/redisSendMessagesTest").permitAll() // TestController
 				.requestMatchers("/channel/tempSave", "/channel/create", "/channel/list", "/channel/disable", "/channel/edit").permitAll() // ChannelController
-				.requestMatchers("/room/list", "/channel/create", "/channel/list", "/channel/disable", "/channel/edit").permitAll() // RoomController
+				.requestMatchers("/room/list", "/room/guest/enter").permitAll() // RoomController
 				.requestMatchers("/model/clova", "/model/lambda").permitAll() // ModelTestController
 				.requestMatchers("/statistic/member", "/statistic/channel").permitAll() // StatisticController
-
-
-
 				// permitall이나 hasrole로 라이브러리화 할때 쓰기
 				.anyRequest().authenticated());
 

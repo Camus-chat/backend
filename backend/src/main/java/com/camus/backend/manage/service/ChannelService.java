@@ -94,12 +94,12 @@ public class ChannelService {
 			.build();
 
 		if (newChannel.getType().equals(ManageConstants.CHANNEL_TYPE_GROUP)) {
-			UUID newRoomId = roomService.createGroupRoomByOwnerId(newChannel.getLink(), userUuid);
+			UUID newRoomId = roomService.createGroupRoomByOwnerId(newChannel.getKey(), userUuid);
 			newChannel.getChatRoomList().add(newRoomId);
 		}
 
 		channelListRepository.addChannelToMemberChannels(userUuid, newChannel);
-		return new ChannelDto(createChannelDto, newChannel.getLink());
+		return new ChannelDto(createChannelDto, newChannel.getKey());
 	}
 
 	// FeatureID 501-1 : 채널 리스트 반환 메서드
@@ -161,5 +161,6 @@ public class ChannelService {
 
 		channelListRepository.editChannelInfo(userUuid, channelInfoDto);
 	}
+
 
 }

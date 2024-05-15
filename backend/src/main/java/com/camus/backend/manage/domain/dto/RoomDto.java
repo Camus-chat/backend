@@ -3,20 +3,23 @@ package com.camus.backend.manage.domain.dto;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Document("Chat_room")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+
 public class RoomDto {
 	private UUID _id;
-	private UUID channelKey;
+	//private UUID channelKey;
+
+	private String channelType;
+	private String channelTitle;
 
 	private ArrayList<UUID> userList;
 	private boolean isClosed;
 
-	private int maxUserCount;
+
 }
