@@ -25,6 +25,8 @@ import com.camus.backend.member.domain.document.MemberProfile.B2BProfile;
 import com.camus.backend.member.domain.document.MemberProfile.B2CProfile;
 import com.camus.backend.member.domain.document.MemberProfile.GuestProfile;
 import com.camus.backend.member.domain.document.MemberProfile.MemberProfile;
+import com.camus.backend.member.domain.dto.B2BProfileDto;
+import com.camus.backend.member.domain.dto.B2BUpdateDto;
 import com.camus.backend.member.domain.dto.B2CProfileDto;
 import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
@@ -201,7 +203,7 @@ public class MemberService {
 		}
 	}
 
-	// 프로필 이미지 변경
+	// b2c 프로필 이미지 변경
 	public void changeImage(B2CUpdateImageDto b2CUpdateImageDto){
 
 		// 요청을 한 사용자의 uuid 구하기
@@ -236,7 +238,7 @@ public class MemberService {
 	}
 
 
-	// 닉네임 변경
+	// b2c 닉네임 변경
 	public void changeNickname(B2CUpdateNicknameDto b2CUpdateNicknameDto){
 
 		// 요청을 한 사용자의 uuid 구하기
@@ -263,5 +265,59 @@ public class MemberService {
 		memberProfileRepository.save(memberProfile);
 	}
 
+	// b2b 회원정보 가져오기
+	public B2BProfileDto getB2BInfo(){
+
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID uuid = userDetails.get_id();
+
+		// 사용자의 profile 가져오기
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(uuid);
+		if (memberProfileOptional.isEmpty()) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+		MemberProfile memberProfile = memberProfileOptional.get();
+
+		// 타입 체크
+		if (memberProfile instanceof B2BProfile b2bProfile) {
+			return B2BProfileDto.builder()
+				.companyName(b2bProfile.getCompanyName())
+				.companyEmail(b2bProfile.getCompanyEmail())
+				.build();
+		} else {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+	}
+
+	// b2b 정보 수정
+	public void changeB2BInfo(B2BUpdateDto b2bUpdateDto){
+
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID uuid = userDetails.get_id();
+
+		// 사용자의 profile 가져오기
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(uuid);
+		if (memberProfileOptional.isEmpty()) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+		MemberProfile memberProfile = memberProfileOptional.get();
+
+		// 타입 체크
+		if (memberProfile instanceof B2BProfile b2bProfile) {
+			String newCompanyName=b2bUpdateDto.getNewCompanyName();
+			String newCompanyEmail= b2bUpdateDto.getNewCompanyEmail();
+			((B2BProfile)memberProfile).setCompanyName(newCompanyName);
+			((B2BProfile)memberProfile).setCompanyEmail(newCompanyEmail);
+		} else {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		// 수정사항 저장
+		memberProfileRepository.save(memberProfile);
+	}
 
 }

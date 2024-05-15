@@ -59,7 +59,7 @@ public class B2CMemberController {
 	// }
 
 	@GetMapping("/info")
-	public ResponseEntity<?> getMemberInfo() {
+	public ResponseEntity<?> getB2CMemberInfo() {
 		try {
 			B2CProfileDto b2cProfileDto = memberService.getB2CInfo();
 			return ResponseEntity.ok(b2cProfileDto);

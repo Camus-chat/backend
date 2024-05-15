@@ -13,6 +13,7 @@ public enum SuccessCode {
 	NICKNAME_EDIT("MEMBER", "닉네임 변경 완료"),
 	SIGNUP("MEMBER", "회원가입 성공"),
 	REISSUE("MEMBER", "토큰 재발급 완료"),
+	MODIFY("MEMBER", "B2B 수정 완료"),
 
 	// CHANEL
 	CHANNEL_DISABLE("CHANNEL", "채널 링크 비활성화 성공"),
