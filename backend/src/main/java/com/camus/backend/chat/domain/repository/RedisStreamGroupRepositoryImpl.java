@@ -158,5 +158,21 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		return msg;
 	}
 
+	public long getMessageIdByRedisId(String redisId, String roomId) {
+		String streamKey = chatModules.getRedisStreamKey(roomId);
+		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
+		List<MapRecord<String, String, String>> records = streamOps.range(
+				streamKey,
+				Range.closed(redisId, redisId),
+				Limit.limit().count(1)
+		);
+
+		if (records != null && !records.isEmpty()) {
+			convertToRedisSavedMessageBasicDto(records.get(0).getValue());
+			return Long.parseLong(records.get(0).getValue().get("messageId"));
+		}
+
+		throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+	}
 
 }

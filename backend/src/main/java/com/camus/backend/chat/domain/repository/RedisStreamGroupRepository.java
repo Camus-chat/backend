@@ -3,6 +3,7 @@ package com.camus.backend.chat.domain.repository;
 import java.util.List;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.document.Message;
 import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
 
@@ -17,4 +18,6 @@ public interface RedisStreamGroupRepository {
 	ChatDataListDto getMessagesFromRedisByStartId(String roomId, String startRedisId);
 	String getLatestRedisMessageIdFromStream(String roomId);
 
+	RedisSavedMessageBasicDto getLatestMessageFromStream(String roomId);
+	long getMessageIdByRedisId(String redisId, String roomId);
 }
