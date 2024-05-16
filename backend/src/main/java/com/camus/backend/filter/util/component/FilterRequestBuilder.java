@@ -1,6 +1,5 @@
-package com.camus.backend.model.util;
+package com.camus.backend.filter.util.component;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
@@ -8,7 +7,8 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.springframework.stereotype.Component;
 
-import com.camus.backend.chat.domain.document.Message;
+import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
+import com.camus.backend.filter.util.ClovaCompletionRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.core5.http.ContentType;
 
@@ -16,7 +16,7 @@ import lombok.Getter;
 
 @Getter
 @Component
-public class ModelRequestBuilder {
+public class FilterRequestBuilder {
 	private final String clovaHost;
 	private final String apiKey;
 	private final String apiKeyPrimaryVal;
@@ -33,7 +33,7 @@ public class ModelRequestBuilder {
 	//
 	// 	// this.requestId = requestId;
 	// }
-	public ModelRequestBuilder(HttpSetting httpSetting, ObjectMapper objectMapper){
+	public FilterRequestBuilder(HttpSetting httpSetting, ObjectMapper objectMapper){
 		clovaHost = httpSetting.getClovaHost();
 		apiKey = httpSetting.getClovaApiKey();
 		apiKeyPrimaryVal = httpSetting.getClovaApiKeyPrimaryVal();
@@ -63,9 +63,9 @@ public class ModelRequestBuilder {
 			.build();
 	}
 
-	public AsyncRequestProducer getMessagePredictRequest(Message message) throws  Exception {
+	public AsyncRequestProducer getMessagePredictRequest(SingleFilteringRequest request) throws  Exception {
 		return AsyncRequestBuilder.post(lambdaEndpoint)
-			.setEntity(new StringAsyncEntityProducer(objectMapper.writeValueAsString(Map.of("text",message.getContent())), ContentType.APPLICATION_JSON))
+			.setEntity(new StringAsyncEntityProducer(objectMapper.writeValueAsString(Map.of("text",request.getSimpleMessage().getContent())), ContentType.APPLICATION_JSON))
 			.build();
 	}
 }

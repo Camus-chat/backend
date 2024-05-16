@@ -1,4 +1,4 @@
-package com.camus.backend.model.util;
+package com.camus.backend.filter.util.component;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
