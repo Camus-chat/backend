@@ -18,6 +18,6 @@ public class SingleFilteringRequest extends FilteringRequest{
 
 		setFilteringLevel(filteringLevel);
 		setRoomId(commonMessage.getRoomId());
-		simpleMessage = new SimpleMessage();
+		simpleMessage = new SimpleMessage(commonMessage);
 	}
 }

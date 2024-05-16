@@ -53,10 +53,8 @@ public class KafkaFilterConsumer {
 	private MessageListener<String, Object> filteringListener(){
 		return (ConsumerRecord<String, Object> record) -> {
 			try {
-				// JSON 문자열을 FilteringRequest 객체로 변환
 				FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);
 
-				// request 타입에 따라 적절한 서비스 메소드 호출
 				if (request instanceof SingleFilteringRequest) {
 					filterService.predict((SingleFilteringRequest) request);
 				} else if (request instanceof ContextFilteringRequest) {

@@ -55,18 +55,4 @@ public class FilterTestController {
 		// filterService.predict(new SingleFilteringRequest(message, FilteringLevel.HIGH));
 	}
 
-	@GetMapping("bad")
-	public void bad(){
-		CommonMessage message = CommonMessage.builder()
-			.senderId(UUID.randomUUID())
-			.content("시발").build();
-		if (filterService.isBadWord(new SingleFilteringRequest(message, FilteringLevel.HIGH))){
-			message.setFilteredType(FilteredType.MALICIOUS_SIMPLE.name());
-		}
-		else{
-			message.setFilteredType(FilteredType.NOT_FILTERED.name());
-		}
-
-		System.out.println(message.getFilteredType());
-	}
 }
