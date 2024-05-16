@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.service.KafkaProducer.KafkaRedisChatProducer;
 import com.camus.backend.chat.util.ChatNoticeType;
@@ -28,6 +29,20 @@ public class RedisChatService {
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
 		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
+	}
+
+	public void saveFilteredMessageToRedis(
+		FilteredMessageDto filteredMessageDto) {
+
+		// WOO TODO : 필터링 저장 로직
+		redisChatRepository.addFilteredType(
+			filteredMessageDto
+		);
+
+		// WOO TODO : KafKa에 redis에 저장됐다 메시지 전송
+		kafkaRedisChatProducer.sendFilterMessage(
+			filteredMessageDto
+		);
 	}
 
 	public void createChatRoomNotice(String roomId, UUID userId) {

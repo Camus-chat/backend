@@ -5,11 +5,16 @@ import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 import com.camus.backend.chat.domain.dto.RedisSavedCommonMessageDto;
 import com.camus.backend.chat.domain.dto.RedisSavedNoticeMessageDto;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.util.component.FilterConstants;
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class KafkaRedisChatProducer {
@@ -18,12 +23,16 @@ public class KafkaRedisChatProducer {
 	private final ChatModules chatModules;
 	private final FilterConstants filterConstants;
 
+	private final ObjectMapper objectMapper;
+
 	public KafkaRedisChatProducer(KafkaTemplate<String, Object> kafkaTemplate,
 		ChatModules chatModules,
-		FilterConstants filterConstants) {
+		FilterConstants filterConstants,
+		ObjectMapper objectMapper) {
 		this.kafkaTemplate = kafkaTemplate;
 		this.chatModules = chatModules;
 		this.filterConstants = filterConstants;
+		this.objectMapper = objectMapper;
 	}
 
 	public void sendNoticeMessage(NoticeMessage noticeMessage) {
@@ -43,17 +52,33 @@ public class KafkaRedisChatProducer {
 			chatModules.getRedisToClientRoomTopic(redisSavedCommonMessageDto.getRoomId()),
 			redisSavedCommonMessageDto
 		);
+		sendSingleFilteringRequest(commonMessage);
 	}
 
+	// FEATUREID : AI 필터링 요청을 Kafka에 요청하는 메서드
 	private void sendSingleFilteringRequest(CommonMessage commonMessage) {
-		System.out.println("ai에 요청했음." + commonMessage);
 		kafkaTemplate.send(
 			filterConstants.FILTERING_REQ_TOPIC,
 			new SingleFilteringRequest(
 				commonMessage
 			)
-
 		);
+		System.out.println("ai에 요청했음." + commonMessage);
+	}
+
+	// FEATUREID : 필터링된 메시지를 저장한 후 Kafka에 요청하는 메서드
+	public void sendFilterMessage(FilteredMessageDto filteredMessageDto) {
+
+		try {
+			String filteredMessageToJson = objectMapper.writeValueAsString(filteredMessageDto);
+			kafkaTemplate.send(
+				chatModules.getRedisToClientRoomTopic(filteredMessageDto.getRoomId()),
+				filteredMessageToJson
+			);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
 	}
 }
 

@@ -1,5 +1,7 @@
 package com.camus.backend.chat.util;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -34,10 +36,23 @@ public class ChatModules {
 		return "client-to-redis-topic:" + roomId;
 	}
 
+	public String getFilteredZsetKeyByRoomId(String roomId) {
+
+		return "chat:room:" + roomId + "filtered:zset";
+	}
+
+	public String getFilteredHashKeyByRoomId(String roomId) {
+		return "chat:room" + roomId + "filtered:hash";
+	}
+
 	public long getMogoDBStartPageIndex(
 		long lastMessageId,
 		long streamMessageCount
 	) {
 		return (lastMessageId - streamMessageCount) / 300;
+	}
+
+	public double convertCreateDateToScore(LocalDateTime createDate) {
+		return createDate.toInstant(ZoneOffset.UTC).toEpochMilli();
 	}
 }
