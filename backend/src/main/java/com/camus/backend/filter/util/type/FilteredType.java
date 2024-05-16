@@ -4,22 +4,32 @@ import lombok.Getter;
 
 @Getter
 public enum FilteredType {
+
+	NOT_FILTERED((short)300),
+
 	MALICIOUS((short)0),
+	SPAM((short)200),
+	HATE((short)100),
+
+	// 100
 	MALICIOUS_SIMPLE((short)1),
 	MALICIOUS_LAMBDA((short)2),
+
+	// 200
 	MALICIOUS_CLOVA((short)3),
-	HATE((short)100),
 	HATE_LAMBDA((short)101),
-	HATE_CLOVA((short)102),
-	SPAM((short)200),
+
+	// 300
 	SPAM_CLOVA((short)201),
-	NOT_FILTERED((short)300)
+	HATE_CLOVA((short)102),
+
 	;
 	private final short value;
 
 	FilteredType(int value) {
 		this.value = (short)value;
 	}
+
 	public static FilteredType fromValue(short value) {
 		for (FilteredType type : FilteredType.values()) {
 			if (type.getValue() == value) {

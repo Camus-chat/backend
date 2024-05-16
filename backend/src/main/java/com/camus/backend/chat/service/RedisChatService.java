@@ -5,7 +5,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.service.KafkaProducer.KafkaRedisChatProducer;
 import com.camus.backend.chat.util.ChatNoticeType;
@@ -19,6 +21,28 @@ public class RedisChatService {
 		KafkaRedisChatProducer kafkaRedisChatProducer) {
 		this.redisChatRepository = redisChatRepository;
 		this.kafkaRedisChatProducer = kafkaRedisChatProducer;
+	}
+
+	public void saveCommonMessageToRedis(
+		CommonMessage commonMessage) {
+		redisChatRepository.addCommonMessage(commonMessage);
+
+		// TODO : KafKa에 redis에 저장됐다 메시지 전송
+		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
+	}
+
+	public void saveFilteredMessageToRedis(
+		FilteredMessageDto filteredMessageDto) {
+
+		// WOO TODO : 필터링 저장 로직
+		redisChatRepository.addFilteredType(
+			filteredMessageDto
+		);
+
+		// WOO TODO : KafKa에 redis에 저장됐다 메시지 전송
+		kafkaRedisChatProducer.sendFilterMessage(
+			filteredMessageDto
+		);
 	}
 
 	public void createChatRoomNotice(String roomId, UUID userId) {
@@ -48,11 +72,12 @@ public class RedisChatService {
 			.noticeType(ChatNoticeType.ENTER_ROOM.getNoticeType())
 			.build();
 
+		//redis에 저장
 		redisChatRepository.addNoticeMessage(newUserEnterRoomNotice);
+		//사용자 - consumer에 추가
 		redisChatRepository.updateStreamConsumerGroup(roomId
 			, userId, redisChatRepository.getLatestRedisMessageId(roomId));
 
-		// TODO : KafKa에 redis에 저장됐다 메시지 전송
 		kafkaRedisChatProducer.sendNoticeMessage(newUserEnterRoomNotice);
 	}
 }
