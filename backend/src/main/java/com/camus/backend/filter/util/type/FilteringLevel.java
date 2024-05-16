@@ -4,13 +4,13 @@ import lombok.Getter;
 
 @Getter
 public enum FilteringLevel {
-	LOW((byte)0),
-	MIDDLE((byte)1),
-	HIGH((byte)2)
+	LOW((short)100),
+	MIDDLE((short)200),
+	HIGH((short)300)
 	;
-	private final byte value;
+	private final short value;
 	FilteringLevel(int value) {
-		this.value = (byte) value;
+		this.value = (short) value;
 	}
 
 }

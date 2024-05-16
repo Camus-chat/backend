@@ -13,8 +13,6 @@ import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.service.FilterService;
 import com.camus.backend.filter.service.kafka.KafkaFilterProducer;
-import com.camus.backend.filter.util.type.FilteredType;
-import com.camus.backend.filter.util.type.FilteringLevel;
 
 @RestController
 @RequestMapping("filter")
@@ -43,7 +41,7 @@ public class FilterTestController {
 			.content("욕설1").build();
 		messages.add(message2);
 
-		kafkaFilterProducer.sendRequest(new ContextFilteringRequest(messages, FilteringLevel.HIGH));
+		kafkaFilterProducer.sendRequest(new ContextFilteringRequest(messages));
 		// filterService.token(new ContextFilteringRequest(messages, FilteringLevel.HIGH));
 		// filterService.predict(new ContextFilteringRequest(messages, FilteringLevel.HIGH));
 	}
@@ -54,7 +52,7 @@ public class FilterTestController {
 			.roomId(UUID.randomUUID())
 			.senderId(UUID.randomUUID())
 			.content("내용1").build();
-		kafkaFilterProducer.sendRequest(new SingleFilteringRequest(message, FilteringLevel.HIGH));
+		kafkaFilterProducer.sendRequest(new SingleFilteringRequest(message));
 		// filterService.predict(new SingleFilteringRequest(message, FilteringLevel.HIGH));
 	}
 

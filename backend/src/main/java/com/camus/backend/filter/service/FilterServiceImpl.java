@@ -12,8 +12,7 @@ import com.camus.backend.filter.util.BadWords;
 import com.camus.backend.filter.util.component.FilterModule;
 import com.camus.backend.filter.util.component.FilterRequestBuilder;
 import com.camus.backend.filter.util.ClovaCompletionRequest;
-import com.camus.backend.filter.util.type.FilteredType;
-import com.camus.backend.filter.util.type.FilteringLevel;
+
 
 @Service
 public class FilterServiceImpl implements FilterService {
@@ -53,7 +52,7 @@ public class FilterServiceImpl implements FilterService {
 
 	@Override
 	public void predict(SingleFilteringRequest request) {
-		if (isBadWord(request) || request.getFilteringLevel()== FilteringLevel.LOW) return;
+		if (isBadWord(request)) return;
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder
 				.getMessagePredictRequest(request),

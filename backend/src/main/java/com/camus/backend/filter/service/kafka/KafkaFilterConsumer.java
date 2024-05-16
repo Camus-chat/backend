@@ -15,30 +15,19 @@ import org.springframework.stereotype.Service;
 import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.FilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
-import com.camus.backend.filter.domain.Response.SingleFilteringResponse;
 import com.camus.backend.filter.service.FilterService;
-import com.camus.backend.filter.util.component.FilterConstants;
-import com.camus.backend.filter.util.component.FilterModule;
-import com.camus.backend.filter.util.type.FilteredType;
-import com.camus.backend.filter.util.type.FilteringLevel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
 
 @Service
 public class KafkaFilterConsumer {
-	private final ConcurrentKafkaListenerContainerFactory<String, Object> factory;
 	private final FilterService filterService;
-	private final FilterConstants filterConstants;
 	private final ObjectMapper objectMapper;
 	public KafkaFilterConsumer(
-		ConcurrentKafkaListenerContainerFactory<String, Object> factory,
 		FilterService filterService,
-		FilterConstants filterConstants,
 		ObjectMapper objectMapper) {
-		this.filterConstants = filterConstants;
 		this.filterService = filterService;
-		this.factory = factory;
 		this.objectMapper = objectMapper;
 	}
 

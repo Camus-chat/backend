@@ -17,7 +17,7 @@ import com.camus.backend.filter.domain.Response.SingleFilteringResponse;
 import com.camus.backend.filter.service.kafka.KafkaFilterProducer;
 import com.camus.backend.filter.util.type.ContextFilteringType;
 import com.camus.backend.filter.util.type.FilteredType;
-import com.camus.backend.filter.util.type.FilteringLevel;
+import com.camus.backend.filter.util.type.SingleFilteringType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -41,20 +41,17 @@ public class FilterModule {
 				if (simpleHttpResponse.getCode() == 200) {
 					try {
 						Map<?, ?> map = objectMapper.readValue(simpleHttpResponse.getBody().getBodyText(), Map.class);
-						int value = (int)map.get("prediction");
 						SingleFilteringResponse response;
-						if (value == 0) {
-							response = new SingleFilteringResponse(request,
+						switch (SingleFilteringType.fromValue((int)map.get("prediction"))){
+							case MALICIOUS -> response = new SingleFilteringResponse(request,
 								FilteredType.MALICIOUS_LAMBDA);
-						} else if (value == 1 && request.getFilteringLevel() == FilteringLevel.HIGH) {
-							response = new SingleFilteringResponse(request,
+							case HATE -> response = new SingleFilteringResponse(request,
 								FilteredType.HATE_LAMBDA);
-							System.out.println(response.getFilteredMessage());
-						} else if (value == 2) {
-							response = new SingleFilteringResponse(request,
+							case SPAM -> response = new SingleFilteringResponse(request,
+								FilteredType.SPAM_CLOVA);
+							case NOT_FILTERED -> response = new SingleFilteringResponse(request,
 								FilteredType.NOT_FILTERED);
-						} else {
-							throw new RuntimeException("lambda predict api error");
+							default -> throw new RuntimeException("Unexpected filtering type");
 						}
 						kafkaFilterProducer.sendResponse(response);
 					} catch (Exception e) {
@@ -126,11 +123,7 @@ public class FilterModule {
 							for (int i=0; i<resultArr.length; i++){
 								switch (ContextFilteringType.fromString(resultArr[i])){
 									case MALICIOUS -> resultTypeArr[i] = FilteredType.MALICIOUS_CLOVA;
-									case HATE -> {
-										if (request.getFilteringLevel()==FilteringLevel.HIGH) {
-											resultTypeArr[i] = FilteredType.HATE_CLOVA;
-										} else resultTypeArr[i] = FilteredType.NOT_FILTERED;
-									}
+									case HATE -> resultTypeArr[i] = FilteredType.HATE_CLOVA;
 									case SPAM -> resultTypeArr[i] = FilteredType.SPAM;
 									case NOT_FILTERED -> resultTypeArr[i] = FilteredType.NOT_FILTERED;
 								}
