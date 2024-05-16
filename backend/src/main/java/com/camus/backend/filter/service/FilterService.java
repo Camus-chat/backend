@@ -10,6 +10,5 @@ public interface FilterService {
 	void token(ContextFilteringRequest request);
 	void predict(ContextFilteringRequest request);
 	void predict(SingleFilteringRequest request);
-	boolean isBadWord(SingleFilteringRequest request);
 
 }

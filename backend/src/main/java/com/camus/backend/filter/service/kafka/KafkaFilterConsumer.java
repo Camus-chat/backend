@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -25,17 +26,15 @@ import jakarta.annotation.PostConstruct;
 
 @Service
 public class KafkaFilterConsumer {
-	private final KafkaTemplate<String, Object> kafkaTemplate;
 	private final ConcurrentKafkaListenerContainerFactory<String, Object> factory;
 	private final FilterService filterService;
 	private final FilterConstants filterConstants;
 	private final ObjectMapper objectMapper;
-	public KafkaFilterConsumer(KafkaTemplate<String, Object> kafkaTemplate,
+	public KafkaFilterConsumer(
 		ConcurrentKafkaListenerContainerFactory<String, Object> factory,
 		FilterService filterService,
 		FilterConstants filterConstants,
 		ObjectMapper objectMapper) {
-		this.kafkaTemplate = kafkaTemplate;
 		this.filterConstants = filterConstants;
 		this.filterService = filterService;
 		this.factory = factory;
@@ -47,25 +46,30 @@ public class KafkaFilterConsumer {
 		ConcurrentMessageListenerContainer<String, Object> container =
 			factory.createContainer(filterConstants.FILTERING_REQ_TOPIC);
 		container.getContainerProperties().setGroupId(filterConstants.FILTERING_GROUP_ID);
-		container.setupMessageListener((MessageListener<String, Object>)message -> {
-			try {
-				FilteringRequest request = objectMapper.readValue(message.value().toString(), FilteringRequest.class);
-				System.out.println(11);
-				if (request instanceof SingleFilteringRequest singleFilteringRequest){
-					if (filterService.isBadWord(singleFilteringRequest)){
-						System.out.println("consumer: "+ FilteredType.MALICIOUS_SIMPLE);
-					} else if (singleFilteringRequest.getFilteringLevel().getValue() >
-						FilteringLevel.LOW.getValue()){
-						filterService.predict(singleFilteringRequest);
-					}
-				} else if (request instanceof ContextFilteringRequest cfr){
-					filterService.predict(cfr);
-				} else throw new RuntimeException();
-			} catch (Exception e){
-				e.printStackTrace();
-			}
-		});
+		container.setupMessageListener(filteringListener());
 		container.start();
+	}
+
+	private MessageListener<String, Object> filteringListener(){
+		return (ConsumerRecord<String, Object> record) -> {
+			try {
+				// JSON 문자열을 FilteringRequest 객체로 변환
+				FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);
+
+				// request 타입에 따라 적절한 서비스 메소드 호출
+				if (request instanceof SingleFilteringRequest) {
+					filterService.predict((SingleFilteringRequest) request);
+				} else if (request instanceof ContextFilteringRequest) {
+					filterService.token((ContextFilteringRequest) request);
+					filterService.predict((ContextFilteringRequest) request);
+				} else {
+					throw new RuntimeException("Unsupported request type");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();  // 오류 출력
+			}
+		};
+
 	}
 
 }

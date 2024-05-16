@@ -10,9 +10,11 @@ import org.springframework.stereotype.Component;
 
 import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
+import com.camus.backend.filter.domain.Response.ContextCountingResponse;
 import com.camus.backend.filter.domain.Response.ContextFilteringResponse;
 import com.camus.backend.filter.domain.Response.FilteredMessage;
 import com.camus.backend.filter.domain.Response.SingleFilteringResponse;
+import com.camus.backend.filter.service.kafka.KafkaFilterProducer;
 import com.camus.backend.filter.util.type.ContextFilteringType;
 import com.camus.backend.filter.util.type.FilteredType;
 import com.camus.backend.filter.util.type.FilteringLevel;
@@ -21,9 +23,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class FilterModule {
 	private final ObjectMapper objectMapper;
-
-	public FilterModule(ObjectMapper objectMapper) {
+	private final KafkaFilterProducer kafkaFilterProducer;
+	public FilterModule(ObjectMapper objectMapper,
+		KafkaFilterProducer kafkaFilterProducer) {
 		this.objectMapper = objectMapper;
+		this.kafkaFilterProducer = kafkaFilterProducer;
+	}
+
+	public void sendSimpleFilteringResponse(SingleFilteringRequest request){
+		kafkaFilterProducer.sendResponse(new SingleFilteringResponse(request, FilteredType.MALICIOUS_SIMPLE));
 	}
 
 	public FutureCallback<SimpleHttpResponse> GetSinglePredictCallback(SingleFilteringRequest request) {
@@ -48,8 +56,7 @@ public class FilterModule {
 						} else {
 							throw new RuntimeException("lambda predict api error");
 						}
-						// 이부분에서 결과 확인
-						System.out.println("filterModule:" + response.getFilteredMessage());
+						kafkaFilterProducer.sendResponse(response);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -71,27 +78,24 @@ public class FilterModule {
 	}
 
 	public FutureCallback<SimpleHttpResponse> GetTokenPredictCallback(
-		ContextFilteringRequest contextFilteringRequest) {
+		ContextFilteringRequest request) {
 		return new FutureCallback<>() {
 			@Override
 			public void completed(SimpleHttpResponse simpleHttpResponse) {
 				if (simpleHttpResponse.getCode() == 200) {
 					try {
 						Map<?, ?> map = objectMapper.readValue(simpleHttpResponse.getBody().getBodyText(), Map.class);
-						// System.out.println(simpleHttpResponse.getBody().getBodyText());
-						// System.out.println(map);
 						if (((Map<?, ?>)map.get("status")).get("code").equals("20000")) {
 							List<?> messages = (List<?>)((Map<?, ?>)map.get("result")).get("messages");
 							int count = (int)((Map<?, ?>)messages.get(0)).get("count");
 							System.out.println("count: " + count);
-						}
+							kafkaFilterProducer.sendResponse(new ContextCountingResponse(request, count));
+						} else throw new RuntimeException();
 					} catch (Exception e) {
 						e.printStackTrace();
 						throw new RuntimeException(e);
 					}
-
-				} else
-					throw new RuntimeException("clova token api error");
+				} else throw new RuntimeException("clova token api error");
 			}
 
 			@Override
@@ -114,8 +118,6 @@ public class FilterModule {
 				if (simpleHttpResponse.getCode()==200){
 					try {
 						Map<?, ?> map = objectMapper.readValue(simpleHttpResponse.getBody().getBodyText(), Map.class);
-						System.out.println(simpleHttpResponse.getBody().getBodyText());
-						System.out.println(map);
 						if (((Map<?, ?>)map.get("status")).get("code").equals("20000")){
 							Map<?,?> message = (Map<?,?>)((Map<?, ?>)map.get("result")).get("message");
 							String[] resultArr = ((String)message.get("content")).split(",");
@@ -133,9 +135,7 @@ public class FilterModule {
 									case NOT_FILTERED -> resultTypeArr[i] = FilteredType.NOT_FILTERED;
 								}
 							}
-							ContextFilteringResponse contextFilteringResponse = new ContextFilteringResponse(request, resultTypeArr);
-							System.out.println(Arrays.toString(resultTypeArr));
-							System.out.println(contextFilteringResponse.getFilteredMessages());
+							kafkaFilterProducer.sendResponse(new ContextFilteringResponse(request, resultTypeArr));
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -6,11 +6,14 @@ import org.springframework.stereotype.Service;
 
 import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
+import com.camus.backend.filter.domain.Response.SingleFilteringResponse;
 import com.camus.backend.filter.util.AhoCorasick;
 import com.camus.backend.filter.util.BadWords;
 import com.camus.backend.filter.util.component.FilterModule;
 import com.camus.backend.filter.util.component.FilterRequestBuilder;
 import com.camus.backend.filter.util.ClovaCompletionRequest;
+import com.camus.backend.filter.util.type.FilteredType;
+import com.camus.backend.filter.util.type.FilteringLevel;
 
 @Service
 public class FilterServiceImpl implements FilterService {
@@ -30,8 +33,8 @@ public class FilterServiceImpl implements FilterService {
 	public void token(ContextFilteringRequest request) {
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder.
-					getMessagesTokenRequest(new ClovaCompletionRequest(request))
-				, filterModule.GetTokenPredictCallback(request));
+				getMessagesTokenRequest(new ClovaCompletionRequest(request)),
+				filterModule.GetTokenPredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -40,8 +43,9 @@ public class FilterServiceImpl implements FilterService {
 	@Override
 	public void predict(ContextFilteringRequest request) {
 		try {
-			httpService.sendAsyncHttpRequest(filterRequestBuilder.getMessagesPredictRequest(new ClovaCompletionRequest(request))
-			,  filterModule.getContextPredictCallback(request));
+			httpService.sendAsyncHttpRequest(filterRequestBuilder
+				.getMessagesPredictRequest(new ClovaCompletionRequest(request)),
+				filterModule.getContextPredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -49,17 +53,22 @@ public class FilterServiceImpl implements FilterService {
 
 	@Override
 	public void predict(SingleFilteringRequest request) {
+		if (isBadWord(request) || request.getFilteringLevel()== FilteringLevel.LOW) return;
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder
-				.getMessagePredictRequest(request), filterModule.GetSinglePredictCallback(request));
+				.getMessagePredictRequest(request),
+				filterModule.GetSinglePredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
 
-	@Override
-	public boolean isBadWord(SingleFilteringRequest request) {
-		return ahoCorasick.containsAny(request.getSimpleMessage().getContent());
+	private boolean isBadWord(SingleFilteringRequest request) {
+		boolean result = ahoCorasick.containsAny(request.getSimpleMessage().getContent());
+		if (result){
+			filterModule.sendSimpleFilteringResponse(request);
+		}
+		return result;
 	}
 
 }
