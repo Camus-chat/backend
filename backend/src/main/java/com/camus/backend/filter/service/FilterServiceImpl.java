@@ -1,6 +1,5 @@
 package com.camus.backend.filter.service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -58,11 +57,15 @@ public class FilterServiceImpl implements FilterService {
 			.thenAccept((simpleHttpResponse)-> {
 				try {
 					if (simpleHttpResponse.getCode() == 200) {
-						precessTokenResponse(request, clovaRequest, simpleHttpResponse);
+						processTokenResponse(request, clovaRequest, simpleHttpResponse);
 					}else throw new RuntimeException("clova token api error");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			})
+			.exceptionally(ex -> {
+				System.err.println(ex.getMessage());
+				return null;
 			});
 	}
 
@@ -71,32 +74,43 @@ public class FilterServiceImpl implements FilterService {
 		if (isBadWord(request)) return;
 		httpService.sendAsyncHttpRequest(filterRequestBuilder
 			.getMessagePredictRequest(request))
-			.thenAccept((simpleHttpResponse)-> {
+			.thenAccept((response)-> {
 				try {
-					if (simpleHttpResponse.getCode() == 200) {
-
-						Map<?, ?> map = objectMapper.readValue(simpleHttpResponse.getBody()
-							.getBodyText(), Map.class);
-						SingleFilteringResponse response;
-						switch (SingleFilteringType.fromValue((int)map.get("prediction"))) {
-							case MALICIOUS -> response = new SingleFilteringResponse(request,
-								FilteredType.MALICIOUS_LAMBDA);
-							case HATE -> response = new SingleFilteringResponse(request,
-								FilteredType.HATE_LAMBDA);
-							case NOT_FILTERED -> response = new SingleFilteringResponse(request,
-								FilteredType.NOT_FILTERED);
-							default -> throw new RuntimeException("Unexpected filtering type");
-						}
-						kafkaFilterProducer.sendResponse(response);
-					}else throw new RuntimeException("lambda predict api error");
+					processSingleResponse(request, response);
 				}
 				catch (Exception e) {
 					e.printStackTrace();
 				}
+			})
+			.exceptionally(ex -> {
+				System.err.println(ex.getMessage());
+				return null;
 			});
 	}
 
-	private void precessTokenResponse(
+	private void processSingleResponse(
+		SingleFilteringRequest request,
+		SimpleHttpResponse simpleHttpResponse
+	) throws Exception {
+		if (simpleHttpResponse.getCode() == 200) {
+
+			Map<?, ?> map = objectMapper.readValue(simpleHttpResponse.getBody()
+				.getBodyText(), Map.class);
+			SingleFilteringResponse response;
+			switch (SingleFilteringType.fromValue((int)map.get("prediction"))) {
+				case MALICIOUS -> response = new SingleFilteringResponse(request,
+					FilteredType.MALICIOUS_LAMBDA);
+				case HATE -> response = new SingleFilteringResponse(request,
+					FilteredType.HATE_LAMBDA);
+				case NOT_FILTERED -> response = new SingleFilteringResponse(request,
+					FilteredType.NOT_FILTERED);
+				default -> throw new RuntimeException("Unexpected filtering type");
+			}
+			kafkaFilterProducer.sendResponse(response);
+		}else throw new RuntimeException("lambda predict api error");
+	}
+
+	private void processTokenResponse(
 		ContextFilteringRequest request,
 		ClovaCompletionRequest clovaRequest,
 		SimpleHttpResponse simpleHttpResponse
@@ -124,8 +138,13 @@ public class FilterServiceImpl implements FilterService {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			})
+			.exceptionally(ex -> {
+				System.err.println(ex.getMessage());
+				return null;
 			});
 	}
+
 	private void processClovaPredictResponse(
 		ContextFilteringRequest request,
 		SimpleHttpResponse simpleHttpResponse,
