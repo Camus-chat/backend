@@ -4,7 +4,7 @@ package com.camus.backend.filter.util;
 public interface BadWords {
 	String[] koreaBadWords = {
 		"D쥐고",
-    	"D지고",
+		"D지고",
 		"jonna",
 		"jot같",
 		"mi쳤",

@@ -22,7 +22,7 @@ public enum ContextFilteringType {
 				return type;
 			}
 		}
-		return null; // 또는 기본값 반환
+		throw new RuntimeException();
 	}
 }
 
