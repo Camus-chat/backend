@@ -6,8 +6,11 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
+import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.manage.domain.dto.LastMessageInfo;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
 import org.springframework.scheduling.annotation.Async;
@@ -26,13 +29,16 @@ public class RoomService {
 	private final RoomRepository roomRepository;
 
 	private final RedisChatService redisChatService;
+	private final ChatDataService chatDataService;
 	private final ChannelListRepository channelListRepository;
 
 	RoomService(RoomRepository roomRepository, RedisChatService redisChatService,
-				ChannelListRepository channelListRepository) {
+				ChannelListRepository channelListRepository,
+				ChatDataService chatDataService) {
 		this.roomRepository = roomRepository;
 		this.redisChatService = redisChatService;
 		this.channelListRepository = channelListRepository;
+		this.chatDataService = chatDataService;
 	}
 
 	// FeatureID 511-1 : 기존 채널 참여 여부 확인
@@ -54,10 +60,25 @@ public class RoomService {
 		List<CompletableFuture<RoomDto>> futures = new ArrayList<>();
 
 		for (UUID roomId : roomIdList) {
-			futures.add(roomRepository.getRoomInfoByRoomId(roomId));
+			RedisSavedMessageBasicDto latestMessage = chatDataService.getLatestRedisMessageId(roomId.toString());
+			int unreadCount = chatDataService.UnreadMessageCountByUserId(roomId, ownerId);
+			futures.add(CompletableFuture.supplyAsync(() -> {
+				try {
+					RoomDto roomDto = roomRepository.getRoomInfoByRoomId(roomId).join();
+					// 최신 메시지를 가져와서 설정
+					roomDto.setLastMessage(new LastMessageInfo(latestMessage));
+					// 읽지 않은 메시지 개수를 가져와서 설정
+					roomDto.setUnreadCount(unreadCount);
+					return roomDto;
+				} catch (Exception e) {
+					// 예외 처리 및 로깅
+					e.printStackTrace();
+					return null; // 예외 발생 시 null 반환
+				}
+			}));
 		}
 
-        return futures.stream()
+		return futures.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
 	}

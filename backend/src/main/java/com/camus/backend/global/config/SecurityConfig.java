@@ -91,6 +91,7 @@ public class SecurityConfig {
 				.requestMatchers("/room/list", "/room/guest/enter").permitAll() // RoomController
 				.requestMatchers("/model/clova", "/model/lambda").permitAll() // ModelTestController
 				.requestMatchers("/statistic/member", "/statistic/channel").permitAll() // StatisticController
+				.requestMatchers("/filter/clova", "/filter/lambda",  "/filter/bad").permitAll() // FilterTestController
 				// permitall이나 hasrole로 라이브러리화 할때 쓰기
 				.anyRequest().authenticated());
 
