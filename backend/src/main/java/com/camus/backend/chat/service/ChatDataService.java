@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.dto.ChatDataListDto;
-import com.camus.backend.chat.domain.dto.PaginationDto;
-import com.camus.backend.chat.util.ChatModules;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.Message;
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
+import com.camus.backend.chat.domain.document.RedisSavedCommonMessage;
+import com.camus.backend.chat.domain.document.RedisSavedMessageBasic;
+import com.camus.backend.chat.domain.document.RedisSavedNoticeMessage;
+import com.camus.backend.chat.domain.dto.ChatDataListDto;
+import com.camus.backend.chat.domain.dto.PaginationDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.CommonMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.NoticeMessageDto;
 import com.camus.backend.chat.domain.repository.MongoChatRepository;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.domain.repository.RedisStreamGroupRepository;
+import com.camus.backend.chat.util.ChatModules;
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 
 @Service
 public class ChatDataService {
@@ -26,7 +32,7 @@ public class ChatDataService {
 
 	ChatDataService(RedisChatRepository redisChatRepository, MongoChatRepository mongoChatRepository,
 		RedisStreamGroupRepository redisStreamGroupRepository,
-					ChatModules chatModules) {
+		ChatModules chatModules) {
 		this.redisChatRepository = redisChatRepository;
 		this.mongoChatRepository = mongoChatRepository;
 		this.redisStreamGroupRepository = redisStreamGroupRepository;
@@ -56,7 +62,6 @@ public class ChatDataService {
 		);
 	}
 
-
 	// 사용자가 아직 읽지 않은 메시지들을 반환한다
 	public ChatDataListDto getUserUnreadMessage(
 		UUID roomId,
@@ -68,8 +73,7 @@ public class ChatDataService {
 			roomId.toString(),
 			userId
 		);
-		List<RedisSavedMessageBasicDto> messages = new ArrayList<>();
-
+		List<MessageBasicDto> messages = new ArrayList<>();
 
 		String latestRedisMessageId = redisStreamGroupRepository.getLatestRedisMessageIdFromStream(roomId.toString());
 
@@ -78,21 +82,26 @@ public class ChatDataService {
 		// 이미 최신 메시지까지 읽었다면 빈배열 반환
 		if (latestRedisMessageId
 			.equals(startReadRedisMessageId)) {
-			return 	new ChatDataListDto(
-					messages,
-					new PaginationDto(startReadRedisMessageId, messages.size())
+			return new ChatDataListDto(
+				messages,
+				new PaginationDto(startReadRedisMessageId, messages.size())
 			);
 		}
 
 		// 메시지를 불러오기
-		messages = redisStreamGroupRepository.getMessagesFromRedisByEndId(
+		List<RedisSavedMessageBasic> messageList = redisStreamGroupRepository.getMessagesFromRedisByEndId(
 			roomId.toString(),
 			startReadRedisMessageId
 		);
+
+		messageList.forEach(messageFromRedis -> {
+			messages.add(convertToMessageBasicDto(messageFromRedis));
+		});
+
 		// 마지막으로 읽은 메시지는 바로 최신 메시지
 		PaginationDto paginationDto = new PaginationDto(
 			latestRedisMessageId,
-				messages.size()
+			messageList.size()
 		);
 		// Redis에 가장 최근에 읽은 값 갱신
 		redisStreamGroupRepository.updateStreamConsumerAlreadyReadRedisMessageId(
@@ -107,14 +116,25 @@ public class ChatDataService {
 		);
 	}
 
+	private MessageBasicDto convertToMessageBasicDto(RedisSavedMessageBasic redisSavedMessageBasic) {
+		String className = redisSavedMessageBasic.get_class();
+		MessageBasicDto msg;
+		switch (className) {
+			case "NoticeMessage" -> msg = new NoticeMessageDto((RedisSavedNoticeMessage)redisSavedMessageBasic);
+			case "CommonMessage" -> msg = new CommonMessageDto((RedisSavedCommonMessage)redisSavedMessageBasic);
+			default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+		}
+		return msg;
+	}
+
 	public ChatDataListDto getMessagesByPagination(
 		UUID roomId,
 		String startRedisMessageId
 	) {
-		if(!startRedisMessageId.contains("DB")){
+		if (!startRedisMessageId.contains("DB")) {
 			return redisStreamGroupRepository.getMessagesFromRedisByStartId(
-					roomId.toString(),
-					startRedisMessageId
+				roomId.toString(),
+				startRedisMessageId
 			);
 		}
 
@@ -138,7 +158,7 @@ public class ChatDataService {
 	}
 
 	// roomId 기반 : 가장 최근 메시지를 받아온다.
-	public RedisSavedMessageBasicDto getLatestRedisMessageId(String roomId) {
+	public RedisSavedMessageBasic getLatestRedisMessageId(String roomId) {
 		return redisStreamGroupRepository.getLatestMessageFromStream(roomId);
 	}
 
@@ -149,23 +169,22 @@ public class ChatDataService {
 			userId
 		);
 
-		long alreadyReadMessageId = redisStreamGroupRepository.getMessageIdByRedisId(alreadyReadRedisMessageId, roomId.toString());
+		long alreadyReadMessageId = redisStreamGroupRepository.getMessageIdByRedisId(alreadyReadRedisMessageId,
+			roomId.toString());
 		System.out.println("여긴가요");
 		long latestMessageId = getStreamCountOfRedis(roomId);
 
-		long unreadCount = latestMessageId - alreadyReadMessageId -1;
+		long unreadCount = latestMessageId - alreadyReadMessageId - 1;
 
 		// FIXME : unreadCount가 100개 이상이면 100개로 제한
-		if(unreadCount > 100){
+		if (unreadCount > 100) {
 			return 100;
 		}
-		if(unreadCount < 0){
+		if (unreadCount < 0) {
 			throw new RuntimeException("unreadCount is negative");
 		}
 
-		return (int) unreadCount;
+		return (int)unreadCount;
 	}
-
-
 
 }

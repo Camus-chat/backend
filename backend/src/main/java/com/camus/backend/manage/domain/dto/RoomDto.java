@@ -3,9 +3,10 @@ package com.camus.backend.manage.domain.dto;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
-import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -24,6 +25,5 @@ public class RoomDto {
 
 	private LastMessageInfo lastMessage;
 	private int unreadCount;
-
 
 }
