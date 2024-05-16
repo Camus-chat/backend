@@ -33,8 +33,10 @@ import com.camus.backend.member.domain.document.MemberProfile.B2BProfile;
 import com.camus.backend.member.domain.document.MemberProfile.B2CProfile;
 import com.camus.backend.member.domain.document.MemberProfile.GuestProfile;
 import com.camus.backend.member.domain.document.MemberProfile.MemberProfile;
+import com.camus.backend.member.domain.dto.B2BMemberCredentialDto;
 import com.camus.backend.member.domain.dto.B2BProfileDto;
 import com.camus.backend.member.domain.dto.B2BUpdateDto;
+import com.camus.backend.member.domain.dto.B2CMemberCredentialDto;
 import com.camus.backend.member.domain.dto.B2CProfileDto;
 import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
@@ -76,6 +78,9 @@ public class MemberService {
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.redisService = redisService;
 	}
+
+
+
 
 	// 회원가입(db에 넣기) 후 프론트에 아이디, 비번 보내기
 	public void signUp(MemberCredentialDto memberCredentialDto, String role) {
@@ -187,6 +192,164 @@ public class MemberService {
 		// 저장 후 username과 암호화된 password를 리스트로 반환
 		return;
 	}
+
+	public void b2bSignUp(B2BMemberCredentialDto b2bMemberCredentialDto, String role) {
+		String username = b2bMemberCredentialDto.getUsername();
+		String password = b2bMemberCredentialDto.getPassword();
+
+		// System.out.println(username+" dd");
+		// System.out.println(password+" ss");
+
+		// username 받았는지 검사
+		if (username == null || username.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.MISSING_PARAMETER_ID);
+		}
+
+		// username 유효성 검사
+		if (username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		}
+
+		// password 유효성 검사
+		if (password == null || password.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.MISSING_PARAMETER_PW);
+		}
+
+		// // 이미 사용되는 username이면 생성 못함
+		// Boolean isExist=memberCredentialRepository.existsByUsername(username);
+		// if(isExist){
+		// 	return false;
+		// }
+
+		// 비밀번호 암호화
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+
+		// 사용자 uuid 생성
+		UUID memberUuid = UUID.randomUUID();
+
+		MemberCredential newMemberCredential = MemberCredential.builder()
+			._id(memberUuid)
+			.username(username)
+			.password(encodedPassword)
+			.role(role)
+			.loginTime(LocalDateTime.now())
+			.build();
+
+		memberCredentialRepository.save(newMemberCredential);
+
+		// 채널리스트 생성
+		channelService.createChannelList(memberUuid);
+
+		B2BProfile memberProfile = new B2BProfile();
+		if ("b2b".equals(role)) {
+
+			// 프로필 ID 설정
+			memberProfile.set_id(newMemberCredential.get_id());
+
+			String companyName = b2bMemberCredentialDto.getCompanyName();
+			String companyEmail = b2bMemberCredentialDto.getCompanyEmail();
+
+			// companyName 유효성 검사
+			if (companyName == null || companyName.trim().isEmpty()) {
+				throw new CustomException(ErrorCode.MISSING_PARAMETER_CN);
+			}
+			// companyEmail 유효성 검사
+			if (companyEmail == null || companyEmail.trim().isEmpty()) {
+				throw new CustomException(ErrorCode.MISSING_PARAMETER_EM);
+			}
+
+			memberProfile.setCompanyName(companyName);
+			memberProfile.setCompanyEmail(companyEmail);
+		} else {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		// // 프로필 ID 설정
+		// memberProfile.set_id(newMemberCredential.get_id());
+
+		// 프로필 저장
+		memberProfileRepository.save(memberProfile);
+	}
+
+	public void b2cSignUp(B2CMemberCredentialDto b2cMemberCredentialDto, String role) {
+		String username = b2cMemberCredentialDto.getUsername();
+		String password = b2cMemberCredentialDto.getPassword();
+
+		// System.out.println(username+" dd");
+		// System.out.println(password+" ss");
+
+		// username 받았는지 검사
+		if (username == null || username.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.MISSING_PARAMETER_ID);
+		}
+
+		// username 유효성 검사
+		if (username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		}
+
+		// password 유효성 검사
+		if (password == null || password.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.MISSING_PARAMETER_PW);
+		}
+
+		// // 이미 사용되는 username이면 생성 못함
+		// Boolean isExist=memberCredentialRepository.existsByUsername(username);
+		// if(isExist){
+		// 	return false;
+		// }
+
+		// 비밀번호 암호화
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+
+		// 사용자 uuid 생성
+		UUID memberUuid = UUID.randomUUID();
+
+		MemberCredential newMemberCredential = MemberCredential.builder()
+			._id(memberUuid)
+			.username(username)
+			.password(encodedPassword)
+			.role(role)
+			.loginTime(LocalDateTime.now())
+			.build();
+
+		memberCredentialRepository.save(newMemberCredential);
+
+		// 채널리스트 생성
+		channelService.createChannelList(memberUuid);
+
+		B2CProfile memberProfile = new B2CProfile();
+		if ("b2c".equals(role)) {
+
+			// 프로필 ID 설정
+			memberProfile.set_id(newMemberCredential.get_id());
+
+			String nickname = b2cMemberCredentialDto.getNickname();
+			// nickname 유효성 검사
+			if (nickname == null || nickname.trim().isEmpty()) {
+				throw new CustomException(ErrorCode.MISSING_PARAMETER_CN);
+			}
+
+			String profileLink = null;
+			try {
+				profileLink = uploadFile(b2cMemberCredentialDto.getProfileImage());
+			} catch (IOException e) {
+				throw new CustomException(ErrorCode.INVALID_PARAMETER_IMAGE);
+			}
+
+			memberProfile.setNickname(nickname);
+			memberProfile.setProfileLink(profileLink);
+		} else {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		// // 프로필 ID 설정
+		// memberProfile.set_id(newMemberCredential.get_id());
+
+		// 프로필 저장
+		memberProfileRepository.save(memberProfile);
+	}
+
 
 	// guest 회원가입
 	// 토큰 닉네임 프사 주기

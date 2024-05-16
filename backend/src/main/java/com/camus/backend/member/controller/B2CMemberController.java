@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.util.SuccessCode;
+import com.camus.backend.member.domain.dto.B2CMemberCredentialDto;
 import com.camus.backend.member.domain.dto.B2CProfileDto;
 import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
@@ -30,9 +31,9 @@ public class B2CMemberController {
 	}
 
 	@PostMapping("/signup")
-	ResponseEntity<?> b2cSignUp(MemberCredentialDto memberCredentialDto){
+	ResponseEntity<?> b2cSignUp(@ModelAttribute B2CMemberCredentialDto b2cMemberCredentialDto){
 		// String role=memberCredentialDto.getRole();
-		memberService.signUp(memberCredentialDto,"b2c");
+		memberService.b2cSignUp(b2cMemberCredentialDto,"b2c");
 		// boolean signUpSuccess = memberService.signUp(memberCredentialDto,"b2c");
 		// List<String> credentials = memberService.signUp(memberCredentialDto,"b2c");
 		// if (!signUpSuccess) {
@@ -40,6 +41,18 @@ public class B2CMemberController {
 		// }
 		return ResponseEntity.ok(SuccessCode.SIGNUP);
 	}
+
+	// @PostMapping("/signup")
+	// ResponseEntity<?> b2cSignUp(MemberCredentialDto memberCredentialDto){
+	// 	// String role=memberCredentialDto.getRole();
+	// 	memberService.signUp(memberCredentialDto,"b2c");
+	// 	// boolean signUpSuccess = memberService.signUp(memberCredentialDto,"b2c");
+	// 	// List<String> credentials = memberService.signUp(memberCredentialDto,"b2c");
+	// 	// if (!signUpSuccess) {
+	// 	// 	return ResponseEntity.badRequest().body("이미 존재하는 사용자 이름입니다.");
+	// 	// }
+	// 	return ResponseEntity.ok(SuccessCode.SIGNUP);
+	// }
 
 	// @GetMapping("/info")
 	// public ResponseEntity<B2CProfileDto> getMemberInfo() {
