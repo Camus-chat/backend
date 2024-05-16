@@ -4,20 +4,34 @@ import lombok.Getter;
 
 @Getter
 public enum FilteredType {
-	MALICIOUS_SIMPLE((byte)0),
-	MALICIOUS_LAMBDA((byte)1),
-	MALICIOUS_CLOVA((byte)2),
-	HATE_LAMBDA((byte)3),
-	HATE_CLOVA((byte)4),
-	SPAM((byte)5),
-	NOT_FILTERED((byte)6)
+	MALICIOUS((short)0),
+	MALICIOUS_SIMPLE((short)1),
+	MALICIOUS_LAMBDA((short)2),
+	MALICIOUS_CLOVA((short)3),
+	HATE((short)100),
+	HATE_LAMBDA((short)101),
+	HATE_CLOVA((short)102),
+	SPAM((short)200),
+	SPAM_CLOVA((short)201),
+	NOT_FILTERED((short)300)
 	;
-	private final byte value;
+	private final short value;
 
 	FilteredType(int value) {
-		this.value = (byte)value;
+		this.value = (short)value;
+	}
+	public static FilteredType fromValue(short value) {
+		for (FilteredType type : FilteredType.values()) {
+			if (type.getValue() == value) {
+				return type;
+			}
+		}
+		throw new IllegalArgumentException("No FilteredType with value: " + value);
 	}
 
-	//String type으로 변환 필요?
-	//clova, lambda 분류해야하나?
+	public FilteredType getBaseType() {
+		short baseValue = (short)((this.value / 100) * 100);
+		return fromValue(baseValue);
+	}
+
 }
