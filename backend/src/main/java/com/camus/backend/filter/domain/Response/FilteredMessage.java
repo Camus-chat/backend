@@ -1,5 +1,7 @@
 package com.camus.backend.filter.domain.Response;
 
+import java.time.LocalDateTime;
+
 import com.camus.backend.filter.util.type.FilteredType;
 
 import lombok.AllArgsConstructor;
@@ -16,4 +18,5 @@ import lombok.ToString;
 public class FilteredMessage {
 	Long id;
 	FilteredType filteredType;
+	LocalDateTime createdDate;
 }

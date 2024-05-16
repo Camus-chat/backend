@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -18,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 public class Message {
 	private Long messageId;
 	private UUID roomId;
-	private LocalDateTime createdDate;
+	@Builder.Default
+	private LocalDateTime createdDate = LocalDateTime.now();
 	private String content;
 }

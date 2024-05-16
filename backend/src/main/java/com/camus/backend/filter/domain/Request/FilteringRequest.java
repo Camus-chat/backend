@@ -1,7 +1,7 @@
 package com.camus.backend.filter.domain.Request;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
-
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -20,4 +20,5 @@ import lombok.Setter;
 })
 public abstract class FilteringRequest {
 	UUID roomId;
+	LocalDateTime createdDate;
 }
