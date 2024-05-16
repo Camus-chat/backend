@@ -1,4 +1,4 @@
-package com.camus.backend.model.util;
+package com.camus.backend.filter.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.document.CommonMessage;
+import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
+import com.camus.backend.filter.domain.Request.UserMessage;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +27,8 @@ public class ClovaCompletionRequest {
 	boolean includeAiFilters;
 	int seed;
 
-	public ClovaCompletionRequest(List<CommonMessage> messageList){
+	public ClovaCompletionRequest(ContextFilteringRequest request){
+		List<UserMessage> userMessages = request.getUserMessages();
 		messages = new ArrayList<>();
 		Map<String,String> messageMap = new HashMap<>();
 		List<UUID> userList = new ArrayList<>();
@@ -39,15 +41,15 @@ public class ClovaCompletionRequest {
 			.append("분류기에 의하여 각 채팅에 대한 분류를 출력한다.\n");
 
 		sb.append("\"");
-		for (int i=0; i<messageList.size(); i++){
-			if (!userList.contains(messageList.get(i).getSenderId())){
-				userList.add(messageList.get(i).getSenderId());
+		for (int i=0; i<userMessages.size(); i++){
+			if (!userList.contains(userMessages.get(i).getUserId())){
+				userList.add(userMessages.get(i).getUserId());
 			}
 
-			sb.append("유저").append(userList.indexOf(messageList.get(i).getSenderId()))
-				.append(": ").append(messageList.get(i).getContent());
+			sb.append("유저").append(userList.indexOf(userMessages.get(i).getUserId()))
+				.append(": ").append(userMessages.get(i).getContent());
 
-			if (i==messageList.size()-1) sb.append('\"');
+			if (i==userMessages.size()-1) sb.append('\"');
 			else sb.append('\n');
 		}
 		messageMap.put("role", "user");
