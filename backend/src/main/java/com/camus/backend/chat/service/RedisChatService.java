@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.service.KafkaProducer.KafkaRedisChatProducer;
@@ -19,6 +20,14 @@ public class RedisChatService {
 		KafkaRedisChatProducer kafkaRedisChatProducer) {
 		this.redisChatRepository = redisChatRepository;
 		this.kafkaRedisChatProducer = kafkaRedisChatProducer;
+	}
+
+	public void saveCommonMessageToRedis(
+		CommonMessage commonMessage) {
+		redisChatRepository.addCommonMessage(commonMessage);
+
+		// TODO : KafKa에 redis에 저장됐다 메시지 전송
+		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
 	}
 
 	public void createChatRoomNotice(String roomId, UUID userId) {
@@ -48,11 +57,12 @@ public class RedisChatService {
 			.noticeType(ChatNoticeType.ENTER_ROOM.getNoticeType())
 			.build();
 
+		//redis에 저장
 		redisChatRepository.addNoticeMessage(newUserEnterRoomNotice);
+		//사용자 - consumer에 추가
 		redisChatRepository.updateStreamConsumerGroup(roomId
 			, userId, redisChatRepository.getLatestRedisMessageId(roomId));
 
-		// TODO : KafKa에 redis에 저장됐다 메시지 전송
 		kafkaRedisChatProducer.sendNoticeMessage(newUserEnterRoomNotice);
 	}
 }
