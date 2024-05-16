@@ -32,11 +32,13 @@ public class FilterTestController {
 	public void clova(){
 		List<CommonMessage> messages = new ArrayList<>();
 		CommonMessage message1 = CommonMessage.builder()
-				.senderId(UUID.randomUUID())
-				.content("내용1").build();
+			.roomId(UUID.randomUUID())
+			.senderId(UUID.randomUUID())
+			.content("내용1").build();
 		messages.add(message1);
 
 		CommonMessage message2 = CommonMessage.builder()
+			.roomId(UUID.randomUUID())
 			.senderId(UUID.randomUUID())
 			.content("욕설1").build();
 		messages.add(message2);
@@ -49,6 +51,7 @@ public class FilterTestController {
 	@GetMapping("lambda")
 	public void lambda(){
 		CommonMessage message = CommonMessage.builder()
+			.roomId(UUID.randomUUID())
 			.senderId(UUID.randomUUID())
 			.content("내용1").build();
 		kafkaFilterProducer.sendRequest(new SingleFilteringRequest(message, FilteringLevel.HIGH));

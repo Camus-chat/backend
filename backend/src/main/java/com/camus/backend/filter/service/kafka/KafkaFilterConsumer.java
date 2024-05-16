@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -41,33 +42,22 @@ public class KafkaFilterConsumer {
 		this.objectMapper = objectMapper;
 	}
 
-	@PostConstruct
-	private void addListener() {
-		ConcurrentMessageListenerContainer<String, Object> container =
-			factory.createContainer(filterConstants.FILTERING_REQ_TOPIC);
-		container.getContainerProperties().setGroupId(filterConstants.FILTERING_GROUP_ID);
-		container.setupMessageListener(filteringListener());
-		container.start();
-	}
+	@KafkaListener(topics = "filteringRequest", groupId = "filteringGroup")
+	public void listen(ConsumerRecord<String, Object> record) {
+		try {
+			FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);
 
-	private MessageListener<String, Object> filteringListener(){
-		return (ConsumerRecord<String, Object> record) -> {
-			try {
-				FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);
-
-				if (request instanceof SingleFilteringRequest) {
-					filterService.predict((SingleFilteringRequest) request);
-				} else if (request instanceof ContextFilteringRequest) {
-					filterService.token((ContextFilteringRequest) request);
-					filterService.predict((ContextFilteringRequest) request);
-				} else {
-					throw new RuntimeException("Unsupported request type");
-				}
-			} catch (Exception e) {
-				e.printStackTrace();  // 오류 출력
+			if (request instanceof SingleFilteringRequest) {
+				filterService.predict((SingleFilteringRequest) request);
+			} else if (request instanceof ContextFilteringRequest) {
+				filterService.token((ContextFilteringRequest) request);
+				filterService.predict((ContextFilteringRequest) request);
+			} else {
+				throw new RuntimeException("Unsupported request type");
 			}
-		};
-
+		} catch (Exception e) {
+			e.printStackTrace(); // 오류 출력
+		}
 	}
 
 }
