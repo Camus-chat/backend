@@ -22,6 +22,6 @@ public interface RedisChatRepository {
 
 	public String getLatestRedisMessageId(String roomId);
 
-	public void addFilteredType(FilteredMessageDto filteredMessageDto);
+	public boolean addFilteredType(FilteredMessageDto filteredMessageDto);
 
 }
