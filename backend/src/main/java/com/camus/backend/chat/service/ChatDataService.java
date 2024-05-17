@@ -118,14 +118,14 @@ public class ChatDataService {
 
 	public ChatDataListDto getMessagesByPagination(
 		UUID roomId,
-		String startRedisMessageId
+		String startRedisMessageId,
+		UUID tempUserId
 	) {
 		if (!startRedisMessageId.contains("DB")) {
 
 			if (startRedisMessageId.equals("0-0")) {
 				startRedisMessageId = redisStreamGroupRepository.getStreamConsumerAlreadyReadRedisMessageId(
-					roomId.toString(),
-					UUID.randomUUID());
+					roomId.toString(), tempUserId);
 			}
 
 			return redisStreamGroupRepository.getMessagesFromRedisByStartId(
