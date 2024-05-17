@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class RoomDto {
-	private UUID _id;
+	private UUID roomId;
 	//private UUID channelKey;
 
 	private String channelType;

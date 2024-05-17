@@ -18,12 +18,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LastMessageInfo {
-	private String _class;
+	private String type;
 	private UUID userId;
 	private String content;
 
 	public LastMessageInfo(RedisSavedMessageBasic messageInfo) {
-		this._class = messageInfo.get_class();
+		this.type = messageInfo.get_class();
 		this.content = messageInfo.getContent();
 
 		if (messageInfo instanceof RedisSavedNoticeMessage noticeMessage) {
