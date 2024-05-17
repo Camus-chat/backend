@@ -103,12 +103,12 @@ public class ChatDataService {
 			latestRedisMessageId,
 			messageList.size()
 		);
-		// Redis에 가장 최근에 읽은 값 갱신
-		redisStreamGroupRepository.updateStreamConsumerAlreadyReadRedisMessageId(
-			roomId.toString(),
-			userId,
-			latestRedisMessageId
-		);
+		// Redis에 가장 최근에 읽은 값 갱신 - 나갈 때만 해야될 것 같음.
+		// redisStreamGroupRepository.updateStreamConsumerAlreadyReadRedisMessageId(
+		// 	roomId.toString(),
+		// 	userId,
+		// 	latestRedisMessageId
+		// );
 
 		return new ChatDataListDto(
 			messages,
