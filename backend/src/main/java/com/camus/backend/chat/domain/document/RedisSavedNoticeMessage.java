@@ -1,26 +1,24 @@
-package com.camus.backend.chat.domain.dto;
+package com.camus.backend.chat.domain.document;
 
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.document.NoticeMessage;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @Document
-public class RedisSavedNoticeMessageDto extends RedisSavedMessageBasicDto {
+public class RedisSavedNoticeMessage extends RedisSavedMessageBasic {
 	private UUID target;
 	private String noticeType;
 
-	public RedisSavedNoticeMessageDto() {
+	public RedisSavedNoticeMessage() {
 		super();
 	}
 
-	public RedisSavedNoticeMessageDto(NoticeMessage noticeMessage) {
+	public RedisSavedNoticeMessage(NoticeMessage noticeMessage) {
 		super(noticeMessage);
 		this.target = noticeMessage.getTarget();
 		this.noticeType = noticeMessage.getNoticeType();

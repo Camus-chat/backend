@@ -1,27 +1,24 @@
-package com.camus.backend.chat.domain.dto;
+package com.camus.backend.chat.domain.document;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.camus.backend.chat.domain.document.CommonMessage;
-import com.camus.backend.chat.domain.document.NoticeMessage;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class RedisSavedMessageBasicDto {
+public class RedisSavedMessageBasic {
 	private String _class; // Notice, Common
 	private Long messageId;
 	private UUID roomId;
 	private LocalDateTime createdDate;
 	private String content;
 
-	public RedisSavedMessageBasicDto() {
+	public RedisSavedMessageBasic() {
 	}
 
-	public RedisSavedMessageBasicDto(CommonMessage commonMessage) {
+	public RedisSavedMessageBasic(CommonMessage commonMessage) {
 		//FIXME : messageType을 enum으로 변경
 		this._class = "Common";
 		this.messageId = commonMessage.getMessageId();
@@ -30,7 +27,7 @@ public class RedisSavedMessageBasicDto {
 		this.content = commonMessage.getContent();
 	}
 
-	public RedisSavedMessageBasicDto(NoticeMessage noticeMessage) {
+	public RedisSavedMessageBasic(NoticeMessage noticeMessage) {
 		//FIXME : messageType을 enum으로 변경
 		this._class = "Notice";
 		this.messageId = noticeMessage.getMessageId();

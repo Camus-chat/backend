@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.domain.document.RedisSavedCommonMessage;
+import com.camus.backend.chat.domain.document.RedisSavedNoticeMessage;
 import com.camus.backend.chat.domain.dto.FilteredMessageDto;
-import com.camus.backend.chat.domain.dto.RedisSavedCommonMessageDto;
-import com.camus.backend.chat.domain.dto.RedisSavedNoticeMessageDto;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.util.component.FilterConstants;
@@ -36,7 +36,7 @@ public class KafkaRedisChatProducer {
 	}
 
 	public void sendNoticeMessage(NoticeMessage noticeMessage) {
-		RedisSavedNoticeMessageDto redisSavedNoticeMessageDto = new RedisSavedNoticeMessageDto(noticeMessage);
+		RedisSavedNoticeMessage redisSavedNoticeMessageDto = new RedisSavedNoticeMessage(noticeMessage);
 		System.out.println("Redis에 Notice저장했음" + redisSavedNoticeMessageDto);
 		kafkaTemplate.send(
 			noticeMessage.getRoomId().toString(),
@@ -46,11 +46,11 @@ public class KafkaRedisChatProducer {
 
 	// FEATUREID : 채팅 메시지를 저장한 후 Kafka에 요청하는 메서드
 	public void sendCommonMessage(CommonMessage commonMessage) {
-		RedisSavedCommonMessageDto redisSavedCommonMessageDto = new RedisSavedCommonMessageDto(commonMessage);
-		System.out.println("Redis에 Common저장했음" + redisSavedCommonMessageDto);
+		RedisSavedCommonMessage redisSavedCommonMessage = new RedisSavedCommonMessage(commonMessage);
+		System.out.println("Redis에 Common저장했음" + redisSavedCommonMessage);
 		kafkaTemplate.send(
-			chatModules.getRedisToClientRoomTopic(redisSavedCommonMessageDto.getRoomId()),
-			redisSavedCommonMessageDto
+			chatModules.getRedisToClientRoomTopic(redisSavedCommonMessage.getRoomId()),
+			redisSavedCommonMessage
 		);
 		sendSingleFilteringRequest(commonMessage);
 	}
