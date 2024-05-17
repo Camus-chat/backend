@@ -121,6 +121,13 @@ public class ChatDataService {
 		String startRedisMessageId
 	) {
 		if (!startRedisMessageId.contains("DB")) {
+
+			if (startRedisMessageId.equals("0-0")) {
+				startRedisMessageId = redisStreamGroupRepository.getStreamConsumerAlreadyReadRedisMessageId(
+					roomId.toString(),
+					UUID.randomUUID());
+			}
+
 			return redisStreamGroupRepository.getMessagesFromRedisByStartId(
 				roomId.toString(),
 				startRedisMessageId
