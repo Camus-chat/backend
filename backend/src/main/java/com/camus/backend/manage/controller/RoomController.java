@@ -56,7 +56,7 @@ public class RoomController {
 		@RequestBody UUID channelLink
 	) {
 		// CHECK : 여기서 이미 사용자 인증이 되었다고 가정
-		UUID tempMemberId = new UUID(0, 0);
+		UUID tempMemberId = UUID.randomUUID();
 
 		RoomEntryManager roomEntryManager;
 		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
