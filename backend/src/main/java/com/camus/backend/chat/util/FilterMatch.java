@@ -10,7 +10,7 @@ import com.camus.backend.filter.util.type.FilteringLevel;
 @Component
 public final class FilterMatch {
 
-	public final Map<Short, Short> FILTER_MAP = Map.of(
+	public static final Map<Short, Short> FILTER_MAP = Map.of(
 		FilteredType.MALICIOUS_SIMPLE.getValue(), FilteringLevel.LOW.getValue(),
 		FilteredType.MALICIOUS_LAMBDA.getValue(), FilteringLevel.LOW.getValue(),
 

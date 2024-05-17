@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import com.camus.backend.global.Exception.CustomException;
-import com.camus.backend.global.Exception.ErrorCode;
-import com.camus.backend.manage.domain.document.ChannelList;
-import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -17,7 +13,10 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
+import com.camus.backend.global.Exception.CustomException;
+import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.document.Channel;
+import com.camus.backend.manage.domain.document.ChannelList;
 import com.camus.backend.manage.domain.document.Room;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.util.ChannelStatus;
@@ -35,29 +34,28 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 
 		if (channelList != null) {
 			return channelList.getChannels().stream()
-					.filter(ch -> ch.getLink().equals(link))
-					.findFirst()
-					.map(Channel::getChatRoomList)
-					.orElse(new ArrayList<>());
+				.filter(ch -> ch.getLink().equals(link))
+				.findFirst()
+				.map(Channel::getChatRoomList)
+				.orElse(new ArrayList<>());
 		} else {
 			return new ArrayList<>();
 		}
 	}
 
-	public List<UUID> getRoomListByOwnerId(UUID ownerId){
+	public List<UUID> getRoomListByOwnerId(UUID ownerId) {
 		Query query = new Query(Criteria.where("_id").is(ownerId));
 		query.fields().include("channels");
 		ChannelList channelList = mongoTemplate.findOne(query, ChannelList.class);
 		List<UUID> roomIdList = new ArrayList<>();
-		if(channelList == null){
+		if (channelList == null) {
 			return roomIdList;
 		}
-		for(Channel channel : channelList.getChannels()){
+		for (Channel channel : channelList.getChannels()) {
 			roomIdList.addAll(channel.getChatRoomList());
 		}
 		return roomIdList;
 	}
-
 
 	@Async
 	public CompletableFuture<RoomDto> getRoomInfoByRoomId(UUID roomId) {
@@ -81,9 +79,9 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 
 		// channels 리스트에서 키가 일치하는 채널을 찾습니다.
 		Channel channel = channelList.getChannels().stream()
-				.filter(ch -> ch.getKey().equals(room.getKey()))
-				.findFirst()
-				.orElse(null);
+			.filter(ch -> ch.getKey().equals(room.getKey()))
+			.findFirst()
+			.orElse(null);
 
 		if (channel == null) {
 			System.out.println("채널을 못찾음");
@@ -92,7 +90,7 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 
 		// RoomDto 객체를 생성합니다.
 		RoomDto roomInfo = new RoomDto();
-		roomInfo.set_id(room.get_id());
+		roomInfo.setRoomId(room.get_id());
 		roomInfo.setChannelType(channel.getType());
 		roomInfo.setChannelTitle(channel.getTitle());
 		roomInfo.setUserList(room.getUserList());
@@ -120,12 +118,12 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 			return new ChannelStatus(false, null, null, null, null);
 		}
 		Channel channel = channelList.getChannels().stream()
-				.filter(ch -> ch.getLink().equals(channelLink))
-				.findFirst()
-				.orElse(null);
+			.filter(ch -> ch.getLink().equals(channelLink))
+			.findFirst()
+			.orElse(null);
 		if (channel != null) {
 			return new ChannelStatus(channel.getIsValid(), channel.getType(), channel.getTitle(),
-					channel.getKey(), channelList.get_id());
+				channel.getKey(), channelList.get_id());
 		} else {
 			return new ChannelStatus(false, null, null, null, null);
 		}
@@ -145,11 +143,11 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		return newPrivateRoom.get_id();
 	}
 
-	public UUID getGroupRoomByChannelKey(UUID channelKey, UUID guestId){
+	public UUID getGroupRoomByChannelKey(UUID channelKey, UUID guestId) {
 		Query query = new Query(Criteria.where("key").is(channelKey));
 		query.fields().include("_id");
 		Room room = mongoTemplate.findOne(query, Room.class);
-		if(room == null){
+		if (room == null) {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
 		Update update = new Update().push("userList", guestId);
@@ -157,6 +155,5 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 
 		return room.get_id();
 	}
-
 
 }
