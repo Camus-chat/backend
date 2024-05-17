@@ -85,7 +85,8 @@ public class ChatDataController {
 		return ResponseEntity.ok(
 			chatDataService.getMessagesByPagination(
 				chatDataRequestDto.getRoomId(),
-				chatDataRequestDto.getNextMessageTimeStamp()
+				chatDataRequestDto.getNextMessageTimeStamp(),
+				tempUUID
 			)
 		);
 
