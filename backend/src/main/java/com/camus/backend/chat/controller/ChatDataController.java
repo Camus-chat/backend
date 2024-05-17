@@ -1,5 +1,6 @@
 package com.camus.backend.chat.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.ChatDataRequestDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.manage.util.ManageConstants;
@@ -35,7 +37,7 @@ public class ChatDataController {
 			+ "\n nextTimeStamp가 \"0-0\"이어야 합니다."
 	)
 	@PostMapping("/data/unread")
-	public ResponseEntity<ChatDataListDto> getUnreadChatData(
+	public ResponseEntity<List<MessageBasicDto>> getUnreadChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 		// 사용자 데이터 받아오기
 	) {

@@ -63,7 +63,7 @@ public class ChatDataService {
 	}
 
 	// 사용자가 아직 읽지 않은 메시지들을 반환한다
-	public ChatDataListDto getUserUnreadMessage(
+	public List<MessageBasicDto> getUserUnreadMessage(
 		UUID roomId,
 		UUID userId
 	) {
@@ -82,10 +82,7 @@ public class ChatDataService {
 		// 이미 최신 메시지까지 읽었다면 빈배열 반환
 		if (latestRedisMessageId
 			.equals(startReadRedisMessageId)) {
-			return new ChatDataListDto(
-				messages,
-				new PaginationDto(startReadRedisMessageId, messages.size())
-			);
+			return messages;
 		}
 
 		// 메시지를 불러오기
@@ -98,11 +95,6 @@ public class ChatDataService {
 			messages.add(convertToMessageBasicDto(messageFromRedis));
 		});
 
-		// 마지막으로 읽은 메시지는 바로 최신 메시지
-		PaginationDto paginationDto = new PaginationDto(
-			latestRedisMessageId,
-			messageList.size()
-		);
 		// Redis에 가장 최근에 읽은 값 갱신 - 나갈 때만 해야될 것 같음.
 		// redisStreamGroupRepository.updateStreamConsumerAlreadyReadRedisMessageId(
 		// 	roomId.toString(),
@@ -110,10 +102,7 @@ public class ChatDataService {
 		// 	latestRedisMessageId
 		// );
 
-		return new ChatDataListDto(
-			messages,
-			paginationDto
-		);
+		return messages;
 	}
 
 	private MessageBasicDto convertToMessageBasicDto(RedisSavedMessageBasic redisSavedMessageBasic) {
