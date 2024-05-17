@@ -16,6 +16,6 @@ public class SingleFilteringResponse extends FilteringResponse {
 	public SingleFilteringResponse(SingleFilteringRequest request, FilteredType filteredType) {
 		setRoomId(request.getRoomId());
 		filteredMessage = new FilteredMessage(request.getSimpleMessage().getId(), filteredType,
-			request.getCreatedDate());
+			request.getSimpleMessage().getCreatedDate());
 	}
 }

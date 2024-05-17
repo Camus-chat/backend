@@ -17,11 +17,12 @@ public class ContextFilteringResponse extends FilteringResponse {
 	List<FilteredMessage> filteredMessages;
 
 	public ContextFilteringResponse(ContextFilteringRequest request, FilteredType[] filteredTypes) {
-		setRoomId(roomId);
+		setRoomId(request.getRoomId());
 		filteredMessages = new ArrayList<>();
 		for (int i = 0; i < request.getUserMessages().size(); i++) {
-			filteredMessages.add(new FilteredMessage(request.getUserMessages().get(i)
-				.getId(), filteredTypes[i], request.getCreatedDate()));
+			filteredMessages.add(new FilteredMessage(
+				request.getUserMessages().get(i).getId(), filteredTypes[i],
+				request.getUserMessages().get(i).getCreatedDate()));
 		}
 	}
 }
