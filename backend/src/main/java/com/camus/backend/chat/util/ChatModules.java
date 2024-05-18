@@ -33,16 +33,16 @@ public class ChatModules {
 	}
 
 	public String getRedisToClientRoomTopic(UUID roomId) {
-		return "client-to-redis-topic:" + roomId;
+		return "client-to-redis-topic_" + roomId;
 	}
 
 	public String getFilteredZsetKeyByRoomId(String roomId) {
 
-		return "chat:room:" + roomId + "filtered:zset";
+		return "chat:room:" + roomId + ":filtered:zset";
 	}
 
 	public String getFilteredHashKeyByRoomId(String roomId) {
-		return "chat:room" + roomId + "filtered:hash";
+		return "chat:room:" + roomId + ":filtered:hash";
 	}
 
 	public long getMogoDBStartPageIndex(

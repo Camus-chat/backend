@@ -25,7 +25,7 @@ public class MessageBasicDto {
 		this.type = redisSavedCommonMessage.get_class();
 		this.messageId = redisSavedCommonMessage.getMessageId();
 		this.roomId = redisSavedCommonMessage.getRoomId();
-		this.createdDate = redisSavedCommonMessage.getCreatedDate().toLocalDate().toString();
+		this.createdDate = redisSavedCommonMessage.getCreatedDate().toString();
 		this.content = redisSavedCommonMessage.getContent();
 	}
 

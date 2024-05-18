@@ -1,17 +1,16 @@
 package com.camus.backend.chat.controller;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.document.CommonMessage;
-import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.camus.backend.chat.domain.document.CommonMessage;
+import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.service.RedisChatService;
 import com.camus.backend.manage.util.ManageConstants;
@@ -26,7 +25,7 @@ public class TestController {
 
 	private TestController(RedisChatService redisChatService,
 		ChatDataService chatDataService,
-						   RedisChatRepository redisChatRepository) {
+		RedisChatRepository redisChatRepository) {
 		this.redisChatService = redisChatService;
 		this.chatDataService = chatDataService;
 		this.redisChatRepository = redisChatRepository;
@@ -48,18 +47,18 @@ public class TestController {
 
 	@PostMapping("/redisSendMessagesTest")
 	public ResponseEntity<String> redisSendMessagesTest(
-		@RequestBody UUID roomId
+		@RequestBody TestChatRequest testRequest
 	) {
 		UUID tempMemberId = ManageConstants.tempMemUuid;
-		redisChatRepository.addCommonMessage(
-				CommonMessage.builder()
-						.roomId(roomId)
-						.senderId(tempMemberId)
-						.content("test입니다. 테스트라구요")
-						.filteredType("1")
-						._class("CommonMessage")
-						.createdDate(LocalDateTime.now())
-						.build()
+		redisChatService.saveCommonMessageToRedis(
+			CommonMessage.builder()
+				.messageId(0L)
+				.roomId(testRequest.getRoomId())
+				.senderId(tempMemberId)
+				.content(testRequest.getContent())
+				.createdDate(LocalDateTime.now())
+				.filteredType("100")
+				.build()
 		);
 
 		return ResponseEntity.ok("ok");
