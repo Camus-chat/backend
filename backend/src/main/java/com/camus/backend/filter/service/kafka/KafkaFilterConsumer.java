@@ -31,11 +31,11 @@ public class KafkaFilterConsumer {
 		this.objectMapper = objectMapper;
 	}
 
+
 	@KafkaListener(topics = "FilteringRequest", groupId = "FilteringGroup")
 	public void listen(ConsumerRecord<String, Object> record) {
 		try {
 			FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);
-
 			if (request instanceof SingleFilteringRequest) {
 				filterService.predict((SingleFilteringRequest) request);
 			} else if (request instanceof ContextFilteringRequest) {

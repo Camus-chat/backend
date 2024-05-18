@@ -20,5 +20,5 @@ import lombok.Setter;
 })
 public abstract class FilteringRequest {
 	UUID roomId;
-
+	// FilteringLevel filteringLevel;
 }

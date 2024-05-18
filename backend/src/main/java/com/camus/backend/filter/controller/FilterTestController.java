@@ -16,7 +16,7 @@ import com.camus.backend.filter.service.FilterService;
 import com.camus.backend.filter.service.kafka.KafkaFilterProducer;
 
 @RestController
-@RequestMapping("filter")
+@RequestMapping("/filter")
 public class FilterTestController {
 
 	private final FilterService filterService;

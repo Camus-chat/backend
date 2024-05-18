@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.manage.domain.dto.ChannelDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
+
+import com.camus.backend.manage.domain.dto.ChannelListDto;
+
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.service.ChannelService;
 
@@ -29,11 +32,11 @@ public class ChannelController {
 	}
 
 	// FIXME : 지워주세요 tempSave
-	@PostMapping("/tempSave")
-	public ResponseEntity<SuccessCode> tempSave() {
-		channelService.createChannelList();
-		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
-	}
+	// @PostMapping("/tempSave")
+	// public ResponseEntity<SuccessCode> tempSave() {
+	// 	channelService.createChannelList();
+	// 	return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
+	// }
 
 	// FeatureID 501-1
 	@Operation(
@@ -60,7 +63,6 @@ public class ChannelController {
 	public ResponseEntity<List<ChannelDto>> getChannelList(
 		// TODO : 사용자 인증 정보 - 회원일 때만
 	) {
-
 		return ResponseEntity.ok(channelService.getChannelList(
 			// TODO : 여기서 사용자 정보 넘기기
 		));
