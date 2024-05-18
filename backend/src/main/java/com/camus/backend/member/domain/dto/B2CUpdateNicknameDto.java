@@ -9,5 +9,4 @@ import lombok.Setter;
 @Setter
 public class B2CUpdateNicknameDto {
 	private String newNickname;
-
 }

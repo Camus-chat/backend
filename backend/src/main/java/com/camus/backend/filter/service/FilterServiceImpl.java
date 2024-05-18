@@ -32,8 +32,8 @@ public class FilterServiceImpl implements FilterService {
 	public void token(ContextFilteringRequest request) {
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder.
-				getMessagesTokenRequest(new ClovaCompletionRequest(request)),
-				filterModule.GetTokenPredictCallback(request));
+					getMessagesTokenRequest(new ClovaCompletionRequest(request)),
+				filterModule.getContextPredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -43,7 +43,7 @@ public class FilterServiceImpl implements FilterService {
 	public void predict(ContextFilteringRequest request) {
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder
-				.getMessagesPredictRequest(new ClovaCompletionRequest(request)),
+					.getMessagesPredictRequest(new ClovaCompletionRequest(request)),
 				filterModule.getContextPredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();
@@ -55,7 +55,7 @@ public class FilterServiceImpl implements FilterService {
 		if (isBadWord(request)) return;
 		try {
 			httpService.sendAsyncHttpRequest(filterRequestBuilder
-				.getMessagePredictRequest(request),
+					.getMessagePredictRequest(request),
 				filterModule.GetSinglePredictCallback(request));
 		} catch (Exception e){
 			e.printStackTrace();

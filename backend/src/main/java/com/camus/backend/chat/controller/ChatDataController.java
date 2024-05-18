@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +17,7 @@ import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.camus.backend.chat.domain.message.RoomExitResponse;
 import com.camus.backend.chat.domain.message.RoomIdRequest;
 import com.camus.backend.chat.service.ChatDataService;
-import com.camus.backend.chat.util.ChatModules;
-import com.camus.backend.manage.util.ManageConstants;
+import com.camus.backend.member.domain.dto.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -25,12 +26,8 @@ import io.swagger.v3.oas.annotations.Operation;
 public class ChatDataController {
 
 	private final ChatDataService chatDataService;
-	private final ChatModules chatModules;
-
-	private ChatDataController(ChatDataService chatDataService
-		, ChatModules chatModules) {
+	private ChatDataController(ChatDataService chatDataService) {
 		this.chatDataService = chatDataService;
-		this.chatModules = chatModules;
 	}
 
 	@Operation(
@@ -43,15 +40,17 @@ public class ChatDataController {
 		@RequestBody RoomIdRequest roomIdRequest
 		// 사용자 데이터 받아오기
 	) {
-		UUID tempUUID = ManageConstants.tempMemUuid;
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
 
 		return ResponseEntity.ok(
 			chatDataService.getUserUnreadMessage(
 				roomIdRequest.getRoomId(),
-				tempUUID
+				userUuid
 			)
 		);
-
 	}
 
 	@Operation(
@@ -62,11 +61,15 @@ public class ChatDataController {
 	public ResponseEntity<RoomExitResponse> exitRoom(
 		@RequestBody RoomIdRequest roomIdRequest
 	) {
-		UUID tempUUID = ManageConstants.tempMemUuid;
+
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
 
 		chatDataService.exitRoomUpdateAlreadyRead(
 			roomIdRequest.getRoomId(),
-			tempUUID
+			userUuid
 		);
 
 		return ResponseEntity.ok(
@@ -86,17 +89,18 @@ public class ChatDataController {
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 	) {
 
-		UUID tempUUID = ManageConstants.tempMemUuid;
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
 
 		return ResponseEntity.ok(
 			chatDataService.getMessagesByPagination(
 				chatDataRequestDto.getRoomId(),
 				chatDataRequestDto.getNextMessageTimeStamp(),
-				tempUUID
+				userUuid
 			)
 		);
-
 	}
 
-	;
 }

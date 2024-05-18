@@ -1,12 +1,14 @@
 package com.camus.backend.member.domain.document;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,14 +18,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberCredential {
 
+@Builder
+public class MemberCredential {
 	@Id
 	private UUID _id;
-
-	@Indexed
-	private String userName;
+	private String username;
 	private String password;
-
+	private String role;
+	private LocalDateTime loginTime;
 }
-

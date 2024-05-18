@@ -10,5 +10,4 @@ import lombok.Setter;
 public class B2CProfileDto {
 	private String nickname;
 	private String profileLink;
-
 }
