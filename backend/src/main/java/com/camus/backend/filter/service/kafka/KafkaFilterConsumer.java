@@ -31,15 +31,16 @@ public class KafkaFilterConsumer {
 		this.objectMapper = objectMapper;
 	}
 
-	@KafkaListener(topics = "filteringRequest", groupId = "filteringGroup")
+
+	@KafkaListener(topics = "FilteringRequest", groupId = "FilteringGroup")
 	public void listen(ConsumerRecord<String, Object> record) {
 		try {
 			FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);
-
-			if (request instanceof SingleFilteringRequest singleFilteringRequest) {
-				filterService.predict(singleFilteringRequest);
-			} else if (request instanceof ContextFilteringRequest contextFilteringRequest) {
-				filterService.predict(contextFilteringRequest);
+			if (request instanceof SingleFilteringRequest) {
+				filterService.predict((SingleFilteringRequest) request);
+			} else if (request instanceof ContextFilteringRequest) {
+				filterService.token((ContextFilteringRequest) request);
+				filterService.predict((ContextFilteringRequest) request);
 			} else {
 				throw new RuntimeException("Unsupported request type");
 			}

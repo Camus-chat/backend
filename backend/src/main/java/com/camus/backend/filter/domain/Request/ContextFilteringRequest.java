@@ -14,8 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ContextFilteringRequest extends FilteringRequest{
 	List<UserMessage> userMessages;
-
-
 	public ContextFilteringRequest(List<CommonMessage> commonMessages){
 		setRoomId(commonMessages.get(0).getRoomId());
 		userMessages = new ArrayList<>();

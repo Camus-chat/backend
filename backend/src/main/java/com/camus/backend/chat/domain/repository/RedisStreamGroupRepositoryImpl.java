@@ -3,20 +3,32 @@ package com.camus.backend.chat.domain.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.dto.*;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StreamOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
 
+import com.camus.backend.chat.domain.document.RedisSavedCommonMessage;
+import com.camus.backend.chat.domain.document.RedisSavedMessageBasic;
+import com.camus.backend.chat.domain.document.RedisSavedNoticeMessage;
+import com.camus.backend.chat.domain.dto.ChatDataListDto;
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
+import com.camus.backend.chat.domain.dto.PaginationDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.CommonMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.NoticeMessageDto;
 import com.camus.backend.chat.util.ChatConstants;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Repository
@@ -64,9 +76,8 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		);
 	}
 
-
 	// FEATUREID: 가장 마지막 메시지 가져오는 메소드
-	public RedisSavedMessageBasicDto getLatestMessageFromStream(String roomId) {
+	public RedisSavedMessageBasic getLatestMessageFromStream(String roomId) {
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
 		Range<String> range = Range.open("-", "+");
@@ -103,7 +114,7 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		return message.getId().getValue();
 	}
 
-	public List<RedisSavedMessageBasicDto> getMessagesFromRedisByEndId(String roomId, String endRedisId) {
+	public List<RedisSavedMessageBasic> getMessagesFromRedisByEndId(String roomId, String endRedisId) {
 
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
@@ -114,10 +125,10 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		if (messages.isEmpty()) {
 			return null;
 		}
-		List<RedisSavedMessageBasicDto> result = new ArrayList<>();
+		List<RedisSavedMessageBasic> result = new ArrayList<>();
 		for (MapRecord<String, String, String> message : messages) {
 			Map<String, String> valueMap = message.getValue();
-			RedisSavedMessageBasicDto msg = convertToRedisSavedMessageBasicDto(valueMap);
+			RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
 			result.add(msg);
 		}
 
@@ -133,38 +144,104 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE));
 
 		if (messages.isEmpty()) {
-			return new ChatDataListDto(			);
+			return new ChatDataListDto();
 		}
-		List<RedisSavedMessageBasicDto> result = new ArrayList<>();
+		List<MessageBasicDto> result = new ArrayList<>();
+
 		for (MapRecord<String, String, String> message : messages) {
 			Map<String, String> valueMap = message.getValue();
-			RedisSavedMessageBasicDto msg = convertToRedisSavedMessageBasicDto(valueMap);
-			result.add(msg);
+			// FIXME : 두번 Convert 삭제
+			RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
+
+			result.add(convertToMessageBasicDto(msg));
+
 		}
 
 		return new ChatDataListDto(result, new PaginationDto(
-				messages.get(messages.size()-1).getId().toString(),
-				result.size()));
+			messages.get(messages.size() - 1).getId().toString(),
+			result.size()));
 	}
 
-	private RedisSavedMessageBasicDto convertToRedisSavedMessageBasicDto(Map<String, String> valueMap) {
+	private RedisSavedMessageBasic convertToRedisSavedMessageBasicDto(
+		Map<String, String> valueMap) {
 		String className = valueMap.get("_class");
-		RedisSavedMessageBasicDto msg;
+		RedisSavedMessageBasic msg;
 		switch (className) {
-			case "NoticeMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedNoticeMessageDto.class);
-			case "CommonMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedCommonMessageDto.class);
+			case "NoticeMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedNoticeMessage.class);
+			case "CommonMessage" -> msg = objectMapper.convertValue(valueMap, RedisSavedCommonMessage.class);
 			default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 		}
 		return msg;
+	}
+
+	// FIXME : 중복 메서드 삭제
+	private MessageBasicDto convertToMessageBasicDto(RedisSavedMessageBasic redisSavedMessageBasic) {
+		String className = redisSavedMessageBasic.get_class();
+		MessageBasicDto msg;
+		switch (className) {
+			case "NoticeMessage" -> msg = new NoticeMessageDto((RedisSavedNoticeMessage)redisSavedMessageBasic);
+			case "CommonMessage" -> msg = this.addFilteredTypeToCommonMessage(
+				new CommonMessageDto((RedisSavedCommonMessage)redisSavedMessageBasic),
+				chatModules.getFilteredHashKeyByRoomId(redisSavedMessageBasic.getRoomId().toString()),
+				chatModules.getFilteredZsetKeyByRoomId(redisSavedMessageBasic.getRoomId().toString())
+			);
+			default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+		}
+		return msg;
+	}
+
+	// FEATUREID : CommonMessage를 필터링 되도록 설정
+	public MessageBasicDto addFilteredTypeToCommonMessage(
+		CommonMessageDto commonMessageDto,
+		String hashStreamKey,
+		String zSetKey
+	) {
+		HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
+
+		String timeString = hashOps.get(hashStreamKey, String.valueOf(commonMessageDto.getMessageId()));
+
+		//필터링 내역 있을 때만
+		if (timeString != null) {
+
+			Double time = Double.parseDouble(timeString);
+			Set<String> filterInfoFromSet = zSetOps.rangeByScore(zSetKey, time, time);
+			// 데이터 불일치
+			if (filterInfoFromSet == null || filterInfoFromSet.isEmpty()) {
+				throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+			}
+
+			// 동일한 시간 대에 입력된 값이 있다면
+			FilteredMessageDto matchedDto = filterInfoFromSet.stream()
+				.map(filterInfo -> {
+					try {
+						return objectMapper.readValue(filterInfo, FilteredMessageDto.class);
+					} catch (JsonProcessingException e) {
+						throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+					}
+				})
+				.filter(filteredMessageDto -> filteredMessageDto.getMessageId() == commonMessageDto.getMessageId())
+				.findFirst()
+				.orElse(null);
+
+			if (matchedDto == null) {
+				throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+			}
+
+			// 필터 레벨 설정
+			commonMessageDto.setFilteredLevel(matchedDto.getFilteredLevel());
+		}
+
+		return commonMessageDto;
 	}
 
 	public long getMessageIdByRedisId(String redisId, String roomId) {
 		String streamKey = chatModules.getRedisStreamKey(roomId);
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		List<MapRecord<String, String, String>> records = streamOps.range(
-				streamKey,
-				Range.closed(redisId, redisId),
-				Limit.limit().count(1)
+			streamKey,
+			Range.closed(redisId, redisId),
+			Limit.limit().count(1)
 		);
 
 		if (records != null && !records.isEmpty()) {

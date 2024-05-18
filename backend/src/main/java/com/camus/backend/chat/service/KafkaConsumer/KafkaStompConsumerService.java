@@ -22,7 +22,6 @@ public class KafkaStompConsumerService {
 		container.getContainerProperties().setGroupId(groupId);
 		container.setupMessageListener((MessageListener<String, String>)message -> {
 			String jsonValue = message.value();
-			System.out.println("Received dynamic message : " + message);
 			simpMessagingTemplate.convertAndSend("/subscribe/message_receive/" + topic, jsonValue);
 		});
 		container.start();

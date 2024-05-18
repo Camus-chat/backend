@@ -50,9 +50,9 @@ public enum ErrorCode {
 	FORBIDDEN_GUEST(HttpStatus.FORBIDDEN, 303, "비회원은 5일 동안만 가능합니다."),
 
 	// 기타 에러
-	DB_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 작업에 실패했습니다.")
+	DB_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 작업에 실패했습니다."),
+	DB_INCONSISTENT(HttpStatus.INTERNAL_SERVER_ERROR, 501, "데이터베이스 불일치 문제 발생-확인필요");
 
-	;
 
 	private final HttpStatus httpStatusCode;
 	private final Integer errorKey;

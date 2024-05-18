@@ -1,7 +1,5 @@
 package com.camus.backend.filter.service;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
@@ -18,27 +16,10 @@ public class HttpServiceImpl implements HttpService {
 		this.httpClient = httpClient;
 	}
 
-	public CompletableFuture<SimpleHttpResponse> sendAsyncHttpRequest(AsyncRequestProducer producer) {
-		CompletableFuture<SimpleHttpResponse> futureResponse = new CompletableFuture<>();
+	public void sendAsyncHttpRequest(AsyncRequestProducer producer, FutureCallback<SimpleHttpResponse> futureCallback) {
+
 		AsyncResponseConsumer<SimpleHttpResponse> consumer = SimpleResponseConsumer.create();
-		httpClient.execute(producer, consumer, new FutureCallback<>() {
-			@Override
-			public void completed(SimpleHttpResponse result) {
-				futureResponse.complete(result);
-			}
-
-			@Override
-			public void failed(Exception ex) {
-				futureResponse.completeExceptionally(ex);
-			}
-
-			@Override
-			public void cancelled() {
-				futureResponse.cancel(true);
-			}
-		});
-
-		return futureResponse;
+		httpClient.execute(producer, consumer, futureCallback);
 
 	}
 }

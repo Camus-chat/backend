@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum SingleFilteringType {
 	MALICIOUS(0),
 	HATE(1),
-	NOT_FILTERED(2)
+	SPAM(2),
+	NOT_FILTERED(3)
 	;
 
 	private final int value;

@@ -6,18 +6,16 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
+import org.springframework.stereotype.Service;
+
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.camus.backend.chat.service.ChatDataService;
+import com.camus.backend.chat.service.RedisChatService;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.dto.LastMessageInfo;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-
-import com.camus.backend.chat.service.RedisChatService;
 
 import com.camus.backend.manage.domain.repository.RoomRepository;
 import com.camus.backend.manage.util.ChannelStatus;
@@ -33,8 +31,8 @@ public class RoomService {
 	private final ChannelListRepository channelListRepository;
 
 	RoomService(RoomRepository roomRepository, RedisChatService redisChatService,
-				ChannelListRepository channelListRepository,
-				ChatDataService chatDataService) {
+		ChannelListRepository channelListRepository,
+		ChatDataService chatDataService) {
 		this.roomRepository = roomRepository;
 		this.redisChatService = redisChatService;
 		this.channelListRepository = channelListRepository;
@@ -60,7 +58,7 @@ public class RoomService {
 		List<CompletableFuture<RoomDto>> futures = new ArrayList<>();
 
 		for (UUID roomId : roomIdList) {
-			RedisSavedMessageBasicDto latestMessage = chatDataService.getLatestRedisMessageId(roomId.toString());
+			MessageBasicDto latestMessage = chatDataService.getLatestRedisMessageId(roomId.toString());
 			int unreadCount = chatDataService.UnreadMessageCountByUserId(roomId, ownerId);
 			futures.add(CompletableFuture.supplyAsync(() -> {
 				try {
@@ -79,8 +77,8 @@ public class RoomService {
 		}
 
 		return futures.stream()
-				.map(CompletableFuture::join)
-				.collect(Collectors.toList());
+			.map(CompletableFuture::join)
+			.collect(Collectors.toList());
 	}
 
 	// FeatureID 511-2 : 새로운 Rooom 생성 및 channel 정보에 추가
@@ -124,7 +122,7 @@ public class RoomService {
 
 	public ChannelStatus channelStatus(UUID channelLink) {
 		ChannelStatus channelStatus = roomRepository.getChannelStatus(channelLink);
-		if(channelStatus.getKey() == null){
+		if (channelStatus.getKey() == null) {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
 		return channelStatus;

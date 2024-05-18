@@ -1,11 +1,16 @@
 package com.camus.backend.manage.domain.dto;
 
-import com.camus.backend.chat.domain.dto.RedisSavedCommonMessageDto;
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
-import com.camus.backend.chat.domain.dto.RedisSavedNoticeMessageDto;
-import lombok.*;
-
 import java.util.UUID;
+
+import com.camus.backend.chat.domain.dto.chatmessagedto.CommonMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.NoticeMessageDto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -13,22 +18,23 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LastMessageInfo {
-    private String _class;
-    private UUID userId;
-    private String content;
+	private String type;
+	private UUID userId;
+	private String content;
+	private int filteredLevel;
 
+	public LastMessageInfo(MessageBasicDto messageInfo) {
+		this.type = messageInfo.getType();
+		this.content = messageInfo.getContent();
 
-    public LastMessageInfo(RedisSavedMessageBasicDto messageInfo) {
-            this._class = messageInfo.get_class();
-            this.content = messageInfo.getContent();
-
-            if (messageInfo instanceof RedisSavedNoticeMessageDto noticeMessage) {
-                this.userId = noticeMessage.getTarget();
-            } else if(messageInfo instanceof RedisSavedCommonMessageDto commonMessage) {
-                this.userId = commonMessage.getSenderId();
-            }else {
-                throw new IllegalArgumentException("Invalid message type");
-            }
-        }
+		if (messageInfo instanceof NoticeMessageDto noticeMessage) {
+			this.userId = noticeMessage.getTargetId();
+		} else if (messageInfo instanceof CommonMessageDto commonMessage) {
+			this.userId = commonMessage.getSenderId();
+			this.filteredLevel = commonMessage.getFilteredLevel();
+		} else {
+			throw new IllegalArgumentException("Invalid message type");
+		}
+	}
 
 }

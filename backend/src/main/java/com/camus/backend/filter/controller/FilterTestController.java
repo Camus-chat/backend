@@ -1,5 +1,6 @@
 package com.camus.backend.filter.controller;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,16 +29,21 @@ public class FilterTestController {
 	}
 	@GetMapping("clova")
 	public void clova(){
+		UUID roomId = UUID.randomUUID();
 		List<CommonMessage> messages = new ArrayList<>();
 		CommonMessage message1 = CommonMessage.builder()
-			.roomId(UUID.randomUUID())
+			.roomId(roomId)
 			.senderId(UUID.randomUUID())
+			.messageId(0L)
+			.createdDate(LocalDateTime.now())
 			.content("내용1").build();
 		messages.add(message1);
 
 		CommonMessage message2 = CommonMessage.builder()
-			.roomId(UUID.randomUUID())
+			.roomId(roomId)
 			.senderId(UUID.randomUUID())
+			.messageId(1L)
+			.createdDate(LocalDateTime.now())
 			.content("욕설1").build();
 		messages.add(message2);
 
@@ -51,6 +57,8 @@ public class FilterTestController {
 		CommonMessage message = CommonMessage.builder()
 			.roomId(UUID.randomUUID())
 			.senderId(UUID.randomUUID())
+			.messageId(0L)
+			.createdDate(LocalDateTime.now())
 			.content("내용1").build();
 		kafkaFilterProducer.sendRequest(new SingleFilteringRequest(message));
 		// filterService.predict(new SingleFilteringRequest(message, FilteringLevel.HIGH));

@@ -1,8 +1,8 @@
 package com.camus.backend.filter.domain.Request;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.camus.backend.filter.util.type.FilteringLevel;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -20,5 +20,5 @@ import lombok.Setter;
 })
 public abstract class FilteringRequest {
 	UUID roomId;
-	FilteringLevel filteringLevel;
+	// FilteringLevel filteringLevel;
 }

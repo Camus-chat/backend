@@ -1,6 +1,5 @@
 package com.camus.backend.chat.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.ChatDataRequestDto;
-import com.camus.backend.chat.domain.dto.PaginationDto;
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.manage.util.ManageConstants;
@@ -42,7 +40,7 @@ public class ChatDataController {
 			+ "\n nextTimeStamp가 \"0-0\"이어야 합니다."
 	)
 	@PostMapping("/data/unread")
-	public ResponseEntity<ChatDataListDto> getUnreadChatData(
+	public ResponseEntity<List<MessageBasicDto>> getUnreadChatData(
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 		// 사용자 데이터 받아오기
 	) {
@@ -63,8 +61,8 @@ public class ChatDataController {
 	}
 
 	@Operation(
-			summary = "채팅방을 나갈 때를 트리거 하는 api입니다.",
-			description = "여태까지 읽은 가장 최신 메시지 기록을 재작성합니다."
+		summary = "채팅방을 나갈 때를 트리거 하는 api입니다.",
+		description = "여태까지 읽은 가장 최신 메시지 기록을 재작성합니다."
 	)
 	@PostMapping("/room/exit")
 	public ResponseEntity<String> exitRoom(
@@ -96,18 +94,16 @@ public class ChatDataController {
 		@RequestBody ChatDataRequestDto chatDataRequestDto
 	) {
 
-		// uuid 안 쓰는 거 같네
 		// 요청을 한 사용자의 uuid 구하기
-		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		// UUID userUuid = userDetails.get_id();
-
-		//UUID tempUUID = ManageConstants.tempMemUuid;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
 
 		return ResponseEntity.ok(
 			chatDataService.getMessagesByPagination(
 				chatDataRequestDto.getRoomId(),
-				chatDataRequestDto.getNextMessageTimeStamp()
+				chatDataRequestDto.getNextMessageTimeStamp(),
+				userUuid
 			)
 		);
 	}

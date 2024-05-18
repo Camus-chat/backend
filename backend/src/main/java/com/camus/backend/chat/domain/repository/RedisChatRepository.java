@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 
 public interface RedisChatRepository {
 
@@ -17,8 +18,10 @@ public interface RedisChatRepository {
 
 	public void addNoticeMessage(NoticeMessage noticeMessage);
 
-	public void addCommonMessage(CommonMessage commonMessage);
+	public long addCommonMessage(CommonMessage commonMessage);
 
 	public String getLatestRedisMessageId(String roomId);
+
+	public boolean addFilteredType(FilteredMessageDto filteredMessageDto);
 
 }

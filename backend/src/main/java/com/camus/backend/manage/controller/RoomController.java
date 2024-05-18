@@ -3,15 +3,19 @@ package com.camus.backend.manage.controller;
 import java.util.List;
 import java.util.UUID;
 
-import com.camus.backend.manage.domain.dto.RoomDto;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.domain.dto.RoomIdDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
@@ -35,9 +39,9 @@ public class RoomController {
 		summary = "방 리스트 조회",
 		description = "전체 채팅방 리스트를 조회하는 api"
 	)
-	@PostMapping("/list")
+	@GetMapping("/list")
 	public ResponseEntity<List<RoomDto>> getRoomList(
-			// 사용자 정보 받기
+		// 사용자 정보 받기
 	) {
 
 		// 요청을 한 사용자의 uuid 구하기
@@ -53,8 +57,8 @@ public class RoomController {
 
 	// FeatureID : 게스트 ROOM 입장하기 & 생성하기
 	@Operation(
-			summary = "게스트가 링크로 진입시 방 입장하기",
-			description = "기존방/신규(개인/그룹)방 모두 동일처리"
+		summary = "게스트가 링크로 진입시 방 입장하기",
+		description = "기존방/신규(개인/그룹)방 모두 동일처리"
 	)
 	@PostMapping("/guest/enter")
 	public ResponseEntity<RoomIdDto> enterRoom(
