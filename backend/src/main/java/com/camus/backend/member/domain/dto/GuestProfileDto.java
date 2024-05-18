@@ -7,6 +7,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class TokenDto {
-	private String authorization;
+public class GuestProfileDto {
+	private String nickname;
+	private String profileImageColor;
 }

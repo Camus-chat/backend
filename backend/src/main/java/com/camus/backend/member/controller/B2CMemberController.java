@@ -15,10 +15,7 @@ import com.camus.backend.member.domain.dto.B2CMemberCredentialDto;
 import com.camus.backend.member.domain.dto.B2CProfileDto;
 import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
-import com.camus.backend.member.domain.dto.MemberCredentialDto;
 import com.camus.backend.member.service.MemberService;
-
-
 
 @RestController
 @RequestMapping("/member/b2c")

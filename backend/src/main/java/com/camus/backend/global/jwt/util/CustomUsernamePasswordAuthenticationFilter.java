@@ -15,9 +15,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 		setRequiresAuthenticationRequestMatcher(new OrRequestMatcher(
 			Arrays.asList(
 				new AntPathRequestMatcher("/member/b2c/login", "POST"),
-				new AntPathRequestMatcher("/member/b2b/login", "POST")
-				// 게스트는 따로
-				//new AntPathRequestMatcher("/guest/login", "POST")
+				new AntPathRequestMatcher("/member/b2b/login", "POST"),
+				new AntPathRequestMatcher("/guest/login", "POST")
 			)
 		));
 	}

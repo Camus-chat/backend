@@ -1,5 +1,7 @@
 package com.camus.backend.member.service;
 
+import static com.camus.backend.global.util.GuestUtil.*;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -41,8 +43,12 @@ import com.camus.backend.member.domain.dto.B2CProfileDto;
 import com.camus.backend.member.domain.dto.B2CUpdateImageDto;
 import com.camus.backend.member.domain.dto.B2CUpdateNicknameDto;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
+import com.camus.backend.member.domain.dto.GuestProfileDto;
+import com.camus.backend.member.domain.dto.GuestSignUpDto;
+import com.camus.backend.member.domain.dto.LinkDto;
 import com.camus.backend.member.domain.dto.MemberCredentialDto;
 
+import com.camus.backend.member.domain.dto.UUIDDto;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 import com.camus.backend.member.domain.repository.MemberProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -237,6 +243,8 @@ public class MemberService {
 
 		memberCredentialRepository.save(newMemberCredential);
 
+		// System.out.println(memberUuid+ " b2buuid");
+
 		// 채널리스트 생성
 		channelService.createChannelList(memberUuid);
 
@@ -315,6 +323,8 @@ public class MemberService {
 
 		memberCredentialRepository.save(newMemberCredential);
 
+		// System.out.println(memberUuid+ " b2cuuid");
+
 		// 채널리스트 생성
 		channelService.createChannelList(memberUuid);
 
@@ -353,7 +363,7 @@ public class MemberService {
 
 	// guest 회원가입
 	// 토큰 닉네임 프사 주기
-	public List<String> guestSignUp(MemberCredentialDto memberCredentialDto){
+	public GuestSignUpDto guestSignUp(MemberCredentialDto memberCredentialDto){
 
 		String username = memberCredentialDto.getUsername();
 		String password = memberCredentialDto.getPassword();
@@ -391,6 +401,8 @@ public class MemberService {
 
 		memberCredentialRepository.save(newMemberCredential);
 
+		// System.out.println(memberUuid+ " guestuuid");
+
 		// 채널리스트 생성
 		channelService.createChannelList(memberUuid);
 
@@ -406,19 +418,23 @@ public class MemberService {
 		// 프로필 저장
 		memberProfileRepository.save(memberProfile);
 
-		// 게스트 access
-		String accessToken = jwtTokenProvider.createToken("access",username,guestRole, jwtSettings.getAccessExpire());
-		String refreshToken;
-		long cookieRefresh=jwtSettings.getGuestExpire();
-
-		// 게스트 refresh 주기
-		refreshToken = jwtTokenProvider.createToken("refresh",username,guestRole, cookieRefresh);
-
-		// redis에 refresh token 저장
-		redisService.storeRefreshToken(username, refreshToken, cookieRefresh);
+		// // 게스트 access
+		// String accessToken = jwtTokenProvider.createToken("access",username,guestRole, jwtSettings.getAccessExpire());
+		// String refreshToken;
+		// long cookieRefresh=jwtSettings.getGuestExpire();
+		//
+		// // 게스트 refresh 주기
+		// refreshToken = jwtTokenProvider.createToken("refresh",username,guestRole, cookieRefresh);
+		//
+		// // redis에 refresh token 저장
+		// redisService.storeRefreshToken(username, refreshToken, cookieRefresh);
 		
 		// 엑세스 리프레시 닉네임 프사
-		return List.of(accessToken, refreshToken, nickname, profilePalette);
+		// return List.of(accessToken, refreshToken, nickname, profilePalette);
+		return GuestSignUpDto.builder()
+			.username(username)
+			.password(password)
+			.build();
 	}
 
 	// id가 db에 있는지 체크. 있으면 false 없으면 true
@@ -586,5 +602,160 @@ public class MemberService {
 		// 수정사항 저장
 		memberProfileRepository.save(memberProfile);
 	}
+
+	// 다른 사람의 정보 가져오기
+	public MemberProfile getMemberInfo(UUIDDto uuidDto){
+
+		UUID userUuid = uuidDto.getMemberUuid();
+		// 사용자의 profile 가져오기
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userUuid);
+		if (memberProfileOptional.isEmpty()) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+
+		return memberProfileOptional.get();
+	}
+	
+	// guest 정보 가져오기
+	public GuestProfileDto getGuestInfo() {
+
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+		UUID uuid = userDetails.get_id();
+
+		// 사용자의 profile 가져오기
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(uuid);
+		if (memberProfileOptional.isEmpty()) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+		MemberProfile memberProfile = memberProfileOptional.get();
+
+		// 타입 체크
+		if (memberProfile instanceof GuestProfile guestProfile) {
+			return GuestProfileDto.builder()
+				.nickname(guestProfile.getNickname())
+				.profileImageColor(guestProfile.getProfilePalette())
+				.build();
+		} else {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+	}
+
+	// guest가 링크 클릭했을 때 guestprofile이랑 chatroominfo 줘야함
+	public LinkDto guestEnter(){
+
+		// guest username, password 생성
+		String guestUsername = generateUsername();
+		String guestPassword = "guestPwd";
+
+		// username 유효성 검사
+		if (guestUsername.length() < 5 || guestUsername.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", guestUsername)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		}
+
+		// 비밀번호 암호화
+		String encodedPassword = bCryptPasswordEncoder.encode(guestPassword);
+
+		// 사용자 uuid 생성
+		UUID memberUuid = UUID.randomUUID();
+
+		// role=guest
+		String guestRole = "guest";
+
+		MemberCredential newMemberCredential = MemberCredential.builder()
+			._id(memberUuid)
+			.username(guestUsername)
+			.password(encodedPassword)
+			.role(guestRole)
+			.loginTime(LocalDateTime.now())
+			.build();
+
+		memberCredentialRepository.save(newMemberCredential);
+
+		// System.out.println(memberUuid+ " guestuuid");
+
+		// 채널리스트 생성
+		channelService.createChannelList(memberUuid);
+
+		// 프로필 생성
+		GuestProfile memberProfile = new GuestProfile();
+		// 프로필 ID 설정
+		memberProfile.set_id(memberUuid);
+		String nickname = GuestUtil.makeNickname();
+		String profilePalette = GuestUtil.chooseColorPalette();
+		memberProfile.setNickname(nickname);
+		memberProfile.setProfilePalette(profilePalette);
+
+		// 프로필 저장
+		memberProfileRepository.save(memberProfile);
+
+
+
+		// // 게스트 access
+		// String accessToken = jwtTokenProvider.createToken("access",username,guestRole, jwtSettings.getAccessExpire());
+		// String refreshToken;
+		// long cookieRefresh=jwtSettings.getGuestExpire();
+		//
+		// // 게스트 refresh 주기
+		// refreshToken = jwtTokenProvider.createToken("refresh",username,guestRole, cookieRefresh);
+		//
+		// // redis에 refresh token 저장
+		// redisService.storeRefreshToken(username, refreshToken, cookieRefresh);
+
+		// 엑세스 리프레시 닉네임 프사
+		//return List.of(accessToken, refreshToken, nickname, profilePalette);
+
+		return null;
+	}
+
+
+	public void tempGuestSignUp(){
+		// guest username, password 생성
+		String guestUsername = generateUsername();
+		String guestPassword = "guestPwd";
+
+		// username 유효성 검사
+		if (guestUsername.length() < 5 || guestUsername.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", guestUsername)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		}
+
+		// 비밀번호 암호화
+		String encodedPassword = bCryptPasswordEncoder.encode(guestPassword);
+
+		// 사용자 uuid 생성
+		UUID memberUuid = UUID.randomUUID();
+
+		// role=guest
+		String guestRole = "guest";
+
+		MemberCredential newMemberCredential = MemberCredential.builder()
+			._id(memberUuid)
+			.username(guestUsername)
+			.password(encodedPassword)
+			.role(guestRole)
+			.loginTime(LocalDateTime.now())
+			.build();
+
+		memberCredentialRepository.save(newMemberCredential);
+
+		// 채널리스트 생성
+		channelService.createChannelList(memberUuid);
+
+		// 프로필 생성
+		GuestProfile memberProfile = new GuestProfile();
+		// 프로필 ID 설정
+		memberProfile.set_id(memberUuid);
+		String nickname = GuestUtil.makeNickname();
+		String profilePalette = GuestUtil.chooseColorPalette();
+		memberProfile.setNickname(nickname);
+		memberProfile.setProfilePalette(profilePalette);
+
+		// 프로필 저장
+		memberProfileRepository.save(memberProfile);
+	}
+
+
+
 
 }

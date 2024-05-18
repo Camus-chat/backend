@@ -17,7 +17,7 @@ import lombok.Setter;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
 	@JsonSubTypes.Type(value = SingleFilteringResponse.class, name = "singleRes"),
-	@JsonSubTypes.Type(value = ContextFilteringResponse.class, name = "contextRes")
+	@JsonSubTypes.Type(value = ContextFilteringResponse.class, name = "contextRes"),
 })
 public abstract class FilteringResponse {
 	UUID roomId;

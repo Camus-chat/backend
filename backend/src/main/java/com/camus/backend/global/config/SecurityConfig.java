@@ -79,7 +79,8 @@ public class SecurityConfig {
 				.requestMatchers("/").permitAll() // 메인페이지
 				.requestMatchers("/member/b2c/login","/member/b2c/signup").permitAll() // b2c 유저 로그인, 회원가입
 				.requestMatchers("/member/b2b/login","/member/b2b/signup").permitAll() // b2b 유저 로그인, 회원가입
-				.requestMatchers("/guest/signup").permitAll() // 게스트 // "/guest/login"
+				.requestMatchers("/guest/signup", "/guest/info", "/guest/login").permitAll() // 게스트 //
+				.requestMatchers("/member/etc/check", "/member/etc/info").permitAll() // idcheck, 정보 가져오기
 				.requestMatchers("/reissue").permitAll() // access 토큰 재발급
 				.requestMatchers("/check").permitAll() // id 중복체크
 				.requestMatchers("/error").permitAll() // 에러 보기
@@ -92,6 +93,7 @@ public class SecurityConfig {
 				// .requestMatchers("/model/clova", "/model/lambda").permitAll() // ModelTestController
 				.requestMatchers("/statistic/member", "/statistic/channel").permitAll() // StatisticController
 				.requestMatchers("/filter/clova", "/filter/lambda",  "/filter/bad").permitAll() // FilterTestController
+				.requestMatchers("/ws-stomp/**").permitAll() // stomp 설정
 				// permitall이나 hasrole로 라이브러리화 할때 쓰기
 				.anyRequest().authenticated());
 
