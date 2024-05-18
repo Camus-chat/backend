@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.camus.backend.chat.domain.document.RedisSavedMessageBasic;
 import com.camus.backend.chat.domain.dto.ChatDataListDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.CommonMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 
 public interface RedisStreamGroupRepository {
 	public List<RedisSavedMessageBasic> getMessagesFromRedisByEndId(String roomId,
@@ -22,4 +24,10 @@ public interface RedisStreamGroupRepository {
 	RedisSavedMessageBasic getLatestMessageFromStream(String roomId);
 
 	long getMessageIdByRedisId(String redisId, String roomId);
+
+	MessageBasicDto addFilteredTypeToCommonMessage(
+		CommonMessageDto commonMessageDto,
+		String hashStreamKey,
+		String zSetKey
+	);
 }

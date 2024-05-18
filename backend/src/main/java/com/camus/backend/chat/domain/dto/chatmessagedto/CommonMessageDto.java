@@ -14,11 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommonMessageDto extends MessageBasicDto {
-	private String filteredLevel;
+	private String filteredLevel = "0";
 	private UUID senderId;
 
 	public CommonMessageDto(RedisSavedCommonMessage redisSavedCommonMessage) {
 		super(redisSavedCommonMessage);
-		this.filteredLevel = redisSavedCommonMessage.getFilteredType();
+		this.senderId = redisSavedCommonMessage.getSenderId();
+		// this.filteredLevel = redisSavedCommonMessage.getFilteredType();
 	}
 }

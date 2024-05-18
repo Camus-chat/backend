@@ -110,7 +110,11 @@ public class ChatDataService {
 		MessageBasicDto msg;
 		switch (className) {
 			case "NoticeMessage" -> msg = new NoticeMessageDto((RedisSavedNoticeMessage)redisSavedMessageBasic);
-			case "CommonMessage" -> msg = new CommonMessageDto((RedisSavedCommonMessage)redisSavedMessageBasic);
+			case "CommonMessage" -> msg = redisStreamGroupRepository.addFilteredTypeToCommonMessage(
+				new CommonMessageDto((RedisSavedCommonMessage)redisSavedMessageBasic),
+				chatModules.getFilteredHashKeyByRoomId(redisSavedMessageBasic.getRoomId().toString()),
+				chatModules.getFilteredZsetKeyByRoomId(redisSavedMessageBasic.getRoomId().toString())
+			);
 			default -> throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 		}
 		return msg;
@@ -154,8 +158,9 @@ public class ChatDataService {
 	}
 
 	// roomId 기반 : 가장 최근 메시지를 받아온다.
-	public RedisSavedMessageBasic getLatestRedisMessageId(String roomId) {
-		return redisStreamGroupRepository.getLatestMessageFromStream(roomId);
+	public MessageBasicDto getLatestRedisMessageId(String roomId) {
+		return convertToMessageBasicDto(
+			redisStreamGroupRepository.getLatestMessageFromStream(roomId));
 	}
 
 	// 안 읽은 메시지의 갯수를 반환한다.

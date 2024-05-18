@@ -45,7 +45,8 @@ public enum ErrorCode {
 	FORBIDDEN_ACCESS_DENIED(HttpStatus.FORBIDDEN, 302, "권한이 없습니다."),
 
 	// 기타 에러
-	DB_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 작업에 실패했습니다.");
+	DB_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 작업에 실패했습니다."),
+	DB_INCONSISTENT(HttpStatus.INTERNAL_SERVER_ERROR, 501, "데이터베이스 불일치 문제 발생-확인필요");
 
 	private final HttpStatus httpStatusCode;
 	private final Integer errorKey;
