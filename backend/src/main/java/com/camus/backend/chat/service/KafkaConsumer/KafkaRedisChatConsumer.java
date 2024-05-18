@@ -44,10 +44,10 @@ public class KafkaRedisChatConsumer {
 	// Kafka에서 메시지를 받아와 Redis에 저장하는 메소드
 	// REDIS_LISTEN_TOPIC = "clientMessage" 이걸 쓰는 중임. 참고할 것
 	@KafkaListener(topics = "clientMessage", groupId = "REDIS_GROUP_ID")
-	public void listenToSaveRedis(String message) {
+	public void listenToSaveRedis(ConsumerRecord<String, Object> record) {
 		System.out.println("Kafka에서 메시지 받아옴");
 		try {
-			StompToRedisMessage kafkaMessage = objectMapper.readValue(message, StompToRedisMessage.class);
+			StompToRedisMessage kafkaMessage = objectMapper.readValue(record.value().toString(), StompToRedisMessage.class);
 			CommonMessage commonMessage = CommonMessage.builder()
 				.content(kafkaMessage.getContent())
 				.roomId(UUID.fromString(kafkaMessage.getRoomId()))
