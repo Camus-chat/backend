@@ -28,6 +28,7 @@ import com.camus.backend.chat.util.ChatConstants;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Repository
@@ -202,7 +203,8 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 
 		//필터링 내역 있을 때만
 		if (timeString != null) {
-			long time = Long.parseLong(timeString);
+
+			Double time = Double.parseDouble(timeString);
 			Set<String> filterInfoFromSet = zSetOps.rangeByScore(zSetKey, time, time);
 			// 데이터 불일치
 			if (filterInfoFromSet == null || filterInfoFromSet.isEmpty()) {
@@ -211,7 +213,13 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 
 			// 동일한 시간 대에 입력된 값이 있다면
 			FilteredMessageDto matchedDto = filterInfoFromSet.stream()
-				.map(filterInfo -> objectMapper.convertValue(filterInfo, FilteredMessageDto.class))
+				.map(filterInfo -> {
+					try {
+						return objectMapper.readValue(filterInfo, FilteredMessageDto.class);
+					} catch (JsonProcessingException e) {
+						throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
+					}
+				})
 				.filter(filteredMessageDto -> filteredMessageDto.getMessageId() == commonMessageDto.getMessageId())
 				.findFirst()
 				.orElse(null);
