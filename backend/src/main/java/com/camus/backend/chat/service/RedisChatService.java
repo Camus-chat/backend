@@ -11,8 +11,6 @@ import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
 import com.camus.backend.chat.service.KafkaProducer.KafkaRedisChatProducer;
 import com.camus.backend.chat.util.ChatNoticeType;
-import com.camus.backend.filter.util.type.FilteredType;
-import com.camus.backend.filter.util.type.FilteringType;
 
 @Service
 public class RedisChatService {
@@ -27,7 +25,9 @@ public class RedisChatService {
 
 	public void saveCommonMessageToRedis(
 		CommonMessage commonMessage) {
-		redisChatRepository.addCommonMessage(commonMessage);
+
+		long messageId = redisChatRepository.addCommonMessage(commonMessage);
+		commonMessage.setMessageId(messageId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
 		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
@@ -36,14 +36,13 @@ public class RedisChatService {
 	public void saveFilteredMessageToRedis(
 		FilteredMessageDto filteredMessageDto) {
 		// WOO TODO : 필터링 저장 로직
-		if (redisChatRepository.addFilteredType(filteredMessageDto)){
+		if (redisChatRepository.addFilteredType(filteredMessageDto)) {
 			// WOO TODO : KafKa에 redis에 저장됐다 메시지 전송
 			kafkaRedisChatProducer.sendFilterMessage(
 				filteredMessageDto
 			);
 			System.out.println("kafka success");
 		}
-
 
 	}
 
