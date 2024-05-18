@@ -21,7 +21,7 @@ public class LastMessageInfo {
 	private String type;
 	private UUID userId;
 	private String content;
-	private String filterLevel;
+	private int filterLevel;
 
 	public LastMessageInfo(MessageBasicDto messageInfo) {
 		this.type = messageInfo.getType();

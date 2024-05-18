@@ -16,7 +16,7 @@ public class FilteredMessageDto {
 	@JsonProperty("messageId")
 	private long messageId;
 	@JsonProperty("filteredLevel")
-	private String filteredLevel;
+	private int filteredLevel;
 	@JsonProperty("filteredType")
 	private Short filteredType;
 	@JsonProperty("createdDate")

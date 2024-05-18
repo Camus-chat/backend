@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommonMessageDto extends MessageBasicDto {
-	private String filteredLevel = "0";
+	private int filteredLevel = 0;
 	private UUID senderId;
 
 	public CommonMessageDto(RedisSavedCommonMessage redisSavedCommonMessage) {

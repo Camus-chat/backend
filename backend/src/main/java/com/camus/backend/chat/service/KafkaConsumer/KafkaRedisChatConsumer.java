@@ -66,7 +66,7 @@ public class KafkaRedisChatConsumer {
 			filteredMessageDto.setMessageId(response.getFilteredMessage().getId());
 			filteredMessageDto.setFilteredLevel(
 				filterMatch.FILTER_MAP.get(response.getFilteredMessage().getFilteredType().getValue())
-					.toString());
+			);
 			filteredMessageDto.setFilteredType(response.getFilteredMessage().getFilteredType().getValue());
 			filteredMessageDto.setCreatedDate(response.getFilteredMessage().getCreatedDate());
 			redisChatService.saveFilteredMessageToRedis(filteredMessageDto);
@@ -93,7 +93,7 @@ public class KafkaRedisChatConsumer {
 				filteredMessageDto.setMessageId(filteredMessage.getId());
 				filteredMessageDto.setFilteredLevel(
 					filterMatch.FILTER_MAP.get(filteredMessage.getFilteredType().getValue())
-						.toString());
+				);
 				filteredMessageDto.setFilteredType(filteredMessage.getFilteredType().getValue());
 				filteredMessageDto.setCreatedDate(filteredMessage.getCreatedDate());
 
