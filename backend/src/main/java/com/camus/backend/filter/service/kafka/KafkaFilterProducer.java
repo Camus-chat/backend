@@ -4,7 +4,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.filter.domain.Request.FilteringRequest;
+import com.camus.backend.filter.domain.Response.ContextFilteringResponse;
 import com.camus.backend.filter.domain.Response.FilteringResponse;
+import com.camus.backend.filter.domain.Response.SingleFilteringResponse;
 import com.camus.backend.filter.util.component.FilterConstants;
 
 @Service
@@ -24,7 +26,13 @@ public class KafkaFilterProducer {
 	}
 
 	public void sendResponse(FilteringResponse filteringResponse) {
-		System.out.println(filterConstants.FILTERING_RES_TOPIC + ": " + filteringResponse.getRoomId());
-		kafkaTemplate.send(filterConstants.FILTERING_RES_TOPIC, filteringResponse);
+		if (filteringResponse instanceof SingleFilteringResponse singleFilteringResponse){
+			kafkaTemplate.send(filterConstants.SINGLE_FILTERING_RES_TOPIC, singleFilteringResponse);
+			System.out.println("singleRes: "+filteringResponse.getRoomId());
+		} else if (filteringResponse instanceof ContextFilteringResponse contextFilteringResponse){
+			kafkaTemplate.send(filterConstants.CONTEXT_FILTERING_RES_TOPIC, contextFilteringResponse);
+			System.out.println("contextRes: "+filteringResponse.getRoomId());
+		}
+
 	}
 }
