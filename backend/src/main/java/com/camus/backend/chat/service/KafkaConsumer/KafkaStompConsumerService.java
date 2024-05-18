@@ -11,6 +11,7 @@ public class KafkaStompConsumerService {
 	private final SimpMessagingTemplate simpMessagingTemplate;
 	private final ConcurrentKafkaListenerContainerFactory<String, String> factory;
 
+	private ConcurrentMessageListenerContainer<String, String> container;
 	public KafkaStompConsumerService(SimpMessagingTemplate simpMessagingTemplate,
 		ConcurrentKafkaListenerContainerFactory<String, String> factory) {
 		this.simpMessagingTemplate = simpMessagingTemplate;
@@ -18,7 +19,7 @@ public class KafkaStompConsumerService {
 	}
 
 	public void addListener(String topic, String groupId) {
-		ConcurrentMessageListenerContainer<String, String> container = factory.createContainer(topic);
+		container = factory.createContainer(topic);
 		container.getContainerProperties().setGroupId(groupId);
 		container.setupMessageListener((MessageListener<String, String>)message -> {
 			String jsonValue = message.value();
@@ -26,5 +27,12 @@ public class KafkaStompConsumerService {
 			simpMessagingTemplate.convertAndSend("/subscribe/message_receive/" + topic, jsonValue);
 		});
 		container.start();
+	}
+
+	public void stopContainer() {
+		if (container != null) {
+			container.stop();
+			System.out.println("Kafka listener container stopped.");
+		}
 	}
 }
