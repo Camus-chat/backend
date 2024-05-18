@@ -88,7 +88,8 @@ public class ChatDataService {
 		// 메시지를 불러오기
 		List<RedisSavedMessageBasic> messageList = redisStreamGroupRepository.getMessagesFromRedisByEndId(
 			roomId.toString(),
-			startReadRedisMessageId
+			startReadRedisMessageId,
+			latestRedisMessageId
 		);
 
 		messageList.forEach(messageFromRedis -> {
@@ -132,6 +133,7 @@ public class ChatDataService {
 					roomId.toString(), tempUserId);
 			}
 
+			System.out.println("startRedisMessageId : " + startRedisMessageId);
 			return redisStreamGroupRepository.getMessagesFromRedisByStartId(
 				roomId.toString(),
 				startRedisMessageId
