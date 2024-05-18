@@ -15,8 +15,6 @@ import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.ChatDataRequestDto;
 import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.camus.backend.chat.service.ChatDataService;
-import com.camus.backend.chat.util.ChatModules;
-import com.camus.backend.manage.util.ManageConstants;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,12 +24,8 @@ import io.swagger.v3.oas.annotations.Operation;
 public class ChatDataController {
 
 	private final ChatDataService chatDataService;
-	private final ChatModules chatModules;
-
-	private ChatDataController(ChatDataService chatDataService
-		, ChatModules chatModules) {
+	private ChatDataController(ChatDataService chatDataService) {
 		this.chatDataService = chatDataService;
-		this.chatModules = chatModules;
 	}
 
 	@Operation(
@@ -49,15 +43,12 @@ public class ChatDataController {
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
 
-		// UUID tempUUID = ManageConstants.tempMemUuid;
-
 		return ResponseEntity.ok(
 			chatDataService.getUserUnreadMessage(
 				chatDataRequestDto.getRoomId(),
 				userUuid
 			)
 		);
-
 	}
 
 	@Operation(
@@ -73,8 +64,6 @@ public class ChatDataController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
-
-		//UUID tempUUID = ManageConstants.tempMemUuid;
 
 		chatDataService.exitRoomUpdateAlreadyRead(
 			chatDataRequestDto.getRoomId(),

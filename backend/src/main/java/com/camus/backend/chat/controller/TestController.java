@@ -1,6 +1,5 @@
 package com.camus.backend.chat.controller;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.service.RedisChatService;
-import com.camus.backend.manage.util.ManageConstants;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 
 @RestController
@@ -24,15 +22,9 @@ import com.camus.backend.member.domain.dto.CustomUserDetails;
 public class TestController {
 
 	private final RedisChatService redisChatService;
-	private final ChatDataService chatDataService;
-	private final RedisChatRepository redisChatRepository;
 
-	private TestController(RedisChatService redisChatService,
-		ChatDataService chatDataService,
-		RedisChatRepository redisChatRepository) {
+	private TestController(RedisChatService redisChatService) {
 		this.redisChatService = redisChatService;
-		this.chatDataService = chatDataService;
-		this.redisChatRepository = redisChatRepository;
 	}
 
 	@PostMapping("/redisCreateRoomNoticeTest")
@@ -45,7 +37,6 @@ public class TestController {
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
 
-		// UUID tempMemberId = ManageConstants.tempMemUuid;
 		redisChatService.createChatRoomNotice(
 			roomId.toString(),
 			userUuid
