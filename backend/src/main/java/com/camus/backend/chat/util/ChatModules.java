@@ -36,6 +36,10 @@ public class ChatModules {
 		return "client-to-redis-topic:" + roomId;
 	}
 
+	public String getClientGroupIdByRoomId(UUID roomId) {
+		return "client-to-redis-group:" + roomId;
+	}
+
 	public String getFilteredZsetKeyByRoomId(String roomId) {
 
 		return "chat:room:" + roomId + "filtered:zset";

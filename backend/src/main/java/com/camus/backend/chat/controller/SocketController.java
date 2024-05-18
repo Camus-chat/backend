@@ -1,22 +1,23 @@
 package com.camus.backend.chat.controller;
 
-import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.camus.backend.chat.domain.message.ClientToStompMessage;
+import com.camus.backend.chat.domain.message.ClientToStompSubRequest;
+import com.camus.backend.chat.domain.message.StompToRedisMessage;
 import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
 import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.camus.backend.manage.util.ManageConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -56,33 +57,41 @@ public class SocketController {
 
 	// /pub/message로 메시지 발행
 	@MessageMapping("/message_send")
-	public void sendMessage(Map<String, Object> params) throws JsonProcessingException {
-		System.out.println("카프카로 채팅 쳤다");
-		// 구독중인 client에 메세지를 보낸다.
-		String topic = params.get("topic").toString();
-		// 카프카에게 발송해주는 로직
-		String messageJson = objectMapper.writeValueAsString(params);
-		kafkaStompProducerService.sendMessage(messageJson, topic);
+	public void sendMessage(
+		ClientToStompMessage clientMessage
+		// 인증자 정보
+
+	) {
+
+		// 사용자 정보 담아서 Kafka에 올리기
+		UUID tempUUID = ManageConstants.tempMemUuid;
+
+		StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
+			.roomId(clientMessage.getRoomId())
+			.content(clientMessage.getContent())
+			.userId(
+
+				tempUUID.toString()
+
+			)
+			.build();
+
+		// kafka에 올리기
+		kafkaStompProducerService.sendMessage(stompToRedisMessage);
 	}
 
 	@MessageMapping("/message_received")
-	public void subscribeToTopic(@Payload String message) throws JsonProcessingException {
-		// JSON 문자열을 파싱하기 위한 ObjectMapper 인스턴스 생성
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.readTree(message);
-
-		// "topic" 필드 값을 추출
-		String topic = jsonNode.get("topic").asText();
-		String groupId = "0";
-
-		System.out.println("토픽 : " + topic);
+	public void subscribeToTopic(
+		ClientToStompSubRequest clientToStompSubRequest
+		// 여기도 사용자 인증 객체 등록
+	) {
+		UUID tempUUID = ManageConstants.tempMemUuid;
 
 		// KafkaConsumerService를 사용하여 특정 토픽 구독
-		kafkaStompConsumerService.addListener(topic, groupId);
+		kafkaStompConsumerService.addListener(
+			clientToStompSubRequest,
+			tempUUID
+		);
 	}
 
-	@MessageMapping("/message_stop")
-	public void stopMessage() {
-		kafkaStompConsumerService.stopContainer();
-	}
 }
