@@ -125,18 +125,25 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		String streamKey = chatModules.getRedisStreamKey(roomId);
 		Range<String> range = Range.rightOpen(startRedisId, endRedisId);
 		List<MapRecord<String, String, String>> messages = streamOps.reverseRange(streamKey, range,
-			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE));
+			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE + 1));
 
 		if (messages.isEmpty()) {
 			return null;
 		}
 		Collections.reverse(messages);
 		List<RedisSavedMessageBasic> result = new ArrayList<>();
-		for (MapRecord<String, String, String> message : messages) {
-			Map<String, String> valueMap = message.getValue();
+
+		for (int i = 1; i < messages.size(); i++) {
+			Map<String, String> valueMap = messages.get(i).getValue();
 			RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
 			result.add(msg);
 		}
+
+		// for (MapRecord<String, String, String> message : messages) {
+		// 	Map<String, String> valueMap = message.getValue();
+		// 	RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
+		// 	result.add(msg);
+		// }
 
 		return result;
 	}
