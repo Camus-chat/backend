@@ -49,7 +49,7 @@ public class KafkaStompConsumerService {
 
 		UUID roomIdToUUID = clientToStompSubRequest.getRoomId();
 		String roomIdTopic = chatModules.getRedisToClientRoomTopic(roomIdToUUID);
-		String subTopic = "/subscribe/message_receive/" + roomIdTopic;
+		String subTopic = "/subscribe/message_receive/" + clientToStompSubRequest.getRoomId();
 
 		container.setupMessageListener((MessageListener<String, String>)message -> {
 			System.out.println("client가 메시지 받음 : " + message.value());

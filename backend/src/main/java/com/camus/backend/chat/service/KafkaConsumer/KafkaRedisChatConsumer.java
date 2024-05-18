@@ -45,6 +45,7 @@ public class KafkaRedisChatConsumer {
 	// REDIS_LISTEN_TOPIC = "clientMessage" 이걸 쓰는 중임. 참고할 것
 	@KafkaListener(topics = "clientMessage", groupId = "REDIS_GROUP_ID")
 	public void listenToSaveRedis(String message) {
+		System.out.println("Kafka에서 메시지 받아옴");
 		try {
 			StompToRedisMessage kafkaMessage = objectMapper.readValue(message, StompToRedisMessage.class);
 			CommonMessage commonMessage = CommonMessage.builder()
