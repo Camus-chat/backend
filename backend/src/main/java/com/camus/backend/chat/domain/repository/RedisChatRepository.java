@@ -18,7 +18,7 @@ public interface RedisChatRepository {
 
 	public void addNoticeMessage(NoticeMessage noticeMessage);
 
-	public void addCommonMessage(CommonMessage commonMessage);
+	public long addCommonMessage(CommonMessage commonMessage);
 
 	public String getLatestRedisMessageId(String roomId);
 

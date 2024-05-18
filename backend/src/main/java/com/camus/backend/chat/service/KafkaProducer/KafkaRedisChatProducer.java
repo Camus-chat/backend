@@ -22,7 +22,6 @@ public class KafkaRedisChatProducer {
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 	private final ChatModules chatModules;
 	private final FilterConstants filterConstants;
-
 	private final ObjectMapper objectMapper;
 
 	public KafkaRedisChatProducer(KafkaTemplate<String, Object> kafkaTemplate,
@@ -52,7 +51,8 @@ public class KafkaRedisChatProducer {
 			chatModules.getRedisToClientRoomTopic(redisSavedCommonMessage.getRoomId()),
 			redisSavedCommonMessage
 		);
-		sendSingleFilteringRequest(commonMessage);
+
+		this.sendSingleFilteringRequest(commonMessage);
 	}
 
 	// FEATUREID : AI 필터링 요청을 Kafka에 요청하는 메서드

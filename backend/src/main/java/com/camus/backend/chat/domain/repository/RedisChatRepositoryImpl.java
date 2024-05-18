@@ -92,11 +92,12 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		));
 	}
 
-	public void addCommonMessage(CommonMessage commonMessage) {
+	public long addCommonMessage(CommonMessage commonMessage) {
 
+		String messageId = getStreamCount(commonMessage.getRoomId());
 		addMessageToStream(commonMessage.getRoomId(), Map.of(
 			// 공통 필드
-			Message.Fields.messageId, getStreamCount(commonMessage.getRoomId()),
+			Message.Fields.messageId, messageId,
 			Message.Fields.roomId, commonMessage.getRoomId().toString(),
 			Message.Fields.createdDate, commonMessage.getCreatedDate().toString(),
 			Message.Fields.content, commonMessage.getContent(),
@@ -105,6 +106,7 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			CommonMessage.Fields.filteredType, commonMessage.getFilteredType(),
 			CommonMessage.Fields._class, commonMessage.get_class()
 		));
+		return Long.parseLong(messageId);
 	}
 
 	//FIXME : 과연 사용할 필요가 있는가?
@@ -141,7 +143,8 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			String.valueOf(score)
 		);
 
-		if (!ifAbsent) return false;
+		if (!ifAbsent)
+			return false;
 
 		try {
 			String filteredMessageToJson = objectMapper.writeValueAsString(filteredMessageDto);

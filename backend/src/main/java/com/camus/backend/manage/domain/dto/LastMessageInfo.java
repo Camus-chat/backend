@@ -21,7 +21,7 @@ public class LastMessageInfo {
 	private String type;
 	private UUID userId;
 	private String content;
-	private int filterLevel;
+	private int filteredLevel;
 
 	public LastMessageInfo(MessageBasicDto messageInfo) {
 		this.type = messageInfo.getType();
@@ -31,7 +31,7 @@ public class LastMessageInfo {
 			this.userId = noticeMessage.getTargetId();
 		} else if (messageInfo instanceof CommonMessageDto commonMessage) {
 			this.userId = commonMessage.getSenderId();
-			this.filterLevel = commonMessage.getFilteredLevel();
+			this.filteredLevel = commonMessage.getFilteredLevel();
 		} else {
 			throw new IllegalArgumentException("Invalid message type");
 		}
