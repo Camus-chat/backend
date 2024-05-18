@@ -10,7 +10,7 @@ import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 
 public interface RedisStreamGroupRepository {
 	public List<RedisSavedMessageBasic> getMessagesFromRedisByEndId(String roomId,
-		String startRedisMessageId);
+		String startRedisMessageId, String endRedisMessageId);
 
 	public void updateStreamConsumerAlreadyReadRedisMessageId(String roomId, UUID userId,
 		String latestMessageId);
