@@ -92,11 +92,12 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		));
 	}
 
-	public void addCommonMessage(CommonMessage commonMessage) {
+	public long addCommonMessage(CommonMessage commonMessage) {
 
+		String messageId = getStreamCount(commonMessage.getRoomId());
 		addMessageToStream(commonMessage.getRoomId(), Map.of(
 			// 공통 필드
-			Message.Fields.messageId, getStreamCount(commonMessage.getRoomId()),
+			Message.Fields.messageId, messageId,
 			Message.Fields.roomId, commonMessage.getRoomId().toString(),
 			Message.Fields.createdDate, commonMessage.getCreatedDate().toString(),
 			Message.Fields.content, commonMessage.getContent(),
@@ -105,6 +106,7 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			CommonMessage.Fields.filteredType, commonMessage.getFilteredType(),
 			CommonMessage.Fields._class, commonMessage.get_class()
 		));
+		return Long.parseLong(messageId);
 	}
 
 	//FIXME : 과연 사용할 필요가 있는가?
@@ -126,11 +128,23 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 	}
 
-	public void addFilteredType(FilteredMessageDto filteredMessageDto) {
+	public boolean addFilteredType(FilteredMessageDto filteredMessageDto) {
 		// TODO 필터링 결과값을 Redis에 저장
 
 		String setZsetKey = chatModules.getFilteredZsetKeyByRoomId(filteredMessageDto.getRoomId().toString());
 		double score = chatModules.convertCreateDateToScore(filteredMessageDto.getCreatedDate());
+		String setHashkey = chatModules.getFilteredHashKeyByRoomId(
+			filteredMessageDto.getRoomId().toString()
+		);
+
+		boolean ifAbsent = redisTemplate.opsForHash().putIfAbsent(
+			setHashkey,
+			String.valueOf(filteredMessageDto.getMessageId()),
+			String.valueOf(score)
+		);
+
+		if (!ifAbsent)
+			return false;
 
 		try {
 			String filteredMessageToJson = objectMapper.writeValueAsString(filteredMessageDto);
@@ -143,15 +157,10 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
 
-		String setHashkey = chatModules.getFilteredHashKeyByRoomId(
-			filteredMessageDto.getRoomId().toString()
-		);
-		redisTemplate.opsForHash().put(
-			setHashkey,
-			String.valueOf(filteredMessageDto.getMessageId()),
-			score
-		);
+		System.out.println(redisTemplate.opsForHash()
+			.get(setHashkey, String.valueOf(filteredMessageDto.getMessageId())));
 
+		return true;
 	}
 
 }

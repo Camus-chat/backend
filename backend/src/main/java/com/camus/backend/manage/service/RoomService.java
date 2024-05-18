@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.camus.backend.chat.domain.document.RedisSavedMessageBasic;
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.service.RedisChatService;
 import com.camus.backend.global.Exception.CustomException;
@@ -56,7 +56,7 @@ public class RoomService {
 		List<CompletableFuture<RoomDto>> futures = new ArrayList<>();
 
 		for (UUID roomId : roomIdList) {
-			RedisSavedMessageBasic latestMessage = chatDataService.getLatestRedisMessageId(roomId.toString());
+			MessageBasicDto latestMessage = chatDataService.getLatestRedisMessageId(roomId.toString());
 			int unreadCount = chatDataService.UnreadMessageCountByUserId(roomId, ownerId);
 			futures.add(CompletableFuture.supplyAsync(() -> {
 				try {
