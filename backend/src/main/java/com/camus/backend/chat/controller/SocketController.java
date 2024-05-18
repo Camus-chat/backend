@@ -66,18 +66,23 @@ public class SocketController {
 	}
 
 	@MessageMapping("/message_received")
-	public void subscribeToTopic(@Payload String message) throws Exception {
+	public void subscribeToTopic(@Payload String message) throws JsonProcessingException {
 		// JSON 문자열을 파싱하기 위한 ObjectMapper 인스턴스 생성
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode jsonNode = objectMapper.readTree(message);
 
 		// "topic" 필드 값을 추출
 		String topic = jsonNode.get("topic").asText();
-		String groupId = jsonNode.get("groupId").asText();
+		String groupId = "0";
 
-		System.out.println("토픽 : " + topic + " ---- 그룹 : " + groupId);
+		System.out.println("토픽 : " + topic);
 
 		// KafkaConsumerService를 사용하여 특정 토픽 구독
 		kafkaStompConsumerService.addListener(topic, groupId);
+	}
+
+	@MessageMapping("/message_stop")
+	public void stopMessage() {
+		kafkaStompConsumerService.stopContainer();
 	}
 }
