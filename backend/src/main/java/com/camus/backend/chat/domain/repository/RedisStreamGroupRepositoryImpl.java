@@ -1,6 +1,7 @@
 package com.camus.backend.chat.domain.repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,17 +115,22 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		return message.getId().getValue();
 	}
 
-	public List<RedisSavedMessageBasic> getMessagesFromRedisByEndId(String roomId, String endRedisId) {
+	public List<RedisSavedMessageBasic> getMessagesFromRedisByEndId(
+		String roomId,
+		String startRedisId,
+		String endRedisId
+	) {
 
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
-		Range<String> range = Range.rightOpen(endRedisId, "+");
-		List<MapRecord<String, String, String>> messages = streamOps.range(streamKey, range,
+		Range<String> range = Range.rightOpen(startRedisId, endRedisId);
+		List<MapRecord<String, String, String>> messages = streamOps.reverseRange(streamKey, range,
 			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE));
 
 		if (messages.isEmpty()) {
 			return null;
 		}
+		Collections.reverse(messages);
 		List<RedisSavedMessageBasic> result = new ArrayList<>();
 		for (MapRecord<String, String, String> message : messages) {
 			Map<String, String> valueMap = message.getValue();
@@ -140,25 +146,30 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
 		Range<String> range = Range.leftOpen("-", startRedisId);
-		List<MapRecord<String, String, String>> messages = streamOps.range(streamKey, range,
-			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE));
+		List<MapRecord<String, String, String>> messages = streamOps.reverseRange(streamKey, range,
+			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE + 1));
 
 		if (messages.isEmpty()) {
 			return new ChatDataListDto();
 		}
-		List<MessageBasicDto> result = new ArrayList<>();
 
-		for (MapRecord<String, String, String> message : messages) {
+		String nextMessageId = messages.get(
+			messages.size() - 1
+		).getId().getValue();
+
+		Collections.reverse(messages);
+		List<MessageBasicDto> result = new ArrayList<>();
+		for (int i = 1; i < messages.size(); i++) {
+			MapRecord<String, String, String> message = messages.get(i);
 			Map<String, String> valueMap = message.getValue();
+
 			// FIXME : 두번 Convert 삭제
 			RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
-
 			result.add(convertToMessageBasicDto(msg));
-
 		}
 
 		return new ChatDataListDto(result, new PaginationDto(
-			messages.get(messages.size() - 1).getId().toString(),
+			nextMessageId,
 			result.size()));
 	}
 
