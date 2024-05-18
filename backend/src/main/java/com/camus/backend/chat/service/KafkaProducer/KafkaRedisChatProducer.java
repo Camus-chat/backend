@@ -8,6 +8,8 @@ import com.camus.backend.chat.domain.document.NoticeMessage;
 import com.camus.backend.chat.domain.document.RedisSavedCommonMessage;
 import com.camus.backend.chat.domain.document.RedisSavedNoticeMessage;
 import com.camus.backend.chat.domain.dto.FilteredMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.CommonMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.NoticeMessageDto;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.util.component.FilterConstants;
@@ -37,9 +39,10 @@ public class KafkaRedisChatProducer {
 	public void sendNoticeMessage(NoticeMessage noticeMessage) {
 		RedisSavedNoticeMessage redisSavedNoticeMessageDto = new RedisSavedNoticeMessage(noticeMessage);
 		System.out.println("Redis에 Notice저장했음" + redisSavedNoticeMessageDto);
+		NoticeMessageDto noticeMessageDto = new NoticeMessageDto(redisSavedNoticeMessageDto);
 		kafkaTemplate.send(
 			noticeMessage.getRoomId().toString(),
-			redisSavedNoticeMessageDto
+			noticeMessageDto
 		);
 	}
 
@@ -47,9 +50,10 @@ public class KafkaRedisChatProducer {
 	public void sendCommonMessage(CommonMessage commonMessage) {
 		RedisSavedCommonMessage redisSavedCommonMessage = new RedisSavedCommonMessage(commonMessage);
 		System.out.println("Redis에 Common저장했음" + redisSavedCommonMessage);
+		CommonMessageDto commonMessageDto = new CommonMessageDto(redisSavedCommonMessage);
 		kafkaTemplate.send(
 			chatModules.getRedisToClientRoomTopic(redisSavedCommonMessage.getRoomId()),
-			redisSavedCommonMessage
+			commonMessageDto
 		);
 
 		this.sendSingleFilteringRequest(commonMessage);
