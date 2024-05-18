@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.camus.backend.chat.domain.dto.ChatDataListDto;
 import com.camus.backend.chat.domain.dto.ChatDataRequestDto;
 import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
+import com.camus.backend.chat.domain.message.RoomExitResponse;
+import com.camus.backend.chat.domain.message.RoomIdRequest;
 import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 
@@ -35,7 +37,7 @@ public class ChatDataController {
 	)
 	@PostMapping("/data/unread")
 	public ResponseEntity<List<MessageBasicDto>> getUnreadChatData(
-		@RequestBody ChatDataRequestDto chatDataRequestDto
+		@RequestBody RoomIdRequest roomIdRequest
 		// 사용자 데이터 받아오기
 	) {
 		// 요청을 한 사용자의 uuid 구하기
@@ -45,7 +47,7 @@ public class ChatDataController {
 
 		return ResponseEntity.ok(
 			chatDataService.getUserUnreadMessage(
-				chatDataRequestDto.getRoomId(),
+				roomIdRequest.getRoomId(),
 				userUuid
 			)
 		);
@@ -56,8 +58,8 @@ public class ChatDataController {
 		description = "여태까지 읽은 가장 최신 메시지 기록을 재작성합니다."
 	)
 	@PostMapping("/room/exit")
-	public ResponseEntity<String> exitRoom(
-		@RequestBody ChatDataRequestDto chatDataRequestDto
+	public ResponseEntity<RoomExitResponse> exitRoom(
+		@RequestBody RoomIdRequest roomIdRequest
 	) {
 
 		// 요청을 한 사용자의 uuid 구하기
@@ -66,11 +68,15 @@ public class ChatDataController {
 		UUID userUuid = userDetails.get_id();
 
 		chatDataService.exitRoomUpdateAlreadyRead(
-			chatDataRequestDto.getRoomId(),
+			roomIdRequest.getRoomId(),
 			userUuid
 		);
 
-		return ResponseEntity.ok("OK");
+		return ResponseEntity.ok(
+			RoomExitResponse.builder()
+				.exitSuccess(true)
+				.build()
+		);
 	}
 
 	@Operation(
