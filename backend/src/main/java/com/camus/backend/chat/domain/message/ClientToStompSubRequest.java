@@ -16,4 +16,6 @@ import lombok.Setter;
 public class ClientToStompSubRequest {
 	@JsonProperty("roomId")
 	private UUID roomId;
+	@JsonProperty("userToken")
+	private String userToken;
 }

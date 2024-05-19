@@ -95,6 +95,7 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		roomInfo.setChannelTitle(channel.getTitle());
 		roomInfo.setUserList(room.getUserList());
 		roomInfo.setClosed(room.isClosed());
+		roomInfo.setFilteredLevel(channel.getFilterLevel());
 
 		return CompletableFuture.completedFuture(roomInfo);
 	}
@@ -115,7 +116,7 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		ChannelList channelList = mongoTemplate.findOne(query, ChannelList.class);
 
 		if (channelList == null || channelList.getChannels() == null) {
-			return new ChannelStatus(false, null, null, null, null);
+			return new ChannelStatus(false, null, null, -1, null, null);
 		}
 		Channel channel = channelList.getChannels().stream()
 			.filter(ch -> ch.getLink().equals(channelLink))
@@ -123,9 +124,10 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 			.orElse(null);
 		if (channel != null) {
 			return new ChannelStatus(channel.getIsValid(), channel.getType(), channel.getTitle(),
+				channel.getFilterLevel(),
 				channel.getKey(), channelList.get_id());
 		} else {
-			return new ChannelStatus(false, null, null, null, null);
+			return new ChannelStatus(false, null, null, -1,null, null);
 		}
 	}
 

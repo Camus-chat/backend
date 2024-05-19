@@ -3,6 +3,8 @@ package com.camus.backend.manage.controller;
 import java.util.List;
 import java.util.UUID;
 
+import com.camus.backend.manage.domain.document.Room;
+import com.camus.backend.manage.domain.dto.RoomEnterDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,7 +63,7 @@ public class RoomController {
 		description = "기존방/신규(개인/그룹)방 모두 동일처리"
 	)
 	@PostMapping("/guest/enter")
-	public ResponseEntity<RoomIdDto> enterRoom(
+	public ResponseEntity<RoomEnterDto> enterRoom(
 		// TODO : 사용자 인증 정보
 		@RequestBody UUID channelLink
 	) {
@@ -73,17 +75,29 @@ public class RoomController {
 		// CHECK : 여기서 이미 사용자 인증이 되었다고 가정
 		//UUID tempMemberId = ManageConstants.tempMemUuid;
 
+		ChannelStatus channelStatus = roomService.channelStatus(channelLink);
+
 		RoomEntryManager roomEntryManager;
 		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
 		roomEntryManager = roomService.isChannelMember(userUuid, channelLink);
 
+
+
 		if (roomEntryManager.isCheck()) {
-			return ResponseEntity.ok(RoomIdDto.builder().roomId(
-				roomEntryManager.getRoomId()
-			).build());
+			Room room = roomService.getRoomByRoomId(roomEntryManager.getRoomId());
+			return ResponseEntity.ok(
+				RoomEnterDto.builder()
+						.roomId(roomEntryManager.getRoomId())
+						.channelType(channelStatus.getType())
+						.channelTitle(channelStatus.getTitle())
+						.filteredLevel(channelStatus.getFilteredLevel())
+						.memberList(room.getUserList())
+						.isClosed(room.isClosed())
+						.build()
+			);
 		}
 
-		ChannelStatus channelStatus = roomService.channelStatus(channelLink);
+
 
 		// TODO : 채널 링크가 유효한가? 체크 => 진입
 		if (!channelStatus.isValid()) {
@@ -93,20 +107,40 @@ public class RoomController {
 		// TODO : 개인 : 새로운 ROOM 생성 => 진입
 		if (channelStatus.getType().equals("private")) {
 
+			UUID roomId = roomService.createPrivateRoomByGuestId(
+				channelStatus.getKey(),
+				channelStatus.getOwnerId(), userUuid
+			);
+			Room room = roomService.getRoomByRoomId(roomId);
 			// 입장 성공
 			return
-				ResponseEntity.ok(RoomIdDto.builder().roomId(
-					roomService.createPrivateRoomByGuestId(
-							channelStatus.getKey(),
-							channelStatus.getOwnerId(), userUuid)
-				).build());
+				ResponseEntity.ok(
+					RoomEnterDto.builder()
+						.roomId(roomId)
+						.channelType(channelStatus.getType())
+						.channelTitle(channelStatus.getTitle())
+						.filteredLevel(channelStatus.getFilteredLevel())
+						.memberList(room.getUserList())
+						.isClosed(room.isClosed())
+						.build()
+				);
 		}
+
+		UUID roomId = roomService.joinGroupRoom(channelStatus.getKey(), userUuid);
+		Room room = roomService.getRoomByRoomId(roomId);
 
 		// TODO : 단체 : 기존 ROOM에 입장
 		return
-			ResponseEntity.ok(RoomIdDto.builder().roomId(
-				roomService.joinGroupRoom(channelStatus.getKey(), userUuid)
-			).build());
+			ResponseEntity.ok(
+					RoomEnterDto.builder()
+							.roomId(roomId)
+							.channelType(channelStatus.getType())
+							.channelTitle(channelStatus.getTitle())
+							.filteredLevel(channelStatus.getFilteredLevel())
+							.memberList(room.getUserList())
+							.isClosed(room.isClosed())
+							.build()
+			);
 	}
 
 }
