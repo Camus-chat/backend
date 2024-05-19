@@ -107,7 +107,13 @@ public class CustomChannelListRepositoryImpl implements CustomChannelListReposit
 		}
 
 		return channelList.getChannels().stream().filter(ch -> ch.getLink().equals(channelLink))
-				.findFirst().get().getKey();
+			.findFirst().get().getKey();
+	}
+
+	public ChannelList getChannelListByChannelLink(UUID channelLink) {
+		Query query = new Query(Criteria.where("channels.link").is(channelLink));
+
+		return mongoTemplate.findOne(query, ChannelList.class);
 	}
 
 }
