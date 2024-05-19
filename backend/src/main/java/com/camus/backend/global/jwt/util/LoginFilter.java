@@ -21,6 +21,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.global.jwt.service.RedisService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -49,15 +50,31 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-		//클라이언트 요청에서 username, password 추출
-		String username = obtainUsername(request);
-		String password = obtainPassword(request);
 
-		//스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode requestBody = objectMapper.readTree(request.getInputStream());
+			String username = requestBody.get("username").asText();
+			String password = requestBody.get("password").asText();
 
-		//token에 담은 검증을 위한 AuthenticationManager로 전달
-		return authenticationManager.authenticate(authToken);
+			// System.out.println(username+ " user");
+			// System.out.println(password+ " pwd");
+
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+			return authenticationManager.authenticate(authToken);
+		} catch (IOException e) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+
+		// // //클라이언트 요청에서 username, password 추출
+		// String username = obtainUsername(request);
+		// String password = obtainPassword(request);
+		//
+		// //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
+		// UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+		//
+		// //token에 담은 검증을 위한 AuthenticationManager로 전달
+		// return authenticationManager.authenticate(authToken);
 	}
 
 	//로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
@@ -65,10 +82,14 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 		String username=authentication.getName();
 
+		// System.out.println(username+ " user");
+
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 		Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
 		GrantedAuthority auth = iterator.next();
 		String role = auth.getAuthority();
+
+		// System.out.println(role+ " role");
 
 		String accessToken = jwtTokenProvider.createToken("access",username,role, jwtSettings.getAccessExpire());
 		String refreshToken;
@@ -78,6 +99,7 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 		if(role.equals("guest")){
 			cookieRefresh=jwtSettings.getGuestExpire();
 			refreshToken = jwtTokenProvider.createToken("refresh",username,role, cookieRefresh);
+
 		}else{
 			cookieRefresh=jwtSettings.getRefreshExpire();
 			refreshToken = jwtTokenProvider.createToken("refresh",username,role, cookieRefresh);

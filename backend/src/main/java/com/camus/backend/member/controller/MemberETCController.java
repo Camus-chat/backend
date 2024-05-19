@@ -30,7 +30,7 @@ public class MemberETCController {
 		return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
 	}
 
-	@GetMapping("/info")
+	@PostMapping("/info")
 	public ResponseEntity<?> getMemberInfo(@RequestBody UUIDDto uuidDto) {
 		return ResponseEntity.ok(memberService.getMemberInfo(uuidDto));
 	}
