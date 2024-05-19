@@ -72,20 +72,26 @@ public class SocketController {
 		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 		// UUID userUuid = userDetails.get_id();
-		String username = jwtTokenProvider.getUsername(clientMessage.getUserToken());
-		MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
-		UUID userUuid = memberCredential.get_id();
+		try {
+			String username = jwtTokenProvider.getUsername(clientMessage.getUserToken());
 
-		StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
-			.roomId(clientMessage.getRoomId())
-			.content(clientMessage.getContent())
-			.userId(
-				userUuid.toString()
-			)
-			.build();
+			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
+			UUID userUuid = memberCredential.get_id();
 
-		// kafka에 올리기
-		kafkaStompProducerService.sendMessage(stompToRedisMessage);
+			StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
+				.roomId(clientMessage.getRoomId())
+				.content(clientMessage.getContent())
+				.userId(
+					userUuid.toString()
+				)
+				.build();
+
+			// kafka에 올리기
+			kafkaStompProducerService.sendMessage(stompToRedisMessage);
+		} catch (Exception e) {
+			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
+		}
+
 	}
 
 	@MessageMapping("/message_received")
@@ -98,15 +104,19 @@ public class SocketController {
 		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 		// UUID userUuid = userDetails.get_id();
-		String username = jwtTokenProvider.getUsername(clientToStompSubRequest.getUserToken());
-		MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
-		UUID userUuid = memberCredential.get_id();
+		try {
+			String username = jwtTokenProvider.getUsername(clientToStompSubRequest.getUserToken());
+			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
+			UUID userUuid = memberCredential.get_id();
 
-		// KafkaConsumerService를 사용하여 특정 토픽 구독
-		kafkaStompConsumerService.addListener(
-			clientToStompSubRequest,
-			userUuid
-		);
+			// KafkaConsumerService를 사용하여 특정 토픽 구독
+			kafkaStompConsumerService.addListener(
+				clientToStompSubRequest,
+				userUuid
+			);
+		} catch (Exception e) {
+			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
+		}
 	}
 
 }
