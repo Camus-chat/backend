@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.camus.backend.manage.domain.document.Room;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.util.ChannelStatus;
 
@@ -24,5 +25,9 @@ public interface CustomRoomRepository {
 	UUID createPrivateRoom(UUID channelKey, UUID ownerId, UUID guestId);
 
 	UUID getGroupRoomByChannelKey(UUID channelKey, UUID guestId);
+
+	Boolean isRoomClosed(UUID roomId);
+
+	Room getRoomByRoomId(UUID roomId);
 
 }
