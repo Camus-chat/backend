@@ -156,4 +156,22 @@ public class CustomRoomRepositoryImpl implements CustomRoomRepository {
 		return room.get_id();
 	}
 
+	public Boolean isRoomClosed(UUID roomId) {
+		Query query = new Query(Criteria.where("_id").is(roomId));
+		query.fields().include("isClosed");
+		Room room = mongoTemplate.findOne(query, Room.class);
+		if (room == null) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+		return room.isClosed();
+	}
+
+	public Room getRoomByRoomId(UUID roomId) {
+		Query query = new Query(Criteria.where("_id").is(roomId));
+		Room room = mongoTemplate.findOne(query, Room.class);
+		if (room == null) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+		return room;
+	}
 }

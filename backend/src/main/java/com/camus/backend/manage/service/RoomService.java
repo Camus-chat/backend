@@ -13,10 +13,10 @@ import com.camus.backend.chat.service.ChatDataService;
 import com.camus.backend.chat.service.RedisChatService;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.manage.domain.document.Room;
 import com.camus.backend.manage.domain.dto.LastMessageInfo;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
-
 import com.camus.backend.manage.domain.repository.RoomRepository;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;
@@ -122,10 +122,23 @@ public class RoomService {
 
 	public ChannelStatus channelStatus(UUID channelLink) {
 		ChannelStatus channelStatus = roomRepository.getChannelStatus(channelLink);
+
 		if (channelStatus.getKey() == null) {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
 		return channelStatus;
+	}
+
+	public List<UUID> getUserListByRoomId(UUID id) {
+		return roomRepository.getUserListById(id);
+	}
+
+	public boolean isRoomClosed(UUID roomId) {
+		return roomRepository.isRoomClosed(roomId);
+	}
+
+	public Room getRoomByRoomId(UUID roomId) {
+		return roomRepository.getRoomByRoomId(roomId);
 	}
 
 }
