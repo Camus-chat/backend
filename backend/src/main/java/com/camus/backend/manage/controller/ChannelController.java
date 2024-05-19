@@ -1,6 +1,7 @@
 package com.camus.backend.manage.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.manage.domain.dto.ChannelDto;
+import com.camus.backend.manage.domain.dto.ChannelEnterInfoDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
-
-import com.camus.backend.manage.domain.dto.ChannelListDto;
-
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.service.ChannelService;
 
@@ -101,5 +100,19 @@ public class ChannelController {
 		);
 
 		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
+	}
+
+	@Operation(
+		summary = "채널 입장 정보 반환",
+		description = "채널 입장 정보 반환"
+	)
+	@PostMapping("/info")
+	public ResponseEntity<ChannelEnterInfoDto> getChannelEnterInfo(
+		@RequestBody UUID link
+	) {
+
+		return ResponseEntity.ok(
+			channelService.getChannelEnterInfo(link)
+		);
 	}
 }
