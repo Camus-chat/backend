@@ -122,7 +122,6 @@ public class FilterModule {
 								switch (ContextFilteringType.fromString(resultArr[i])){
 									case MALICIOUS -> resultTypeArr[i] = FilteredType.MALICIOUS_CLOVA;
 									case HATE -> resultTypeArr[i] = FilteredType.HATE_CLOVA;
-									case SPAM -> resultTypeArr[i] = FilteredType.SPAM;
 									case NOT_FILTERED -> resultTypeArr[i] = FilteredType.NOT_FILTERED;
 								}
 							}
