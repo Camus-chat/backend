@@ -45,7 +45,7 @@ public class GuestController {
 		this.roomService = roomService;
 	}
 
-	@PostMapping("/signup")
+	@GetMapping("/signup")
 	public ResponseEntity<?> guestSignUp(){
 		// String role=memberCredentialDto.getRole();
 		// boolean signUpSuccess = memberService.signUp(memberCredentialDto,role);
