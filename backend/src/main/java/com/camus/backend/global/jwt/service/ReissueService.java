@@ -57,7 +57,8 @@ public class ReissueService {
 		//토큰 없음
 		if (refreshToken == null) {
 			//return new ResponseEntity<>("refresh token 없음", HttpStatus.BAD_REQUEST);
-			throw new CustomException(ErrorCode.NOTFOUND_TOKEN);
+			//throw new CustomException(ErrorCode.NOTFOUND_TOKEN);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 
 		String accessUsername = jwtTokenProvider.getUsername(refreshToken);
@@ -68,7 +69,8 @@ public class ReissueService {
 		} catch (ExpiredJwtException e) {
 			// 만료된 refresh 삭제
 			redisService.deleteRefreshToken(accessUsername);
-			throw new CustomException(ErrorCode.FORBIDDEN_TOKEN_EXPIRED);
+			//throw new CustomException(ErrorCode.FORBIDDEN_TOKEN_EXPIRED);
+			return new ResponseEntity<>(HttpStatus.OK);
 			//return new ResponseEntity<>("refresh token 만료됨", HttpStatus.BAD_REQUEST);
 		}
 
@@ -76,12 +78,14 @@ public class ReissueService {
 		String category = jwtTokenProvider.getCategory(refreshToken);
 		if (!category.equals("refresh")) {
 			//return new ResponseEntity<>("유효하지 않은 refresh token", HttpStatus.BAD_REQUEST);
-			throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			//throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 
 		// redis에 refresh가 저장되어 있는지 확인
 		if (!redisService.doesRefreshTokenNotExist(accessUsername)) {
-			throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			//throw new CustomException(ErrorCode.INVALID_PARAMETER_TOKEN);
+			return new ResponseEntity<>(HttpStatus.OK);
 			//return new ResponseEntity<>("유효하지 않은 refresh token", HttpStatus.BAD_REQUEST);
 		}
 
@@ -100,7 +104,8 @@ public class ReissueService {
 			// 5일이 지났으면 갱신 안함
 			if(durationToSecond>432000){
 				//return new ResponseEntity<>("게스트 계정은 5일동안만 이용 가능합니다", HttpStatus.BAD_REQUEST);
-				throw new CustomException(ErrorCode.FORBIDDEN_GUEST);
+				//throw new CustomException(ErrorCode.FORBIDDEN_GUEST);
+				return new ResponseEntity<>(HttpStatus.OK);
 			}
 		}
 
@@ -124,7 +129,8 @@ public class ReissueService {
 		try {
 			new ObjectMapper().writeValue(response.getOutputStream(), tokenDetails);
 		} catch (IOException e) {
-			throw new CustomException(ErrorCode.NOTFOUND_USER);
+			//throw new CustomException(ErrorCode.NOTFOUND_USER);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 
 		return ResponseEntity.ok(tokenDetails);

@@ -7,17 +7,17 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import com.camus.backend.global.jwt.util.JwtChannelInterceptor;
+import com.camus.backend.chat.util.StompHandler;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	// private static final Logger LOGGER = LoggerFactory.getLogger( WebSocketConfig.class );
-	private final JwtChannelInterceptor jwtChannelInterceptor;
+	private final StompHandler stompHandler;
 
-	public WebSocketConfig(JwtChannelInterceptor jwtChannelInterceptor) {
-		this.jwtChannelInterceptor = jwtChannelInterceptor;
+	public WebSocketConfig(StompHandler stompHandler) {
+		this.stompHandler = stompHandler;
 	}
 
 	// 클라이언트가 웹 소켓 서버에 연결하는데 사용할 웹 소켓 엔드포인트 등록
@@ -39,7 +39,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureClientInboundChannel(ChannelRegistration registration){
-		registration.interceptors(jwtChannelInterceptor);
+		registration.interceptors(stompHandler);
 	}
 
 }
