@@ -47,8 +47,6 @@ public class FilterModule {
 								FilteredType.MALICIOUS_LAMBDA);
 							case HATE -> response = new SingleFilteringResponse(request,
 								FilteredType.HATE_LAMBDA);
-							case SPAM -> response = new SingleFilteringResponse(request,
-								FilteredType.SPAM_CLOVA);
 							case NOT_FILTERED -> response = new SingleFilteringResponse(request,
 								FilteredType.NOT_FILTERED);
 							default -> throw new RuntimeException("Unexpected filtering type");
