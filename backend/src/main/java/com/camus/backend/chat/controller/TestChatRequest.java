@@ -10,5 +10,4 @@ import lombok.Setter;
 public class TestChatRequest {
 	private UUID roomId;
 	private String content;
-
 }

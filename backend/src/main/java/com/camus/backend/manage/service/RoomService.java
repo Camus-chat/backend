@@ -16,6 +16,7 @@ import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.dto.LastMessageInfo;
 import com.camus.backend.manage.domain.dto.RoomDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
+
 import com.camus.backend.manage.domain.repository.RoomRepository;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;
@@ -24,6 +25,7 @@ import com.camus.backend.manage.util.RoomEntryManager;
 public class RoomService {
 
 	private final RoomRepository roomRepository;
+
 	private final RedisChatService redisChatService;
 	private final ChatDataService chatDataService;
 	private final ChannelListRepository channelListRepository;

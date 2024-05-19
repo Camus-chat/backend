@@ -25,24 +25,20 @@ public class SwaggerConfig {
 
 	@Bean
 	public GroupedOpenApi getB2CMEMBERApi() {
-
 		return GroupedOpenApi
 			.builder()
 			.group("B2CMEMBER")
 			.pathsToMatch("/member/b2c/**")
 			.build();
-
 	}
 
 	@Bean
 	public GroupedOpenApi getB2BMEMBERApi() {
-
 		return GroupedOpenApi
 			.builder()
 			.group("B2BMEMBER")
 			.pathsToMatch("/member/b2b/**")
 			.build();
-
 	}
 
 	@Bean
@@ -54,8 +50,6 @@ public class SwaggerConfig {
 			.build();
 	}
 
-	// TODO : UngroupedApis 수정 하기
-
 	@Bean
 	public GroupedOpenApi getUngroupedApis() {
 		return GroupedOpenApi.builder()
@@ -64,5 +58,4 @@ public class SwaggerConfig {
 			.pathsToExclude("/member/b2c/**", "/member/b2b/**", "/statistic/**")
 			.build();
 	}
-
 }

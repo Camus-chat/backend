@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
@@ -17,8 +19,7 @@ import com.camus.backend.chat.domain.message.ClientToStompSubRequest;
 import com.camus.backend.chat.domain.message.StompToRedisMessage;
 import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
 import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
-import com.camus.backend.manage.util.ManageConstants;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.camus.backend.member.domain.dto.CustomUserDetails;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -27,14 +28,11 @@ public class SocketController {
 
 	private final KafkaStompProducerService kafkaStompProducerService;
 	private final KafkaStompConsumerService kafkaStompConsumerService;
-	private final ObjectMapper objectMapper;
 
 	public SocketController(KafkaStompProducerService kafkaStompProducerService,
-		KafkaStompConsumerService kafkaStompConsumerService,
-		ObjectMapper objectMapper) {
+		KafkaStompConsumerService kafkaStompConsumerService) {
 		this.kafkaStompProducerService = kafkaStompProducerService;
 		this.kafkaStompConsumerService = kafkaStompConsumerService;
-		this.objectMapper = objectMapper;
 	}
 
 	// 새로운 사용자가 웹 소켓을 연결할 때 실행됨
@@ -60,19 +58,18 @@ public class SocketController {
 	public void sendMessage(
 		ClientToStompMessage clientMessage
 		// 인증자 정보
-
 	) {
 
-		// 사용자 정보 담아서 Kafka에 올리기
-		UUID tempUUID = ManageConstants.tempMemUuid;
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
 
 		StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
 			.roomId(clientMessage.getRoomId())
 			.content(clientMessage.getContent())
 			.userId(
-
-				tempUUID.toString()
-
+				userUuid.toString()
 			)
 			.build();
 
@@ -85,12 +82,16 @@ public class SocketController {
 		ClientToStompSubRequest clientToStompSubRequest
 		// 여기도 사용자 인증 객체 등록
 	) {
-		UUID tempUUID = ManageConstants.tempMemUuid;
+
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
 
 		// KafkaConsumerService를 사용하여 특정 토픽 구독
 		kafkaStompConsumerService.addListener(
 			clientToStompSubRequest,
-			tempUUID
+			userUuid
 		);
 	}
 
