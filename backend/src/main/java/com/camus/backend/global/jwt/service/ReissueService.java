@@ -134,7 +134,7 @@ public class ReissueService {
 		Cookie cookie = new Cookie(key, value);
 		cookie.setMaxAge((int)cookieRefreshTime);
 		cookie.setSecure(true); //https 통신할거면 넣기
-		//cookie.setPath("/");
+		cookie.setPath("/");
 		cookie.setHttpOnly(true);
 		return cookie;
 	}

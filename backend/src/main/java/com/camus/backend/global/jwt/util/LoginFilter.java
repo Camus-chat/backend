@@ -115,6 +115,7 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 		// 어떤 유저인지 주기
 		Map<String, String> tokenDetails = new HashMap<>();
 		tokenDetails.put("role", role);
+		// tokenDetails.put("access", accessToken);
 		response.setStatus(HttpStatus.OK.value());
 		response.setContentType("application/json");
 		try {
@@ -135,7 +136,7 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 		Cookie cookie = new Cookie(key, value);
 		cookie.setMaxAge((int)cookieRefreshTime);
 		cookie.setSecure(true); //https 통신할거면 넣기
-		//cookie.setPath("/");
+		cookie.setPath("/");
 		cookie.setHttpOnly(true);
 		return cookie;
 	}
