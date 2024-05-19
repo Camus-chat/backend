@@ -10,14 +10,18 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Builder
 @Getter
 @Document
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @TypeAlias("Channel")
 public class Channel {
 	@Builder.Default
