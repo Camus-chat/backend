@@ -23,6 +23,8 @@ public class RoomDto {
 	private ArrayList<UUID> userList;
 	private boolean isClosed;
 
+	private int filteredLevel;
+
 	private LastMessageInfo lastMessage;
 	private int unreadCount;
 
