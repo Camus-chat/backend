@@ -21,7 +21,7 @@ public class RoomEnterDto {
 	String channelType;
 
 	String channelTitle;
-	List<UUID> memberList;
+	List<UUID> userList;
 
 	Boolean closed;
 
