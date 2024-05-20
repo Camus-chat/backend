@@ -29,6 +29,7 @@ public class KafkaFilterProducer {
 		if (filteringResponse instanceof SingleFilteringResponse singleFilteringResponse){
 			kafkaTemplate.send(filterConstants.SINGLE_FILTERING_RES_TOPIC, singleFilteringResponse);
 			System.out.println("singleRes: "+filteringResponse.getRoomId());
+			System.out.println(singleFilteringResponse.getFilteredMessage().getFilteredType());
 		} else if (filteringResponse instanceof ContextFilteringResponse contextFilteringResponse){
 			kafkaTemplate.send(filterConstants.CONTEXT_FILTERING_RES_TOPIC, contextFilteringResponse);
 			System.out.println("contextRes: "+filteringResponse.getRoomId());
