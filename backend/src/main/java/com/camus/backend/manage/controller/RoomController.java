@@ -3,8 +3,6 @@ package com.camus.backend.manage.controller;
 import java.util.List;
 import java.util.UUID;
 
-import com.camus.backend.manage.domain.document.Room;
-import com.camus.backend.manage.domain.dto.RoomEnterDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,14 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.camus.backend.manage.domain.document.Room;
 import com.camus.backend.manage.domain.dto.RoomDto;
-import com.camus.backend.manage.domain.dto.RoomIdDto;
+import com.camus.backend.manage.domain.dto.RoomEnterDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
-import com.camus.backend.manage.util.ManageConstants;
 import com.camus.backend.manage.util.RoomEntryManager;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 
@@ -48,7 +45,7 @@ public class RoomController {
 
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
 
 		// 여기는 게스트유저~~~임
@@ -69,7 +66,7 @@ public class RoomController {
 	) {
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
 
 		// CHECK : 여기서 이미 사용자 인증이 되었다고 가정
@@ -81,23 +78,19 @@ public class RoomController {
 		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
 		roomEntryManager = roomService.isChannelMember(userUuid, channelLink);
 
-
-
 		if (roomEntryManager.isCheck()) {
 			Room room = roomService.getRoomByRoomId(roomEntryManager.getRoomId());
 			return ResponseEntity.ok(
 				RoomEnterDto.builder()
-						.roomId(roomEntryManager.getRoomId())
-						.channelType(channelStatus.getType())
-						.channelTitle(channelStatus.getTitle())
-						.filteredLevel(channelStatus.getFilteredLevel())
-						.memberList(room.getUserList())
-						.isClosed(room.isClosed())
-						.build()
+					.roomId(roomEntryManager.getRoomId())
+					.channelType(channelStatus.getType())
+					.channelTitle(channelStatus.getTitle())
+					.filteredLevel(channelStatus.getFilteredLevel())
+					.userList(room.getUserList())
+					.isClosed(room.isClosed())
+					.build()
 			);
 		}
-
-
 
 		// TODO : 채널 링크가 유효한가? 체크 => 진입
 		if (!channelStatus.isValid()) {
@@ -120,7 +113,7 @@ public class RoomController {
 						.channelType(channelStatus.getType())
 						.channelTitle(channelStatus.getTitle())
 						.filteredLevel(channelStatus.getFilteredLevel())
-						.memberList(room.getUserList())
+						.userList(room.getUserList())
 						.isClosed(room.isClosed())
 						.build()
 				);
@@ -132,14 +125,14 @@ public class RoomController {
 		// TODO : 단체 : 기존 ROOM에 입장
 		return
 			ResponseEntity.ok(
-					RoomEnterDto.builder()
-							.roomId(roomId)
-							.channelType(channelStatus.getType())
-							.channelTitle(channelStatus.getTitle())
-							.filteredLevel(channelStatus.getFilteredLevel())
-							.memberList(room.getUserList())
-							.isClosed(room.isClosed())
-							.build()
+				RoomEnterDto.builder()
+					.roomId(roomId)
+					.channelType(channelStatus.getType())
+					.channelTitle(channelStatus.getTitle())
+					.filteredLevel(channelStatus.getFilteredLevel())
+					.userList(room.getUserList())
+					.isClosed(room.isClosed())
+					.build()
 			);
 	}
 
