@@ -479,6 +479,7 @@ public class MemberService {
 		// 타입 체크
 		if (memberProfile instanceof B2CProfile b2cProfile) {
 			return B2CProfileDto.builder()
+				.myUuid(uuid)
 				.nickname(b2cProfile.getNickname())
 				.profileLink(b2cProfile.getProfileLink())
 				.build();
@@ -566,6 +567,7 @@ public class MemberService {
 		// 타입 체크
 		if (memberProfile instanceof B2BProfile b2bProfile) {
 			return B2BProfileDto.builder()
+				.myUuid(uuid)
 				.companyName(b2bProfile.getCompanyName())
 				.companyEmail(b2bProfile.getCompanyEmail())
 				.build();
@@ -615,6 +617,24 @@ public class MemberService {
 
 		return memberProfileOptional.get();
 	}
+
+	public String getMemberRole(UUIDDto uuidDto){
+		UUID userUuid = uuidDto.getMemberUuid();
+		// 사용자의 profile 가져오기
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userUuid);
+		if (memberProfileOptional.isEmpty()) {
+			throw new CustomException(ErrorCode.NOTFOUND_USER);
+		}
+
+		// 역할 보내주기
+		if(memberProfileOptional.get() instanceof B2CProfile){
+			return "b2c";
+		}else if(memberProfileOptional.get() instanceof B2BProfile){
+			return "b2b";
+		}else{
+			return "guest";
+		}
+	}
 	
 	// guest 정보 가져오기
 	public GuestProfileDto getGuestInfo() {
@@ -634,6 +654,7 @@ public class MemberService {
 		// 타입 체크
 		if (memberProfile instanceof GuestProfile guestProfile) {
 			return GuestProfileDto.builder()
+				.myUuid(uuid)
 				.nickname(guestProfile.getNickname())
 				.profileImageColor(guestProfile.getProfilePalette())
 				.build();
