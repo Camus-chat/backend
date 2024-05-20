@@ -160,7 +160,7 @@ public class FilterServiceImpl implements FilterService {
 				switch (ContextFilteringType.fromString(resultArr[i])){
 					case MALICIOUS -> resultTypeArr[i] = FilteredType.MALICIOUS_CLOVA;
 					case HATE -> resultTypeArr[i] = FilteredType.HATE_CLOVA;
-					case SPAM -> resultTypeArr[i] = FilteredType.SPAM;
+					case SPAM -> resultTypeArr[i] = FilteredType.SPAM_CLOVA;
 					case NOT_FILTERED -> resultTypeArr[i] = FilteredType.NOT_FILTERED;
 				}
 			}
