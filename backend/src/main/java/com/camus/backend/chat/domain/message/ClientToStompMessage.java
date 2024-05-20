@@ -16,4 +16,7 @@ public class ClientToStompMessage {
 	private String roomId;
 	@JsonProperty("content")
 	private String content;
+	@JsonProperty("userToken")
+	private String userToken;
+
 }

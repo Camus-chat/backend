@@ -21,8 +21,11 @@ public class RoomEnterDto {
 	String channelType;
 
 	String channelTitle;
+	int filteredLevel;
+
+	List<UUID> memberList;
 	List<UUID> userList;
 
-	Boolean closed;
+	Boolean isClosed;
 
 }

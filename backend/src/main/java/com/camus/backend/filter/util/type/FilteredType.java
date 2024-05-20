@@ -6,9 +6,7 @@ import lombok.Getter;
 public enum FilteredType {
 
 	NOT_FILTERED((short)300),
-
 	MALICIOUS((short)0),
-	SPAM((short)200),
 	HATE((short)100),
 
 	// 100

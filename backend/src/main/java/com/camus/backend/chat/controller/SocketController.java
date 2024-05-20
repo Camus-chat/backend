@@ -19,7 +19,10 @@ import com.camus.backend.chat.domain.message.ClientToStompSubRequest;
 import com.camus.backend.chat.domain.message.StompToRedisMessage;
 import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
 import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
+import com.camus.backend.global.jwt.util.JwtTokenProvider;
+import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -28,11 +31,16 @@ public class SocketController {
 
 	private final KafkaStompProducerService kafkaStompProducerService;
 	private final KafkaStompConsumerService kafkaStompConsumerService;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final MemberCredentialRepository memberCredentialRepository;
 
 	public SocketController(KafkaStompProducerService kafkaStompProducerService,
-		KafkaStompConsumerService kafkaStompConsumerService) {
+		KafkaStompConsumerService kafkaStompConsumerService, JwtTokenProvider jwtTokenProvider,
+		MemberCredentialRepository memberCredentialRepository) {
 		this.kafkaStompProducerService = kafkaStompProducerService;
 		this.kafkaStompConsumerService = kafkaStompConsumerService;
+		this.jwtTokenProvider = jwtTokenProvider;
+		this.memberCredentialRepository = memberCredentialRepository;
 	}
 
 	// 새로운 사용자가 웹 소켓을 연결할 때 실행됨
@@ -61,20 +69,29 @@ public class SocketController {
 	) {
 
 		// 요청을 한 사용자의 uuid 구하기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		UUID userUuid = userDetails.get_id();
+		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		// UUID userUuid = userDetails.get_id();
+		try {
+			String username = jwtTokenProvider.getUsername(clientMessage.getUserToken());
 
-		StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
-			.roomId(clientMessage.getRoomId())
-			.content(clientMessage.getContent())
-			.userId(
-				userUuid.toString()
-			)
-			.build();
+			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
+			UUID userUuid = memberCredential.get_id();
 
-		// kafka에 올리기
-		kafkaStompProducerService.sendMessage(stompToRedisMessage);
+			StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
+				.roomId(clientMessage.getRoomId())
+				.content(clientMessage.getContent())
+				.userId(
+					userUuid.toString()
+				)
+				.build();
+
+			// kafka에 올리기
+			kafkaStompProducerService.sendMessage(stompToRedisMessage);
+		} catch (Exception e) {
+			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
+		}
+
 	}
 
 	@MessageMapping("/message_received")
@@ -84,15 +101,22 @@ public class SocketController {
 	) {
 
 		// 요청을 한 사용자의 uuid 구하기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		UUID userUuid = userDetails.get_id();
+		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		// UUID userUuid = userDetails.get_id();
+		try {
+			String username = jwtTokenProvider.getUsername(clientToStompSubRequest.getUserToken());
+			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
+			UUID userUuid = memberCredential.get_id();
 
-		// KafkaConsumerService를 사용하여 특정 토픽 구독
-		kafkaStompConsumerService.addListener(
-			clientToStompSubRequest,
-			userUuid
-		);
+			// KafkaConsumerService를 사용하여 특정 토픽 구독
+			kafkaStompConsumerService.addListener(
+				clientToStompSubRequest,
+				userUuid
+			);
+		} catch (Exception e) {
+			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
+		}
 	}
 
 }

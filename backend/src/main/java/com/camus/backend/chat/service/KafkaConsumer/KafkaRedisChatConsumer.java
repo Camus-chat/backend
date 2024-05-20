@@ -73,6 +73,7 @@ public class KafkaRedisChatConsumer {
 			FilteredMessageDto filteredMessageDto = new FilteredMessageDto();
 			filteredMessageDto.setRoomId(response.getRoomId());
 			filteredMessageDto.setMessageId(response.getFilteredMessage().getId());
+			System.out.println(response.getFilteredMessage().getFilteredType());
 			filteredMessageDto.setFilteredLevel(
 				filterMatch.FILTER_MAP.get(response.getFilteredMessage().getFilteredType().getValue())
 			);
