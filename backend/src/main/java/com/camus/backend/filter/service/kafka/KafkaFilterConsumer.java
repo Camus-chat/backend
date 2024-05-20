@@ -31,7 +31,8 @@ public class KafkaFilterConsumer {
 		this.objectMapper = objectMapper;
 	}
 
-	@KafkaListener(topics = "filteringRequest", groupId = "filteringGroup")
+
+	@KafkaListener(topics = "FilteringRequest", groupId = "FilteringGroup")
 	public void listen(ConsumerRecord<String, Object> record) {
 		try {
 			FilteringRequest request = objectMapper.readValue(record.value().toString(), FilteringRequest.class);

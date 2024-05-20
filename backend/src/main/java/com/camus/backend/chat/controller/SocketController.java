@@ -1,23 +1,28 @@
 package com.camus.backend.chat.controller;
 
-import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.camus.backend.chat.domain.message.ClientToStompMessage;
+import com.camus.backend.chat.domain.message.ClientToStompSubRequest;
+import com.camus.backend.chat.domain.message.StompToRedisMessage;
 import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
 import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.camus.backend.global.jwt.util.JwtTokenProvider;
+import com.camus.backend.member.domain.document.MemberCredential;
+import com.camus.backend.member.domain.dto.CustomUserDetails;
+import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -26,14 +31,16 @@ public class SocketController {
 
 	private final KafkaStompProducerService kafkaStompProducerService;
 	private final KafkaStompConsumerService kafkaStompConsumerService;
-	private final ObjectMapper objectMapper;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final MemberCredentialRepository memberCredentialRepository;
 
 	public SocketController(KafkaStompProducerService kafkaStompProducerService,
-		KafkaStompConsumerService kafkaStompConsumerService,
-		ObjectMapper objectMapper) {
+		KafkaStompConsumerService kafkaStompConsumerService, JwtTokenProvider jwtTokenProvider,
+		MemberCredentialRepository memberCredentialRepository) {
 		this.kafkaStompProducerService = kafkaStompProducerService;
 		this.kafkaStompConsumerService = kafkaStompConsumerService;
-		this.objectMapper = objectMapper;
+		this.jwtTokenProvider = jwtTokenProvider;
+		this.memberCredentialRepository = memberCredentialRepository;
 	}
 
 	// 새로운 사용자가 웹 소켓을 연결할 때 실행됨
@@ -56,28 +63,60 @@ public class SocketController {
 
 	// /pub/message로 메시지 발행
 	@MessageMapping("/message_send")
-	public void sendMessage(Map<String, Object> params) throws JsonProcessingException {
-		System.out.println("카프카로 채팅 쳤다");
-		// 구독중인 client에 메세지를 보낸다.
-		String topic = params.get("topic").toString();
-		// 카프카에게 발송해주는 로직
-		String messageJson = objectMapper.writeValueAsString(params);
-		kafkaStompProducerService.sendMessage(messageJson, topic);
+	public void sendMessage(
+		ClientToStompMessage clientMessage
+		// 인증자 정보
+	) {
+
+		// 요청을 한 사용자의 uuid 구하기
+		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		// UUID userUuid = userDetails.get_id();
+		try {
+			String username = jwtTokenProvider.getUsername(clientMessage.getUserToken());
+
+			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
+			UUID userUuid = memberCredential.get_id();
+
+			StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
+				.roomId(clientMessage.getRoomId())
+				.content(clientMessage.getContent())
+				.userId(
+					userUuid.toString()
+				)
+				.build();
+
+			// kafka에 올리기
+			kafkaStompProducerService.sendMessage(stompToRedisMessage);
+		} catch (Exception e) {
+			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
+		}
+
 	}
 
 	@MessageMapping("/message_received")
-	public void subscribeToTopic(@Payload String message) throws Exception {
-		// JSON 문자열을 파싱하기 위한 ObjectMapper 인스턴스 생성
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.readTree(message);
+	public void subscribeToTopic(
+		ClientToStompSubRequest clientToStompSubRequest
+		// 여기도 사용자 인증 객체 등록
+	) {
 
-		// "topic" 필드 값을 추출
-		String topic = jsonNode.get("topic").asText();
-		String groupId = jsonNode.get("groupId").asText();
+		// 요청을 한 사용자의 uuid 구하기
+		// Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		// UUID userUuid = userDetails.get_id();
+		try {
+			String username = jwtTokenProvider.getUsername(clientToStompSubRequest.getUserToken());
+			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
+			UUID userUuid = memberCredential.get_id();
 
-		System.out.println("토픽 : " + topic + " ---- 그룹 : " + groupId);
-
-		// KafkaConsumerService를 사용하여 특정 토픽 구독
-		kafkaStompConsumerService.addListener(topic, groupId);
+			// KafkaConsumerService를 사용하여 특정 토픽 구독
+			kafkaStompConsumerService.addListener(
+				clientToStompSubRequest,
+				userUuid
+			);
+		} catch (Exception e) {
+			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
+		}
 	}
+
 }

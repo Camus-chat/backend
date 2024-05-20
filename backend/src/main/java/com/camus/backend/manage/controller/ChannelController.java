@@ -1,6 +1,7 @@
 package com.camus.backend.manage.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.manage.domain.dto.ChannelDto;
+import com.camus.backend.manage.domain.dto.ChannelEnterInfoDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.service.ChannelService;
@@ -29,11 +31,11 @@ public class ChannelController {
 	}
 
 	// FIXME : 지워주세요 tempSave
-	@PostMapping("/tempSave")
-	public ResponseEntity<SuccessCode> tempSave() {
-		channelService.createChannelList();
-		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
-	}
+	// @PostMapping("/tempSave")
+	// public ResponseEntity<SuccessCode> tempSave() {
+	// 	channelService.createChannelList();
+	// 	return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
+	// }
 
 	// FeatureID 501-1
 	@Operation(
@@ -60,7 +62,6 @@ public class ChannelController {
 	public ResponseEntity<List<ChannelDto>> getChannelList(
 		// TODO : 사용자 인증 정보 - 회원일 때만
 	) {
-
 		return ResponseEntity.ok(channelService.getChannelList(
 			// TODO : 여기서 사용자 정보 넘기기
 		));
@@ -99,5 +100,19 @@ public class ChannelController {
 		);
 
 		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
+	}
+
+	@Operation(
+		summary = "채널 입장 정보 반환",
+		description = "채널 입장 정보 반환"
+	)
+	@PostMapping("/info")
+	public ResponseEntity<ChannelEnterInfoDto> getChannelEnterInfo(
+		@RequestBody UUID link
+	) {
+
+		return ResponseEntity.ok(
+			channelService.getChannelEnterInfo(link)
+		);
 	}
 }

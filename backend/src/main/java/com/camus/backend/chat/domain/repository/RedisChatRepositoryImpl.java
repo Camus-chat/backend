@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -16,10 +15,12 @@ import org.springframework.stereotype.Repository;
 import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.Message;
 import com.camus.backend.chat.domain.document.NoticeMessage;
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 import com.camus.backend.chat.util.ChatConstants;
 import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Repository
 public class RedisChatRepositoryImpl implements RedisChatRepository {
@@ -27,13 +28,16 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 	private RedisTemplate<String, String> redisTemplate;
 	private ChatModules chatModules;
 	private ChatConstants chatConstants;
+	private ObjectMapper objectMapper;
 
 	public RedisChatRepositoryImpl(RedisTemplate<String, String> redisTemplate,
 		ChatModules chatModules,
-		ChatConstants chatConstants) {
+		ChatConstants chatConstants,
+		ObjectMapper objectMapper) {
 		this.redisTemplate = redisTemplate;
 		this.chatModules = chatModules;
 		this.chatConstants = chatConstants;
+		this.objectMapper = objectMapper;
 	}
 
 	// 각 사용자의 Stream 별 읽은 메시지 위치를 기록하는 곳
@@ -88,11 +92,12 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		));
 	}
 
-	public void addCommonMessage(CommonMessage commonMessage) {
+	public long addCommonMessage(CommonMessage commonMessage) {
 
+		String messageId = getStreamCount(commonMessage.getRoomId());
 		addMessageToStream(commonMessage.getRoomId(), Map.of(
 			// 공통 필드
-			Message.Fields.messageId, getStreamCount(commonMessage.getRoomId()),
+			Message.Fields.messageId, messageId,
 			Message.Fields.roomId, commonMessage.getRoomId().toString(),
 			Message.Fields.createdDate, commonMessage.getCreatedDate().toString(),
 			Message.Fields.content, commonMessage.getContent(),
@@ -101,8 +106,8 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 			CommonMessage.Fields.filteredType, commonMessage.getFilteredType(),
 			CommonMessage.Fields._class, commonMessage.get_class()
 		));
+		return Long.parseLong(messageId);
 	}
-
 
 	//FIXME : 과연 사용할 필요가 있는가?
 	public String getLatestRedisMessageId(String roomId) {
@@ -123,6 +128,39 @@ public class RedisChatRepositoryImpl implements RedisChatRepository {
 		throw new CustomException(ErrorCode.DB_OPERATION_FAILED);
 	}
 
+	public boolean addFilteredType(FilteredMessageDto filteredMessageDto) {
+		// TODO 필터링 결과값을 Redis에 저장
 
+		String setZsetKey = chatModules.getFilteredZsetKeyByRoomId(filteredMessageDto.getRoomId().toString());
+		double score = chatModules.convertCreateDateToScore(filteredMessageDto.getCreatedDate());
+		String setHashkey = chatModules.getFilteredHashKeyByRoomId(
+			filteredMessageDto.getRoomId().toString()
+		);
+
+		boolean ifAbsent = redisTemplate.opsForHash().putIfAbsent(
+			setHashkey,
+			String.valueOf(filteredMessageDto.getMessageId()),
+			String.valueOf(score)
+		);
+
+		if (!ifAbsent)
+			return false;
+
+		try {
+			String filteredMessageToJson = objectMapper.writeValueAsString(filteredMessageDto);
+			redisTemplate.opsForZSet().add(
+				setZsetKey,
+				filteredMessageToJson,
+				score
+			);
+		} catch (Exception e) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
+		System.out.println(redisTemplate.opsForHash()
+			.get(setHashkey, String.valueOf(filteredMessageDto.getMessageId())));
+
+		return true;
+	}
 
 }

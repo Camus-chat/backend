@@ -3,9 +3,10 @@ package com.camus.backend.manage.domain.dto;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import com.camus.backend.chat.domain.dto.RedisSavedMessageBasicDto;
-import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 
 public class RoomDto {
-	private UUID _id;
+	private UUID roomId;
 	//private UUID channelKey;
 
 	private String channelType;
@@ -22,8 +23,9 @@ public class RoomDto {
 	private ArrayList<UUID> userList;
 	private boolean isClosed;
 
+	private int filteredLevel;
+
 	private LastMessageInfo lastMessage;
 	private int unreadCount;
-
 
 }

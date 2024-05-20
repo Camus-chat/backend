@@ -13,6 +13,7 @@ public class ChannelStatus {
 	private boolean valid;
 	private String type;
 	private String title;
+	private int filteredLevel;
 	private UUID key;
 	private UUID ownerId;
 }

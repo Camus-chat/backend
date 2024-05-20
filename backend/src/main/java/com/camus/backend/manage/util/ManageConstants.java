@@ -17,8 +17,9 @@ public final class ManageConstants {
 	public static final int GROUP_CHANNEL_MAX_ROOMS = 1;
 
 	// Channel 필터링 조건
-	public static final int CHANNEL_FILTER_MIN_LEVEL = 0;
-	public static final int CHANNEL_FILTER_MAX_LEVEL = 2;
+	public static final int CHANNEL_FILTER_MIN_LEVEL = 100;
+	public static final int CHANNEL_FILTER_MIDDLE_LEVEL = 200;
+	public static final int CHANNEL_FILTER_MAX_LEVEL = 300;
 
 	public static final int PRIVATE_ROOM_MAX_MEMBERS = 2;
 	public static final int GROUP_ROOM_MAX_MEMBERS = 3000;

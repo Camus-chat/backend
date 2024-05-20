@@ -16,5 +16,8 @@ public interface CustomChannelListRepository {
 	void editChannelInfo(UUID memeberId, ChannelInfoDto channelInfoDto);
 
 	void addRoomIdToChannel(UUID roomId, UUID channelKey);
+
 	UUID getChannelKeyByChannelLink(UUID channelLink);
+
+	ChannelList getChannelListByChannelLink(UUID channelLink);
 }
