@@ -7,8 +7,7 @@ import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 
 public interface FilterService {
-	void token(ContextFilteringRequest request);
-	void predict(ContextFilteringRequest request);
-	void predict(SingleFilteringRequest request);
+	void predict(ContextFilteringRequest request) throws Exception;
+	void predict(SingleFilteringRequest request) throws Exception;
 
 }
