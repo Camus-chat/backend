@@ -44,30 +44,6 @@ AI 기반 텍스트, 문맥 분석을 통한 SafeChat 시스템을 제공한다.
 - AI 필터링 기능의 최적화 작업을 통해 기업의 SafeChat 구현을 지원한다.
 
 <br>
-## 📌 Features
-
-### ✨ B2B, B2C 홈페이지
-
-|                    개인 회원                    |                      기업 회원                      |
-|:-------------------------------------------:|:-----------------------------------------------:|
-| <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/landing.gif" width='500px'> | <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/landing-biz.gif" width='500px'> |
-
-
-<br>
-
-### ✨ 채팅 및 필터링 기능
-
-|                      채팅 리스트                       |                     채팅 방                     |
-|:-------------------------------------------------:|:--------------------------------------------:|
-| <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/chatting-list.png" width='200px'> | <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/chatting.gif" width='600px'> |
-
-<br>
-
-### ✨ 채팅 채널 관리 및 공유 기능
-
-|                       채널 생성                        |                     채널 링크 공유                     |
-|:--------------------------------------------------:|:------------------------------------------------:|
-| <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/channel-create.gif" width='500px'> | <img src='https://github.com/Camus-chat/.github/blob/main/profile/asset/channel-link.gif' width='500px'> | 
 
 ## 🖇 Backend Teams
 
@@ -226,6 +202,35 @@ AI 기반 텍스트, 문맥 분석을 통한 SafeChat 시스템을 제공한다.
 - # ❗적어주세요
 
 ---
+
+## 📌 Features
+
+### ✨ B2B, B2C 홈페이지
+
+|                    개인 회원                    |                      기업 회원                      |
+|:-------------------------------------------:|:-----------------------------------------------:|
+| <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/landing.gif" width='500px'> | <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/landing-biz.gif" width='500px'> |
+
+
+<br>
+
+### ✨ 채팅 및 필터링 기능
+
+|                      채팅 리스트                       |                     채팅 방                     |
+|:-------------------------------------------------:|:--------------------------------------------:|
+| <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/chatting-list.png" width='200px'> | <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/chatting.gif" width='600px'> |
+
+<br>
+
+### ✨ 채팅 채널 관리 및 공유 기능
+
+|                       채널 생성                        |                     채널 링크 공유                     |
+|:--------------------------------------------------:|:------------------------------------------------:|
+| <img src="https://github.com/Camus-chat/.github/blob/main/profile/asset/channel-create.gif" width='500px'> | <img src='https://github.com/Camus-chat/.github/blob/main/profile/asset/channel-link.gif' width='500px'> | 
+
+<br>
+
+
 
 <a name="directory"></a>
 ## Directory
