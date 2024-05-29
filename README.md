@@ -150,7 +150,9 @@ AI 기반 텍스트, 문맥 분석을 통한 SafeChat 시스템을 제공한다.
 
 <a name="service-layout"></a>
 ## 🌈 Service Layout
-- # ❗추가필요
+
+![service](https://github.com/Camus-chat/backend/blob/main/readme-asset/service.png)
+
 
 ---
 
