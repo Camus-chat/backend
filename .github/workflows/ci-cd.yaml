@@ -90,7 +90,10 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/camus-backend
           docker stop spring-app || true
           docker rm spring-app || true
-          docker run -d --restart unless-stopped -p 8080:8080 --name spring-app --network spring-network {{ secrets.DOCKER_USERNAME }}/camus-backend
+          docker run -d --restart unless-stopped -p 8080:8080 \
+            --name spring-app \
+            --network spring-network \
+            ${{ secrets.DOCKER_USERNAME }}/camus-backend:latest
 
     - name: Remove GitHub Actions IP
       if: always() # 이 단계는 항상 실행되도록 설정
