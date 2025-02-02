@@ -48,5 +48,11 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+	useJUnitPlatform()
+	jar {
+		enabled = false // 기본 JAR 비활성화
+	}
+	bootJar {
+		archiveFileName = "app.jar" // Fat JAR 파일 이름을 app.jar로 고정
+	}
 }
