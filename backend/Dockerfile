@@ -1,24 +1,29 @@
 # 빌드 스테이지
-FROM gradle:8-jdk17 AS build
+FROM amazoncorretto:17
 WORKDIR /app
 
-# 소스 코드와 빌드 스크립트 복사
-COPY build.gradle ./
-COPY settings.gradle ./
-COPY src ./src
+# COPY jar file
+COPY build/libs/app.jar app.jar
 
-# Gradle Wrapper 사용 없이 의존성을 다운로드하고, 애플리케이션을 빌드
-RUN gradle build -x test --no-daemon
+# 빌드 시 인자로 받을 값 정의 (ARG)
+ARG SPRING_REDIS_HOST
+ARG SPRING_REDIS_PORT
+ARG SPRING_MONGO_HOST
+ARG SPRING_MONGO_PORT
+ARG SPRING_MONGO_DB
+ARG SPRING_KAFKA_HOST
+ARG SPRING_KAFKA_PORT
+ARG JWT_SECRET
 
-# 실행 스테이지
-FROM openjdk:17
-WORKDIR /app
-
-# 빌드 스테이지에서 생성된 JAR 파일을 현재 디렉토리로 복사
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# 애플리케이션에 필요한 포트를 노출
-EXPOSE 8080
+# 환경 변수로 설정 (ENV)
+ENV SPRING_REDIS_HOST=${SPRING_REDIS_HOST}
+ENV SPRING_REDIS_PORT=${SPRING_REDIS_PORT}
+ENV SPRING_MONGO_HOST=${SPRING_MONGO_HOST}
+ENV SPRING_MONGO_PORT=${SPRING_MONGO_PORT}
+ENV SPRING_MONGO_DB=${SPRING_MONGO_DB}
+ENV SPRING_KAFKA_HOST=${SPRING_KAFKA_HOST}
+ENV SPRING_KAFKA_PORT=${SPRING_KAFKA_PORT}
+ENV JWT_SECRET=${JWT_SECRET}
 
 # JAR 파일 실행
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
