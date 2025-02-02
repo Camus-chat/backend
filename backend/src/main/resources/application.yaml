@@ -1,0 +1,33 @@
+spring:
+  redis:
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+  data:
+    mongodb:
+      uri: mongodb://${SPRING_MONGO_HOST:localhost}:${SPRING_MONGO_PORT:27017}/${SPRING_MONGO_DB:my_db}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_HOST:localhost}:${SPRING_KAFKA_PORT:9092}
+# -- wrong value--
+  jwt:
+    expiration:
+      accessExpire: 86400000
+      refreshExpire: 86400000
+      guestExpire: 86400000
+    secret: ${JWT_SECRET:my_secret}
+clova:
+  host: localhost
+  port: 8080
+  api-key: a
+  api-key-primary: aa
+lambda:
+  endpoint: localhost
+cloud:
+  aws:
+    credentials:
+      access-key: a
+      secret-key: b
+    region:
+      static: c
+    s3:
+      bucket: d
+      base-url: e
