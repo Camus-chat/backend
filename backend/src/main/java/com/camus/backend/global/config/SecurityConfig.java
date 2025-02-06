@@ -79,9 +79,11 @@ public class SecurityConfig {
 					"/swagger-ui/index.html")
 				.permitAll() // swagger 설정
 				.requestMatchers("/")
-				.permitAll() // 메인
+				.permitAll() // 메인페이지
 				.requestMatchers("member/login")
-				.permitAll()// 페이지
+				.permitAll() // 통합 로그인
+				.requestMatchers("/member/b2c/signup", "/member/b2b/signup")
+				.permitAll() // b2c, b2b 회원가입
 //				.requestMatchers("/member/b2c/login", "/member/b2c/signup")
 //				.permitAll() // b2c 유저 로그인, 회원가입
 //				.requestMatchers("/member/b2b/login", "/member/b2b/signup")
