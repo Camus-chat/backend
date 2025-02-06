@@ -14,8 +14,9 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 		// RequestMatcher를 설정하고 AuthenticationManager를 수동으로 설정
 		setRequiresAuthenticationRequestMatcher(new OrRequestMatcher(
 			Arrays.asList(
-				new AntPathRequestMatcher("/member/b2c/login", "POST"),
-				new AntPathRequestMatcher("/member/b2b/login", "POST"),
+//				new AntPathRequestMatcher("/member/b2c/login", "POST"),
+//				new AntPathRequestMatcher("/member/b2b/login", "POST"),
+				new AntPathRequestMatcher("/member/login", "POST"),
 				new AntPathRequestMatcher("/guest/login", "POST")
 			)
 		));
