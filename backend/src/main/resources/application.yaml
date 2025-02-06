@@ -13,7 +13,7 @@ spring:
       accessExpire: 86400000
       refreshExpire: 86400000
       guestExpire: 86400000
-    secret: ${JWT_SECRET:my_secret}
+    secret: ${JWT_SECRET:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 clova:
   host: a
   api-key: b
@@ -30,3 +30,7 @@ cloud:
     s3:
       bucket: h
       base-url: i
+
+logging:
+  level:
+    org.springframework.security: DEBUG
