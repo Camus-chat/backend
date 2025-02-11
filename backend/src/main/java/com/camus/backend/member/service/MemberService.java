@@ -4,15 +4,11 @@ import static com.camus.backend.global.util.GuestUtil.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -51,7 +47,6 @@ import com.camus.backend.member.domain.dto.MemberCredentialDto;
 import com.camus.backend.member.domain.dto.UUIDDto;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 import com.camus.backend.member.domain.repository.MemberProfileRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class MemberService {
@@ -140,35 +135,23 @@ public class MemberService {
 			// 프로필 ID 설정
 			memberProfile.set_id(newMemberCredential.get_id());
 
-			String companyName = memberCredentialDto.getInput1();
-			String companyEmail = (String)memberCredentialDto.getInput2();
+			String nickname = memberCredentialDto.getNickname();
+
 
 			// companyName 유효성 검사
-			if (companyName == null || companyName.trim().isEmpty()) {
+			if (nickname == null || nickname.trim().isEmpty()) {
 				throw new CustomException(ErrorCode.MISSING_PARAMETER_CN);
 			}
-			// companyEmail 유효성 검사
-			if (companyEmail == null || companyEmail.trim().isEmpty()) {
-				throw new CustomException(ErrorCode.MISSING_PARAMETER_EM);
-			}
 
-			((B2BProfile)memberProfile).setCompanyName(companyName);
-			((B2BProfile)memberProfile).setCompanyEmail(companyEmail);
+			((B2BProfile)memberProfile).setCompanyName(nickname);
 		} else if ("b2c".equals(role)) {
 			memberProfile = new B2CProfile();
 
 			// 프로필 ID 설정
 			memberProfile.set_id(newMemberCredential.get_id());
 
-			String nickname = memberCredentialDto.getInput1();
-			String profileLink = null;
-			try {
-				profileLink = uploadFile((MultipartFile)memberCredentialDto.getInput2());
-			} catch (IOException e) {
-				throw new CustomException(ErrorCode.INVALID_PARAMETER_IMAGE);
-			}
+			String nickname = memberCredentialDto.getNickname();
 			((B2CProfile)memberProfile).setNickname(nickname);
-			((B2CProfile)memberProfile).setProfileLink(profileLink);
 		} else {
 
 			// // guest 로직
@@ -254,20 +237,14 @@ public class MemberService {
 			// 프로필 ID 설정
 			memberProfile.set_id(newMemberCredential.get_id());
 
-			String companyName = b2bMemberCredentialDto.getCompanyName();
-			String companyEmail = b2bMemberCredentialDto.getCompanyEmail();
+			String companyName = b2bMemberCredentialDto.getNickname();
 
 			// companyName 유효성 검사
 			if (companyName == null || companyName.trim().isEmpty()) {
 				throw new CustomException(ErrorCode.MISSING_PARAMETER_CN);
 			}
-			// companyEmail 유효성 검사
-			if (companyEmail == null || companyEmail.trim().isEmpty()) {
-				throw new CustomException(ErrorCode.MISSING_PARAMETER_EM);
-			}
 
 			memberProfile.setCompanyName(companyName);
-			memberProfile.setCompanyEmail(companyEmail);
 		} else {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
@@ -340,15 +317,7 @@ public class MemberService {
 				throw new CustomException(ErrorCode.MISSING_PARAMETER_CN);
 			}
 
-			String profileLink = null;
-			try {
-				profileLink = uploadFile(b2cMemberCredentialDto.getProfileImage());
-			} catch (IOException e) {
-				throw new CustomException(ErrorCode.INVALID_PARAMETER_IMAGE);
-			}
-
 			memberProfile.setNickname(nickname);
-			memberProfile.setProfileLink(profileLink);
 		} else {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}

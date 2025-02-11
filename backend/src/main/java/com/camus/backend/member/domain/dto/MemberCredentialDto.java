@@ -10,7 +10,5 @@ import lombok.Setter;
 public class MemberCredentialDto {
 	private String username;
 	private String password;
-	private String input1;
-	private Object input2;
-	// private String role;
+	private String nickname;
 }

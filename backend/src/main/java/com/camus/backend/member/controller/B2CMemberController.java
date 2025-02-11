@@ -28,7 +28,7 @@ public class B2CMemberController {
 	}
 
 	@PostMapping("/signup")
-	ResponseEntity<?> b2cSignUp(@ModelAttribute B2CMemberCredentialDto b2cMemberCredentialDto){
+	ResponseEntity<?> b2cSignUp(@RequestBody B2CMemberCredentialDto b2cMemberCredentialDto){
 		// String role=memberCredentialDto.getRole();
 		memberService.b2cSignUp(b2cMemberCredentialDto,"b2c");
 		// boolean signUpSuccess = memberService.signUp(memberCredentialDto,"b2c");

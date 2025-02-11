@@ -14,6 +14,5 @@ import lombok.Setter;
 public class B2BMemberCredentialDto {
 	private String username;
 	private String password;
-	private String companyName;
-	private String companyEmail;
+	private String nickname;
 }
