@@ -80,14 +80,8 @@ public class SecurityConfig {
 				.permitAll() // swagger 설정
 				.requestMatchers("/")
 				.permitAll() // 메인페이지
-				.requestMatchers("member/login")
+				.requestMatchers("/member/login", "/member/signup")
 				.permitAll() // 통합 로그인
-				.requestMatchers("/member/b2c/signup", "/member/b2b/signup")
-				.permitAll() // b2c, b2b 회원가입
-//				.requestMatchers("/member/b2c/login", "/member/b2c/signup")
-//				.permitAll() // b2c 유저 로그인, 회원가입
-//				.requestMatchers("/member/b2b/login", "/member/b2b/signup")
-//				.permitAll() // b2b 유저 로그인, 회원가입
 				.requestMatchers("/guest/signup", "/guest/info", "/guest/login")
 				.permitAll() // 게스트 //
 				.requestMatchers("/member/etc/check", "/member/etc/info")
@@ -98,10 +92,8 @@ public class SecurityConfig {
 				.permitAll() // id 중복체크
 				.requestMatchers("/error")
 				.permitAll() // 에러 보기
-				.requestMatchers("/member/b2c/info", "/member/b2c/image", "/member/b2c/nickname")
-				.hasAuthority("b2c") // b2c 회원정보 조회, 이미지 수정, 닉네임 수정
-				.requestMatchers("/member/b2b/info", "/member/b2b/modify")
-				.hasAuthority("b2b") // b2b 회원정보 조회, 회원정보 수정
+				.requestMatchers("/member/info", "/member/image", "member/nickname")
+				.hasAnyAuthority("b2c", "b2b") // 회원정보 조회, 이미지 수정, 닉네임 수정
 				.requestMatchers("/chat/data/unread", "/chat/room/exit", "/chat/data")
 				.permitAll() // ChatDataController
 				.requestMatchers("/test/redisCreateRoomNoticeTest", "/test/redisSendMessagesTest")
