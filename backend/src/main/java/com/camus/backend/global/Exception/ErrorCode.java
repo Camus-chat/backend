@@ -16,6 +16,7 @@ public enum ErrorCode {
 
 	// CONFLICT
 	CONFLICT_ID(HttpStatus.CONFLICT, 901, "이미 사용중인 아이디입니다."),
+	CONFLICT_EMAIL(HttpStatus.CONFLICT, 902, "이미 사용중인 이메일입니다."),
 
 	// MISSING_PARAMETER
 	MISSING_PARAMETER_ID(HttpStatus.BAD_REQUEST, 1001, "아이디를 입력해주세요."),
