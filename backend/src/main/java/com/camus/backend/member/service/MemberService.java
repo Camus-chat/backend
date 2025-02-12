@@ -88,9 +88,9 @@ public class MemberService {
 		String username = memberCredentialDto.getUsername();
 		String password = memberCredentialDto.getPassword();
 
-		// username 받았는지 검사
-		if (username == null || username.trim().isEmpty()) {
-			throw new CustomException(ErrorCode.MISSING_PARAMETER_ID);
+		// 이메일 유효성 검사
+		if (username.length() < 10 || username.length() > 50 || !isValidEmail(username)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_EMAIL);
 		}
 
 		// username 유효성 검사
@@ -194,9 +194,9 @@ public class MemberService {
 			throw new CustomException(ErrorCode.MISSING_PARAMETER_ID);
 		}
 
-		// username 유효성 검사
-		if (username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)) {
-			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		// 이메일 유효성 검사
+		if (username.length() < 10 || username.length() > 50 || !isValidEmail(username)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_EMAIL);
 		}
 
 		// password 유효성 검사
@@ -268,9 +268,9 @@ public class MemberService {
 			throw new CustomException(ErrorCode.MISSING_PARAMETER_ID);
 		}
 
-		// username 유효성 검사
-		if (username.length() < 5 || username.length() > 20 || !Pattern.matches("^[A-Za-z0-9\\-_]+$", username)) {
-			throw new CustomException(ErrorCode.INVALID_PARAMETER_ID);
+		// 이메일 유효성 검사
+		if (username.length() < 10 || username.length() > 50 || !isValidEmail(username)) {
+			throw new CustomException(ErrorCode.INVALID_PARAMETER_EMAIL);
 		}
 
 		// password 유효성 검사
@@ -745,6 +745,19 @@ public class MemberService {
 		memberProfileRepository.save(memberProfile);
 	}
 
+	// 이메일 유효성 검사 함수
+	private boolean isValidEmail(String email) {
+		// 정규식: 이메일 형식 검사 (일반적인 RFC 5322 형식 참고)
+		String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
+		// 정규식 검사
+		if (!Pattern.matches(emailRegex, email)) {
+			return false;
+		}
+
+		// '@' 문자가 반드시 하나여야 함
+		return email.chars().filter(ch -> ch == '@').count() == 1;
+	}
 
 
 
