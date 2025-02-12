@@ -23,7 +23,6 @@ import com.camus.backend.manage.domain.dto.RoomIdDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;
-import com.camus.backend.member.domain.dto.B2BProfileDto;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 import com.camus.backend.member.domain.dto.GuestProfileDto;
 import com.camus.backend.member.domain.dto.MemberCredentialDto;

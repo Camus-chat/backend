@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.camus.backend.member.domain.document.MemberProfile.AccountProfile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,6 @@ import com.camus.backend.manage.domain.dto.ChannelInfoDto;
 import com.camus.backend.manage.domain.dto.CreateChannelDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
 import com.camus.backend.manage.util.ManageConstants;
-import com.camus.backend.member.domain.document.MemberProfile.B2CProfile;
 import com.camus.backend.member.domain.document.MemberProfile.MemberProfile;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 import com.camus.backend.member.domain.repository.MemberProfileRepository;
@@ -185,7 +185,8 @@ public class ChannelService {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
 
-		if (!(memberProfileOptional.get() instanceof B2CProfile ownerProfile)) {
+		MemberProfile ownerProfile = memberProfileOptional.get();
+		if (!(memberProfileOptional.get() instanceof AccountProfile accountProfile)) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
 
@@ -197,8 +198,8 @@ public class ChannelService {
 		return ChannelEnterInfoDto.builder()
 			.channelTitle(channel.getTitle())
 			.channelContent(channel.getContent())
-			.ownerNickname(ownerProfile.getNickname())
-			.ownerProfileImage(ownerProfile.getProfileLink())
+			.ownerNickname(accountProfile.getNickname())
+			.ownerProfileImage(accountProfile.getProfileLink())
 			.build();
 
 	}
