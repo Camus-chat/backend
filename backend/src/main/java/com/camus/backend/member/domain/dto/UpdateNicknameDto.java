@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @Getter
 @Setter
-public class B2CUpdateNicknameDto {
+@NoArgsConstructor
+public class UpdateNicknameDto {
 	private String newNickname;
 }

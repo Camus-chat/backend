@@ -15,5 +15,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LinkDto {
 	private GuestProfile guestProfile;
-
+	// linkEnter
+	// nickname 따로 줘야하나?
 }
