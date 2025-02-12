@@ -1,17 +1,19 @@
 package com.camus.backend.member.domain.document.MemberProfile;
 
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Getter;
-import lombok.Setter;
-
+@ToString
 @Getter
 @Setter
 @SuperBuilder
-@TypeAlias("guestProfile")
-@Document(collection = "guest_profile")
-public class GuestProfile extends MemberProfile{
-	private String profilePalette;
+@NoArgsConstructor
+@AllArgsConstructor
+@TypeAlias("accountProfile")
+@Document(collection = "accountProfile")
+public class AccountProfile extends MemberProfile {
+    private String role;
+    private String profileLink;
 }
