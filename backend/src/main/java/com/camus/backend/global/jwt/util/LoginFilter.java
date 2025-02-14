@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -96,21 +97,39 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 		long cookieRefresh;
 
 		// 회원과 비회원에 따라 refresh 따로 주기
-		if(role.equals("guest")){
-			cookieRefresh=jwtSettings.getGuestExpire();
-			refreshToken = jwtTokenProvider.createToken("refresh",username,role, cookieRefresh);
+		if(role.equals("guest")) {
+			cookieRefresh = jwtSettings.getGuestExpire();
+			refreshToken = jwtTokenProvider.createToken("refresh", username, role, cookieRefresh);
 
-		}else{
-			cookieRefresh=jwtSettings.getRefreshExpire();
-			refreshToken = jwtTokenProvider.createToken("refresh",username,role, cookieRefresh);
+		} else {
+			cookieRefresh = jwtSettings.getRefreshExpire();
+			refreshToken = jwtTokenProvider.createToken("refresh", username, role, cookieRefresh);
 		}
+
+		// accessToken 쿠키
+		ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+				.httpOnly(true)  // JavaScript에서 접근 불가 (XSS 보호)
+				.secure(true)    // HTTPS에서만 전송
+				.sameSite("Strict") // CSRF 공격 방지
+				.path("/")  // 모든 요청에서 전송
+				.maxAge(jwtSettings.getAccessExpire()) // Access Token 만료 시간
+				.build();
+		// refreshToken 쿠키
+		ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+				.httpOnly(true)
+				.secure(true)
+				.sameSite("Strict")
+				.path("/")
+				.maxAge(cookieRefresh) // Refresh Token 만료 시간
+				.build();
 
 		// redis에 refresh token 저장
 		redisService.storeRefreshToken(username, refreshToken, cookieRefresh);
 
-		// 응답
-		response.setHeader("access", accessToken);
-		response.addCookie(createCookie("refresh", refreshToken,cookieRefresh));
+		// 응답 헤더에 쿠키 추가
+		response.addHeader("Set-Cookie", accessCookie.toString());
+		response.addHeader("Set-Cookie", refreshCookie.toString());
+
 
 		// 어떤 유저인지 주기
 		Map<String, String> tokenDetails = new HashMap<>();
