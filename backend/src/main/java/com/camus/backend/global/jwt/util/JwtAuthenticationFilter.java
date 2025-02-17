@@ -43,15 +43,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		ServletException, IOException {
 
 
-		// 쿠키에서 Access Token 가져오기
-		String accessToken = null;
-		if (request.getCookies() != null) {
-			for (Cookie cookie : request.getCookies()) {
-				if ("accessToken".equals(cookie.getName())) {
-					accessToken = cookie.getValue();
-				}
-			}
-		}
+		// 헤더에서 access키에 담긴 토큰을 꺼냄
+		String accessToken = request.getHeader("access");
 
 		// 토큰이 없다면 다음 필터로 넘김
 		if (accessToken == null) {
