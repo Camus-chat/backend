@@ -111,6 +111,7 @@ public class LoginFilter extends CustomUsernamePasswordAuthenticationFilter {
 		ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
 				.httpOnly(true)
 				.secure(true)
+				.sameSite("strict")
 				.path("/")
 				.maxAge(cookieRefresh) // Refresh Token 만료 시간
 				.build();
