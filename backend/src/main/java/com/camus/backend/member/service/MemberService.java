@@ -247,6 +247,7 @@ public class MemberService {
 		return AccountProfileDto.builder()
 				.myUuid(uuid)
 				.nickname(accountProfile.getNickname())
+				.username(userDetails.getUsername())
 				.profileLink(accountProfile.getProfileLink())
 				.role(accountProfile.getRole())
 				.build();
