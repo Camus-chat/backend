@@ -4,6 +4,11 @@ import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.member.domain.dto.*;
 import com.camus.backend.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +22,21 @@ public class MemberController {
         this.memberService = memberService;
     }
 
+    @ApiResponse(responseCode = "200", description = "회원가입 성공",
+            content = @Content(mediaType = "text/plain",
+                    schema = @Schema(type = "string"),
+                    examples = @ExampleObject(value = "SIGNUP")
+            )
+    )
     @PostMapping("/signup")
-    ResponseEntity<?> SignUp(@RequestBody MemberCredentialDto memberCredentialDto){
+    ResponseEntity<SuccessCode> SignUp(@RequestBody MemberCredentialDto memberCredentialDto){
         System.out.println("check");
         memberService.memberSignUp(memberCredentialDto);
         return ResponseEntity.ok(SuccessCode.SIGNUP);
     }
 
+    @ApiResponse(responseCode = "200", description = "회원정보 조회 성공",
+            content = @Content(schema = @Schema(implementation = AccountProfileDto.class)))
     @GetMapping("/info")
     public ResponseEntity<?> getMemberInfo() {
         try {
@@ -37,7 +50,12 @@ public class MemberController {
         }
     }
 
-
+    @ApiResponse(responseCode = "200", description = "회원정보 변경 성공",
+            content = @Content(mediaType = "text/plain",
+                    schema = @Schema(type = "string"),
+                    examples = @ExampleObject(value = "NICKNAME_EDIT")
+            )
+    )
     @PatchMapping("/nickname")
     public ResponseEntity<?> changeNickname(@RequestBody UpdateNicknameDto updateNicknameDto) {
         try {
@@ -50,6 +68,13 @@ public class MemberController {
         }
     }
 
+
+    @ApiResponse(responseCode = "200", description = "프로필 변경 성공",
+            content = @Content(mediaType = "text/plain",
+                    schema = @Schema(type = "string"),
+                    examples = @ExampleObject(value = "PROFILE_EDIT")
+            )
+    )
     @PatchMapping("/image")
     public ResponseEntity<?> changeProfileImage(@ModelAttribute UpdateImageDto updateImageDto) {
         try {
@@ -63,10 +88,11 @@ public class MemberController {
     }
 
     @PostMapping("/etc/check")
-    ResponseEntity<?> idCheck(@RequestBody SignUpDto signUpDto){
+    ResponseEntity<Boolean> idCheck(@RequestBody SignUpDto signUpDto){
         return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
     }
 
+    @Operation(summary = "사용하지 않는 엔드포인트", description = "필요시 리팩토링 요청")
     @PostMapping("/etc/info")
     public ResponseEntity<?> getMemberInfo(@RequestBody UUIDDto uuidDto) {
         return ResponseEntity.ok(memberService.getMemberInfo(uuidDto));

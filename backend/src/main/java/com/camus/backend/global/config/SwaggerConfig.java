@@ -27,17 +27,8 @@ public class SwaggerConfig {
 	public GroupedOpenApi getB2CMEMBERApi() {
 		return GroupedOpenApi
 			.builder()
-			.group("B2CMEMBER")
-			.pathsToMatch("/member/b2c/**")
-			.build();
-	}
-
-	@Bean
-	public GroupedOpenApi getB2BMEMBERApi() {
-		return GroupedOpenApi
-			.builder()
-			.group("B2BMEMBER")
-			.pathsToMatch("/member/b2b/**")
+			.group("MEMBER")
+			.pathsToMatch("/member/**")
 			.build();
 	}
 
@@ -55,7 +46,7 @@ public class SwaggerConfig {
 		return GroupedOpenApi.builder()
 			.group("UNGROUPED")
 			.packagesToScan("com.camus.backend")
-			.pathsToExclude("/member/b2c/**", "/member/b2b/**", "/statistic/**")
+			.pathsToExclude("/member/**", "/statistic/**")
 			.build();
 	}
 }
