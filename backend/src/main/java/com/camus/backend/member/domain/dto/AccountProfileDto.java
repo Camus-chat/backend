@@ -1,5 +1,6 @@
 package com.camus.backend.member.domain.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.UUID;
@@ -9,8 +10,10 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema
 public class AccountProfileDto {
     private UUID myUuid;
+    private String username;
     private String nickname;
     private String profileLink;
     private String role;
