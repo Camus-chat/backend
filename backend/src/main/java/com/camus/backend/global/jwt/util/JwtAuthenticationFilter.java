@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		// 헤더에서 access키에 담긴 토큰을 꺼냄
 		String accessToken = request.getHeader("Authorization");
 		// 토큰이 없다면 다음 필터로 넘김
-		if (accessToken == null || !accessToken.startsWith("bearer ")) {
+		if (accessToken == null || !accessToken.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
 			return;
 		} else {
