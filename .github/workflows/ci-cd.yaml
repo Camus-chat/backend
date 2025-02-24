@@ -6,7 +6,7 @@ on:
     - develop
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,22 +31,20 @@ jobs:
       working-directory: backend
       run: ./gradlew clean build
 
-    - name: Get Public IP
-      id: ip
-      uses: haythem/public-ip@v1.3
-
-    - name: Debug directory structure
-      working-directory: backend
-      run: ls -la
-
-    - name: Check Docker installation
-      run: docker --version
-
     - name: Build Docker image
       working-directory: backend
       run: |
         docker build \
           -t ${{ secrets.DOCKER_USERNAME }}/camus-backend:latest .
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Get Public IP
+      id: ip
+      uses: haythem/public-ip@v1.3
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
@@ -62,7 +60,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: 'ap-northeast-2'
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Add GitHub Actions IP
       run: |
