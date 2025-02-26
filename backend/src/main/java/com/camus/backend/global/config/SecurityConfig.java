@@ -101,8 +101,8 @@ public class SecurityConfig {
 				.requestMatchers("/channel/tempSave", "/channel/create", "/channel/list", "/channel/disable",
 					"/channel/edit")
 				.permitAll() // ChannelController
-				.requestMatchers("/room/list", "/room/guest/enter")
-				.permitAll() // RoomController
+//				.requestMatchers("/room/list", "/room/guest/enter")
+//				.permitAll() // RoomController
 				// .requestMatchers("/model/clova", "/model/lambda").permitAll() // ModelTestController
 				.requestMatchers("/statistic/member", "/statistic/channel")
 				.permitAll() // StatisticController
