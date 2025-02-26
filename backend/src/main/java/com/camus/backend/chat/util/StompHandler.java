@@ -20,6 +20,9 @@ import com.camus.backend.member.domain.dto.CustomUserDetails;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
@@ -32,47 +35,50 @@ public class StompHandler implements ChannelInterceptor {
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		System.out.println(accessor.getCommand());
 
 		// CONNECT 명령 시 JWT 토큰을 검증하고, 유효한 경우 SecurityContextHolder에 사용자 정보를 저장
-		// if (!StompCommand.CONNECT.equals(accessor.getCommand())) {
-		//
-		// 	// access token 꺼내오기
-		// 	String accessToken = accessor.getFirstNativeHeader("access");
-		// 	// 토큰이 없다면
-		// 	if (accessToken == null) {
-		// 		throw new CustomException(ErrorCode.NOTFOUND_TOKEN);
-		// 	}
-		//
-		// 	// 토큰 만료 검사
-		// 	try {
-		// 		jwtTokenProvider.isExpired(accessToken);
-		// 	} catch (ExpiredJwtException e) {
-		// 		throw new CustomException(ErrorCode.FORBIDDEN_TOKEN_EXPIRED);
-		// 	}
-		//
-		// 	// username, role 값을 획득
-		// 	String username = jwtTokenProvider.getUsername(accessToken);
-		// 	String role = jwtTokenProvider.getRole(accessToken);
-		//
-		// 	// memberCredential를 생성하여 값 set
-		// 	// 세션 처리를 위한 임시객체
-		// 	MemberCredential memberCredential = MemberCredential.builder()
-		// 		.username(username)
-		// 		.role(role)
-		// 		.build();
-		//
-		// 	//UserDetails에 회원 정보 객체 담기
-		// 	CustomUserDetails customUserDetails = new CustomUserDetails(memberCredential);
-		//
-		// 	//스프링 시큐리티 인증 토큰 생성
-		// 	Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
-		// 		customUserDetails.getAuthorities());
-		// 	//세션에 사용자 등록
-		// 	SecurityContextHolder.getContext().setAuthentication(authToken);
-		// }else{
-		// 	// CONNECT 명령이 아닌 경우, SecurityContextHolder를 통해 사용자가 인증되었는지 확인
-		// 	checkUserIdAndRoleInSecurityContext();
-		// }
+		if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+			// access token 꺼내오기
+			String accessToken = accessor.getFirstNativeHeader("Authorization");
+			// 토큰이 없다면
+			if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+				throw new CustomException(ErrorCode.NOTFOUND_TOKEN);
+			}
+			accessToken = accessToken.substring(7);
+			// 토큰 만료 검사
+			try {
+				jwtTokenProvider.isExpired(accessToken);
+			} catch (ExpiredJwtException e) {
+				throw new CustomException(ErrorCode.FORBIDDEN_TOKEN_EXPIRED);
+			}
+
+			// username, role 값을 획득
+			String username = jwtTokenProvider.getUsername(accessToken);
+			String role = jwtTokenProvider.getRole(accessToken);
+
+			// memberCredential를 생성하여 값 set
+			// 세션 처리를 위한 임시객체
+			MemberCredential memberCredential = MemberCredential.builder()
+				.username(username)
+				.role(role)
+				.build();
+
+			//UserDetails에 회원 정보 객체 담기
+			CustomUserDetails customUserDetails = new CustomUserDetails(memberCredential);
+
+			//스프링 시큐리티 인증 토큰 생성
+			Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
+				customUserDetails.getAuthorities());
+			//세션에 사용자 등록
+			SecurityContextHolder.getContext().setAuthentication(authToken);
+		}else{
+			// CONNECT 명령이 아닌 경우, SecurityContextHolder를 통해 사용자가 인증되었는지 확인
+			Principal principal = accessor.getUser();
+			if (principal == null || !(principal instanceof Authentication) || !((Authentication) principal).isAuthenticated()) {
+				throw new CustomException(ErrorCode.INVALID_PARAMETER);
+			}
+		}
 		return message;
 	}
 

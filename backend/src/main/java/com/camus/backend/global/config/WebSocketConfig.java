@@ -1,5 +1,6 @@
 package com.camus.backend.global.config;
 
+import com.camus.backend.chat.util.CustomHandshakeHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -24,8 +25,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		System.out.println("엔드포인트 설정");
-		registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*")
-			// client가 sockjs로 개발되어 있을 때만 필요, client가 java면 필요없음
+		registry.addEndpoint("/ws-stomp")
+				.setAllowedOriginPatterns("*")
+				.setHandshakeHandler(new CustomHandshakeHandler()) // HandshakeHandler 추가
+				// client가 sockjs로 개발되어 있을 때만 필요, client가 java면 필요없음
 			.withSockJS();
 	}
 
