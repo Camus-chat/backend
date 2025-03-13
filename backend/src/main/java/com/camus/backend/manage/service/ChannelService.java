@@ -21,7 +21,7 @@ import com.camus.backend.manage.domain.document.ChannelList;
 import com.camus.backend.manage.domain.dto.ChannelDto;
 import com.camus.backend.manage.domain.dto.ChannelEnterInfoDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
-import com.camus.backend.manage.domain.dto.CreateChannelDto;
+import com.camus.backend.manage.domain.dto.ChannelCreateDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
 import com.camus.backend.manage.util.ManageConstants;
 import com.camus.backend.member.domain.document.MemberProfile.MemberProfile;
@@ -65,7 +65,7 @@ public class ChannelService {
 
 	// FeatureID 501-1 : 채널 생성 메서드
 	public ChannelDto createChannel(
-		CreateChannelDto createChannelDto
+		ChannelCreateDto channelCreateDto
 		// TODO : 사용자 인증 정보 받기
 	) {
 
@@ -76,25 +76,25 @@ public class ChannelService {
 
 		// // FIXME : uuid 삭제 -> 사용자 인증 정보로 처리
 		// UUID uuid = ManageConstants.tempMemUuid;
+		// TODO : Title, Content 최소, 최대 크기
+		checkChannelTitleLengthLimit(channelCreateDto.getTitle());
+		checkChannelContentLengthLimit(channelCreateDto.getContent());
+		checkChannelFilterLevel(channelCreateDto.getFilterLevel());
 
-		checkChannelTitleLengthLimit(createChannelDto.getTitle());
-		checkChannelContentLengthLimit(createChannelDto.getContent());
-		checkChannelFilterLevel(createChannelDto.getFilterLevel());
-
-		checkValidChannelType(createChannelDto.getType());
+		checkValidChannelType(channelCreateDto.getType());
 
 		Channel newChannel = Channel.builder()
-			.type(createChannelDto.getType())
-			.title(createChannelDto.getTitle())
-			.content(createChannelDto.getContent())
-			.filterLevel(createChannelDto.getFilterLevel())
+			.type(channelCreateDto.getType())
+			.title(channelCreateDto.getTitle())
+			.content(channelCreateDto.getContent())
+			.filterLevel(channelCreateDto.getFilterLevel())
 			.createDate(LocalDateTime.now())
 			.validDate(
 				LocalDateTime.now()
 					.plusMonths(ManageConstants.CHANNEL_VALID_DATE_MONTH)
 			)
 			.maxRooms(
-				createChannelDto.getType()
+				channelCreateDto.getType()
 					.equals(ManageConstants.CHANNEL_TYPE_PRIVATE) ?
 					ManageConstants.PRIVATE_CHANNEL_MAX_ROOMS :
 					ManageConstants.GROUP_CHANNEL_MAX_ROOMS)
@@ -106,7 +106,7 @@ public class ChannelService {
 		}
 
 		channelListRepository.addChannelToMemberChannels(userUuid, newChannel);
-		return new ChannelDto(createChannelDto, newChannel.getLink());
+		return new ChannelDto(channelCreateDto, newChannel.getLink());
 	}
 
 	// FeatureID 501-1 : 채널 리스트 반환 메서드

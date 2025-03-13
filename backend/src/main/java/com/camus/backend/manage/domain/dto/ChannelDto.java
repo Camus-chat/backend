@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChannelDto extends CreateChannelDto {
+public class ChannelDto extends ChannelCreateDto {
 
 	private UUID link;
 
@@ -17,11 +17,11 @@ public class ChannelDto extends CreateChannelDto {
 		super();
 	}
 
-	public ChannelDto(CreateChannelDto createChannelDto, UUID link) {
-		this.setType(createChannelDto.getType());
-		this.setTitle(createChannelDto.getTitle());
-		this.setContent(createChannelDto.getContent());
-		this.setFilterLevel(createChannelDto.getFilterLevel());
+	public ChannelDto(ChannelCreateDto channelCreateDto, UUID link) {
+		this.setType(channelCreateDto.getType());
+		this.setTitle(channelCreateDto.getTitle());
+		this.setContent(channelCreateDto.getContent());
+		this.setFilterLevel(channelCreateDto.getFilterLevel());
 		this.link = link;
 	}
 

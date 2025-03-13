@@ -5,13 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateChannelDto {
+public class ChannelCreateDto {
 	private String type;
 	private String title;
 	private String content;
 	private Integer filterLevel;
 
-	public CreateChannelDto() {
+	public ChannelCreateDto() {
 
 	}
 

@@ -15,7 +15,7 @@ import com.camus.backend.global.util.SuccessCode;
 import com.camus.backend.manage.domain.dto.ChannelDto;
 import com.camus.backend.manage.domain.dto.ChannelEnterInfoDto;
 import com.camus.backend.manage.domain.dto.ChannelInfoDto;
-import com.camus.backend.manage.domain.dto.CreateChannelDto;
+import com.camus.backend.manage.domain.dto.ChannelCreateDto;
 import com.camus.backend.manage.service.ChannelService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +44,7 @@ public class ChannelController {
 	)
 	@PostMapping("/create")
 	public ResponseEntity<ChannelDto> createChannel(
-		@RequestBody CreateChannelDto channelDto
+		@RequestBody ChannelCreateDto channelDto
 		// TODO : 사용자 인증 정보 - 회원일 때만
 	) {
 
