@@ -1,14 +1,13 @@
-package com.camus.backend.global.jwt.util;
+package com.camus.backend.global.security;
 
 import java.io.IOException;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.camus.backend.auth.util.JwtTokenProvider;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
-import com.camus.backend.global.jwt.service.RedisService;
+import com.camus.backend.auth.service.RedisService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

@@ -1,4 +1,4 @@
-package com.camus.backend.global.jwt.util;
+package com.camus.backend.global.security;
 
 import java.util.Arrays;
 

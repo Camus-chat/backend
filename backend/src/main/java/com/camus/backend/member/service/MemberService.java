@@ -23,9 +23,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
-import com.camus.backend.global.jwt.service.RedisService;
-import com.camus.backend.global.jwt.util.JwtSettings;
-import com.camus.backend.global.jwt.util.JwtTokenProvider;
+
 import com.camus.backend.global.util.GuestUtil;
 import com.camus.backend.manage.service.ChannelService;
 import com.camus.backend.member.domain.document.MemberCredential;
@@ -47,22 +45,16 @@ public class MemberService {
 	private final MemberProfileRepository memberProfileRepository;
 	private final AmazonS3Client amazonS3Client;
 	private final ChannelService channelService;
-	private final JwtSettings jwtSettings;
-	private final JwtTokenProvider jwtTokenProvider;
-	private final RedisService redisService;
+
 
 	public MemberService(MemberCredentialRepository memberCredentialRepository,
 		BCryptPasswordEncoder bCryptPasswordEncoder, MemberProfileRepository memberProfileRepository,
-		AmazonS3Client amazonS3Client, ChannelService channelService, JwtSettings jwtSettings,
-		JwtTokenProvider jwtTokenProvider, RedisService redisService) {
+		AmazonS3Client amazonS3Client, ChannelService channelService) {
 		this.memberCredentialRepository = memberCredentialRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.memberProfileRepository = memberProfileRepository;
 		this.amazonS3Client = amazonS3Client;
 		this.channelService = channelService;
-		this.jwtSettings = jwtSettings;
-		this.jwtTokenProvider = jwtTokenProvider;
-		this.redisService = redisService;
 	}
 
 

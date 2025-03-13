@@ -1,4 +1,4 @@
-package com.camus.backend.global.jwt.util;
+package com.camus.backend.auth.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;

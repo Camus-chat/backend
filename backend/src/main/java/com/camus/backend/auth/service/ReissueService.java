@@ -1,4 +1,4 @@
-package com.camus.backend.global.jwt.service;
+package com.camus.backend.auth.service;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -10,11 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.camus.backend.global.Exception.CustomException;
-import com.camus.backend.global.Exception.ErrorCode;
-import com.camus.backend.global.jwt.util.JwtSettings;
-import com.camus.backend.global.jwt.util.JwtTokenProvider;
-import com.camus.backend.global.util.SuccessCode;
+import com.camus.backend.auth.util.JwtSettings;
+import com.camus.backend.auth.util.JwtTokenProvider;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

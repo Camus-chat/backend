@@ -13,14 +13,13 @@ import org.springframework.stereotype.Component;
 
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
-import com.camus.backend.global.jwt.util.JwtTokenProvider;
+import com.camus.backend.auth.util.JwtTokenProvider;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.dto.CustomUserDetails;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
 @Component

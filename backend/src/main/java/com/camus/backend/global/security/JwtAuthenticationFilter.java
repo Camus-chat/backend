@@ -1,10 +1,10 @@
-package com.camus.backend.global.jwt.util;
+package com.camus.backend.global.security;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.UUID;
 
-import jakarta.servlet.http.Cookie;
+import com.camus.backend.auth.util.JwtTokenProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

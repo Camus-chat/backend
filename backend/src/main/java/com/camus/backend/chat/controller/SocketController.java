@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
@@ -19,9 +17,8 @@ import com.camus.backend.chat.domain.message.ClientToStompSubRequest;
 import com.camus.backend.chat.domain.message.StompToRedisMessage;
 import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
 import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
-import com.camus.backend.global.jwt.util.JwtTokenProvider;
+import com.camus.backend.auth.util.JwtTokenProvider;
 import com.camus.backend.member.domain.document.MemberCredential;
-import com.camus.backend.member.domain.dto.CustomUserDetails;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")

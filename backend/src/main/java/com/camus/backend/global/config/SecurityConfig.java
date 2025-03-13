@@ -13,12 +13,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
-import com.camus.backend.global.jwt.service.RedisService;
-import com.camus.backend.global.jwt.util.CustomLogoutFilter;
-import com.camus.backend.global.jwt.util.JwtAuthenticationFilter;
-import com.camus.backend.global.jwt.util.JwtSettings;
-import com.camus.backend.global.jwt.util.JwtTokenProvider;
-import com.camus.backend.global.jwt.util.LoginFilter;
+import com.camus.backend.auth.service.RedisService;
+import com.camus.backend.global.security.CustomLogoutFilter;
+import com.camus.backend.global.security.JwtAuthenticationFilter;
+import com.camus.backend.auth.util.JwtSettings;
+import com.camus.backend.auth.util.JwtTokenProvider;
+import com.camus.backend.global.security.LoginFilter;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 
 @Configuration
