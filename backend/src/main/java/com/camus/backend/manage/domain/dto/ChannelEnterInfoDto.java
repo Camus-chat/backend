@@ -12,8 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class ChannelEnterInfoDto {
-	private String channelTitle;
-	private String channelContent;
+	private String title;
+	private String content;
 	private String ownerNickname;
 	private String ownerProfileImage;
 	

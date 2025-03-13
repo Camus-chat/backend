@@ -196,8 +196,8 @@ public class ChannelService {
 			.orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_CHANNEL));
 
 		return ChannelEnterInfoDto.builder()
-			.channelTitle(channel.getTitle())
-			.channelContent(channel.getContent())
+			.title(channel.getTitle())
+			.content(channel.getContent())
 			.ownerNickname(accountProfile.getNickname())
 			.ownerProfileImage(accountProfile.getProfileLink())
 			.build();
