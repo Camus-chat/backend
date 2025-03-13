@@ -48,7 +48,7 @@ public class ChatDataService {
 	}
 
 	// 사용자의 가장 최근에 읽은 메시지를 가장 최근으로 당깁니다.
-	public void exitRoomUpdateAlreadyRead(
+	public void roomUpdateAlreadyRead(
 		UUID roomId,
 		UUID userId
 	) {
@@ -102,6 +102,8 @@ public class ChatDataService {
 		// 	userId,
 		// 	latestRedisMessageId
 		// );
+		roomUpdateAlreadyRead(roomId, userId);
+
 
 		return messages;
 	}

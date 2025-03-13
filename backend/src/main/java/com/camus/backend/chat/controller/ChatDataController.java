@@ -53,31 +53,31 @@ public class ChatDataController {
 		);
 	}
 
-	@Operation(
-		summary = "채팅방을 나갈 때를 트리거 하는 api입니다.",
-		description = "여태까지 읽은 가장 최신 메시지 기록을 재작성합니다."
-	)
-	@PostMapping("/room/exit")
-	public ResponseEntity<RoomExitResponse> exitRoom(
-		@RequestBody RoomIdRequest roomIdRequest
-	) {
-
-		// 요청을 한 사용자의 uuid 구하기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		UUID userUuid = userDetails.get_id();
-
-		chatDataService.exitRoomUpdateAlreadyRead(
-			roomIdRequest.getRoomId(),
-			userUuid
-		);
-
-		return ResponseEntity.ok(
-			RoomExitResponse.builder()
-				.exitSuccess(true)
-				.build()
-		);
-	}
+//	@Operation(
+//		summary = "채팅방을 나갈 때를 트리거 하는 api입니다.",
+//		description = "여태까지 읽은 가장 최신 메시지 기록을 재작성합니다."
+//	)
+//	@PostMapping("/room/exit")
+//	public ResponseEntity<RoomExitResponse> exitRoom(
+//		@RequestBody RoomIdRequest roomIdRequest
+//	) {
+//
+//		// 요청을 한 사용자의 uuid 구하기
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+//		UUID userUuid = userDetails.get_id();
+//
+//		chatDataService.roomUpdateAlreadyRead(
+//			roomIdRequest.getRoomId(),
+//			userUuid
+//		);
+//
+//		return ResponseEntity.ok(
+//			RoomExitResponse.builder()
+//				.exitSuccess(true)
+//				.build()
+//		);
+//	}
 
 	@Operation(
 		summary = "채팅방 채팅 내역 무한스크롤",
