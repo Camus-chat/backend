@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,22 +44,17 @@ public class GuestController {
 		this.memberService = memberService;
 		this.roomService = roomService;
 	}
-
-	@GetMapping("/signup")
+	
+	@Operation(
+			summary = "게스트 회원가입"
+	)
+	@PostMapping("/signup")
 	public ResponseEntity<?> guestSignUp(){
-		// String role=memberCredentialDto.getRole();
-		// boolean signUpSuccess = memberService.signUp(memberCredentialDto,role);
-
 		// memberCredentialDto 새로 생성
 		MemberCredentialDto memberCredentialDto = MemberCredentialDto.builder()
 			.username(generateUsername())
 			.password("guestPwd")
 			.build();
-
-		// memberService.guestSignUp(memberCredentialDto);
-
-		// memberService.guestSignUp(memberCredentialDto);
-
 		// memberService.signUp(memberCredentialDto,"guest");
 		// List<String> credentials = memberService.signUp(memberCredentialDto,"guest");
 		// if (credentials.isEmpty()) {
@@ -67,6 +63,10 @@ public class GuestController {
 		return ResponseEntity.ok(memberService.guestSignUp(memberCredentialDto));
 	}
 
+	@Operation(
+			summary = "게스트 내 프로필 조회",
+			description = "게스트가 자신의 프로필을 조회하는 API 입니다."
+	)
 	@GetMapping("/info")
 	public ResponseEntity<?> getGuestInfo() {
 		try {

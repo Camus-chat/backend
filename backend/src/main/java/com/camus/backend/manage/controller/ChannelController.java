@@ -30,7 +30,9 @@ public class ChannelController {
 	// FeatureID 501-1
 	@Operation(
 		summary = "채널 생성",
-		description = "채널 생성을 위한 api입니다. 채널"
+		description = "채널 생성" +
+			"\ntype: [group,private]" +
+			"\nfilterLevel: [100:low, 200:middle, 300:high]"
 	)
 	@PostMapping("/create")
 	public ResponseEntity<ChannelDto> createChannel(

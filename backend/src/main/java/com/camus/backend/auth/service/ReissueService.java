@@ -3,6 +3,7 @@ package com.camus.backend.auth.service;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,19 +119,8 @@ public class ReissueService {
 		response.setHeader("access", newAccess);
 		response.addCookie(createCookie("refresh", newRefresh, jwtSettings.getRefreshExpire()));
 
-		// 어떤 유저인지 주기
-		Map<String, String> tokenDetails = new HashMap<>();
-		tokenDetails.put("role", role);
-		response.setStatus(HttpStatus.OK.value());
-		response.setContentType("application/json");
-		try {
-			new ObjectMapper().writeValue(response.getOutputStream(), tokenDetails);
-		} catch (IOException e) {
-			//throw new CustomException(ErrorCode.NOTFOUND_USER);
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
+		return ResponseEntity.ok(Collections.singletonMap("role", role));
 
-		return ResponseEntity.ok(tokenDetails);
 	}
 
 	private Cookie createCookie(String key, String value, long cookieRefreshTime) {

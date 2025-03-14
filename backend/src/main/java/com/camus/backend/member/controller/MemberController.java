@@ -21,7 +21,11 @@ public class MemberController {
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
-
+    @Operation(
+            summary = "멤버 회원가입",
+            description = "b2c/b2b 회원가입을 위한 API"+
+                    "POST member/login { username:\"string\", password:\"string\" } 으로 로그인할 수 있습니다."
+    )
     @ApiResponse(responseCode = "200", description = "회원가입 성공",
             content = @Content(mediaType = "text/plain",
                     schema = @Schema(type = "string"),
@@ -35,6 +39,10 @@ public class MemberController {
         return ResponseEntity.ok(SuccessCode.SIGNUP);
     }
 
+    @Operation(
+            summary = "멤버 회원정보 조회",
+            description = "b2c/b2b 멤버가 자신의 정보를 조회하는 API"
+    )
     @ApiResponse(responseCode = "200", description = "회원정보 조회 성공",
             content = @Content(schema = @Schema(implementation = AccountProfileDto.class)))
     @GetMapping("/info")
@@ -50,6 +58,10 @@ public class MemberController {
         }
     }
 
+    @Operation(
+            summary = "멤버 닉네임 변경",
+            description = "b2c/b2b 멤버가 닉네임을 변경하는 API"
+    )
     @ApiResponse(responseCode = "200", description = "회원정보 변경 성공",
             content = @Content(mediaType = "text/plain",
                     schema = @Schema(type = "string"),
@@ -69,6 +81,10 @@ public class MemberController {
     }
 
 
+    @Operation(
+            summary = "멤버 닉네임 변경",
+            description = "b2c/b2b 멤버가 프로필 이미지를 변경하는 API"
+    )
     @ApiResponse(responseCode = "200", description = "프로필 변경 성공",
             content = @Content(mediaType = "text/plain",
                     schema = @Schema(type = "string"),
@@ -86,7 +102,10 @@ public class MemberController {
                     .body(e.getErrorKey());
         }
     }
-
+    @Operation(
+            summary = "멤버 id 중복 체크",
+            description = "회원 가입 이전 id가 중복되었는지 확인하는 API"
+    )
     @PostMapping("/etc/check")
     ResponseEntity<Boolean> idCheck(@RequestBody SignUpDto signUpDto){
         return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
