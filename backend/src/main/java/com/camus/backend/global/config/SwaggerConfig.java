@@ -24,13 +24,31 @@ import lombok.RequiredArgsConstructor;
 public class SwaggerConfig {
 
 	@Bean
-	public GroupedOpenApi getB2CMEMBERApi() {
+	public GroupedOpenApi getMemberApi() {
 		return GroupedOpenApi
 			.builder()
 			.group("MEMBER")
 			.pathsToMatch("/member/**")
 			.build();
 	}
+
+	@Bean
+	public GroupedOpenApi getGuestApi() {
+		return GroupedOpenApi
+				.builder()
+				.group("GUEST")
+				.pathsToMatch("/guest/**")
+				.build();
+	}
+	@Bean
+	public GroupedOpenApi getReissueApi() {
+		return GroupedOpenApi
+				.builder()
+				.group("REISSUE")
+				.pathsToMatch("/reissue/**")
+				.build();
+	}
+
 
 	@Bean
 	public GroupedOpenApi getStatisticApi() {
@@ -42,11 +60,41 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	public GroupedOpenApi getUngroupedApis() {
-		return GroupedOpenApi.builder()
-			.group("UNGROUPED")
-			.packagesToScan("com.camus.backend")
-			.pathsToExclude("/member/**", "/statistic/**")
-			.build();
+	public GroupedOpenApi getChatDataApi() {
+		return GroupedOpenApi
+				.builder()
+				.group("CHAT")
+				.pathsToMatch("/chat/**")
+				.build();
 	}
+
+	@Bean
+	public GroupedOpenApi getRoomApi() {
+		return GroupedOpenApi
+				.builder()
+				.group("ROOM")
+				.pathsToMatch("/room/**")
+				.build();
+	}
+
+	@Bean
+	public GroupedOpenApi getChannelApi() {
+		return GroupedOpenApi
+				.builder()
+				.group("CHANNEL")
+				.pathsToMatch("/channel/**")
+				.build();
+	}
+
+
+//	@Bean
+//	public GroupedOpenApi getUngroupedApis() {
+//		return GroupedOpenApi.builder()
+//			.group("UNGROUPED")
+//			.packagesToScan("com.camus.backend")
+//			.pathsToExclude("/member/**", "/statistic/**", "/chat/**", "/test/**", "/room/**", "/channel/**", "/filter/**", "/guest/**", "/reissue/**")
+//			.build();
+//	}
+
+
 }
