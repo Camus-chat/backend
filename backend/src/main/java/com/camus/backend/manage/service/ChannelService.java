@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.camus.backend.manage.domain.dto.*;
 import com.camus.backend.member.domain.document.MemberProfile.AccountProfile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +19,6 @@ import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.document.Channel;
 import com.camus.backend.manage.domain.document.ChannelList;
-import com.camus.backend.manage.domain.dto.ChannelDto;
-import com.camus.backend.manage.domain.dto.ChannelEnterInfoDto;
-import com.camus.backend.manage.domain.dto.ChannelInfoDto;
-import com.camus.backend.manage.domain.dto.ChannelCreateDto;
 import com.camus.backend.manage.domain.repository.ChannelListRepository;
 import com.camus.backend.manage.util.ManageConstants;
 import com.camus.backend.member.domain.document.MemberProfile.MemberProfile;
@@ -152,7 +149,7 @@ public class ChannelService {
 	// FeatureID 510-1
 	public void editChannelInfo(
 		// TODO : 사용자 인증 정보 받기
-		@RequestBody ChannelInfoDto channelInfoDto
+		@RequestBody ChannelEditDto channelEditDto
 	) {
 		// 요청을 한 사용자의 uuid 구하기
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -162,15 +159,16 @@ public class ChannelService {
 		// 이게 사용자 정보
 		// UUID uuid = UUID.fromString("9f7cbe77-ee25-45df-b404-f70e8072cbfa");
 
-		checkChannelTitleLengthLimit(channelInfoDto.getTitle());
-		checkChannelContentLengthLimit(channelInfoDto.getContent());
-		checkChannelFilterLevel(channelInfoDto.getFilterLevel());
+		checkChannelTitleLengthLimit(channelEditDto.getTitle());
+		checkChannelContentLengthLimit(channelEditDto.getContent());
+		checkChannelFilterLevel(channelEditDto.getFilterLevel());
 
-		channelListRepository.editChannelInfo(userUuid, channelInfoDto);
+		channelListRepository.editChannelInfo(userUuid, channelEditDto);
 	}
 
-	public ChannelEnterInfoDto getChannelEnterInfo(UUID link) {
+	public ChannelEnterInfoDto getChannelEnterInfo(ChannelInfoDto channelInfoDto) {
 
+		UUID link = channelInfoDto.getLink();
 		ChannelList channelList = channelListRepository.getChannelListByChannelLink(link);
 		if (channelList == null) {
 			System.out.println("채널이 없습니다.");

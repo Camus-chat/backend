@@ -15,7 +15,7 @@ import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.document.Channel;
 import com.camus.backend.manage.domain.document.ChannelList;
-import com.camus.backend.manage.domain.dto.ChannelInfoDto;
+import com.camus.backend.manage.domain.dto.ChannelEditDto;
 import com.mongodb.client.result.UpdateResult;
 
 @Repository
@@ -69,12 +69,12 @@ public class CustomChannelListRepositoryImpl implements CustomChannelListReposit
 	}
 
 	@Override
-	public void editChannelInfo(UUID memberId, ChannelInfoDto channelInfoDto) {
+	public void editChannelInfo(UUID memberId, ChannelEditDto channelEditDto) {
 		Query query = new Query(new Criteria().andOperator(Criteria.where("_id").is(memberId),
-			Criteria.where("channels.link").is(channelInfoDto.getLink())));
+			Criteria.where("channels.link").is(channelEditDto.getLink())));
 
-		Update update = new Update().set("channels.$.title", channelInfoDto.getTitle()).set("channels.$.content",
-			channelInfoDto.getContent()).set("channels.$.filterLevel", channelInfoDto.getFilterLevel());
+		Update update = new Update().set("channels.$.title", channelEditDto.getTitle()).set("channels.$.content",
+			channelEditDto.getContent()).set("channels.$.filterLevel", channelEditDto.getFilterLevel());
 
 		UpdateResult result = mongoTemplate.updateFirst(query, update, ChannelList.class);
 

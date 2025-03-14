@@ -3,6 +3,7 @@ package com.camus.backend.manage.controller;
 import java.util.List;
 import java.util.UUID;
 
+import com.camus.backend.manage.domain.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.camus.backend.global.util.SuccessCode;
-import com.camus.backend.manage.domain.dto.ChannelDto;
-import com.camus.backend.manage.domain.dto.ChannelEnterInfoDto;
-import com.camus.backend.manage.domain.dto.ChannelInfoDto;
-import com.camus.backend.manage.domain.dto.ChannelCreateDto;
 import com.camus.backend.manage.service.ChannelService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,13 +27,6 @@ public class ChannelController {
 		this.channelService = channelService;
 	}
 
-	// FIXME : 지워주세요 tempSave
-	// @PostMapping("/tempSave")
-	// public ResponseEntity<SuccessCode> tempSave() {
-	// 	channelService.createChannelList();
-	// 	return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
-	// }
-
 	// FeatureID 501-1
 	@Operation(
 		summary = "채널 생성",
@@ -44,11 +34,11 @@ public class ChannelController {
 	)
 	@PostMapping("/create")
 	public ResponseEntity<ChannelDto> createChannel(
-		@RequestBody ChannelCreateDto channelDto
+		@RequestBody ChannelCreateDto channelCreateDto
 		// TODO : 사용자 인증 정보 - 회원일 때만
 	) {
 
-		return ResponseEntity.ok(channelService.createChannel(channelDto
+		return ResponseEntity.ok(channelService.createChannel(channelCreateDto
 			// TODO : 여기서 사용자 정보 넘기기
 		));
 	}
@@ -91,12 +81,12 @@ public class ChannelController {
 	)
 	@PatchMapping("/edit")
 	public ResponseEntity<SuccessCode> editChannelInfo(
-		@RequestBody ChannelInfoDto channelInfoDto
+		@RequestBody ChannelEditDto channelEditDto
 		// TODO : 사용자 인증 정보 - 회원일 때만
 	) {
 		channelService.editChannelInfo(
 			// TODO : 여기서 사용자 정보 넘기기
-			channelInfoDto
+				channelEditDto
 		);
 
 		return ResponseEntity.ok(SuccessCode.CHANNEL_EDIT);
@@ -108,7 +98,7 @@ public class ChannelController {
 	)
 	@PostMapping("/info")
 	public ResponseEntity<ChannelEnterInfoDto> getChannelEnterInfo(
-		@RequestBody UUID link
+		@RequestBody ChannelInfoDto link
 	) {
 
 		return ResponseEntity.ok(
