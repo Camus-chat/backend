@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import com.camus.backend.manage.domain.dto.*;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -64,6 +68,12 @@ public class ChannelController {
 		summary = "채널 링크 비활성화",
 		description = "채널 링크를 비활성화합니다."
 	)
+	@ApiResponse(responseCode = "200", description = "채널 링크 비활성화 성공",
+			content = @Content(mediaType = "text/plain",
+					schema = @Schema(type = "string"),
+					examples = @ExampleObject(value = "CHANNEL_DISABLE")
+			)
+	)
 	@PatchMapping("/disable")
 	public ResponseEntity<SuccessCode> disableChannel(
 		String channelLink
@@ -80,6 +90,12 @@ public class ChannelController {
 	@Operation(
 		summary = "채널 정보 변경",
 		description = "채널 정보 변경"
+	)
+	@ApiResponse(responseCode = "200", description = "채널명 변경 성공",
+			content = @Content(mediaType = "text/plain",
+					schema = @Schema(type = "string"),
+					examples = @ExampleObject(value = "CHANNEL_EDIT")
+			)
 	)
 	@PatchMapping("/edit")
 	public ResponseEntity<SuccessCode> editChannelInfo(

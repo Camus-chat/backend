@@ -6,7 +6,12 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.UUID;
 
+import com.camus.backend.member.domain.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,10 +29,6 @@ import com.camus.backend.manage.domain.dto.RoomIdDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;
-import com.camus.backend.member.domain.dto.CustomUserDetails;
-import com.camus.backend.member.domain.dto.GuestProfileDto;
-import com.camus.backend.member.domain.dto.MemberCredentialDto;
-import com.camus.backend.member.domain.dto.SignUpDto;
 import com.camus.backend.member.service.MemberService;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -44,10 +45,14 @@ public class GuestController {
 		this.memberService = memberService;
 		this.roomService = roomService;
 	}
-	
+
 	@Operation(
-			summary = "게스트 회원가입"
+			summary = "게스트 회원가입",
+			description = "게스트 회원가입을 위한 API"+
+					"POST guest/login { username:\"string\", password:\"string\" } 으로 로그인할 수 있습니다."
 	)
+	@ApiResponse(responseCode = "200", description = "게스트 회원가입 성공",
+			content = @Content(schema = @Schema(implementation = GuestSignUpDto.class)))
 	@PostMapping("/signup")
 	public ResponseEntity<?> guestSignUp(){
 		// memberCredentialDto 새로 생성
@@ -67,6 +72,8 @@ public class GuestController {
 			summary = "게스트 내 프로필 조회",
 			description = "게스트가 자신의 프로필을 조회하는 API 입니다."
 	)
+	@ApiResponse(responseCode = "200", description = "게스트 프로필 조회 성공",
+			content = @Content(schema = @Schema(implementation = GuestProfileDto.class)))
 	@GetMapping("/info")
 	public ResponseEntity<?> getGuestInfo() {
 		try {
