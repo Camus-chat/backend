@@ -80,6 +80,7 @@ public class RoomController {
 
 		if (roomEntryManager.isCheck()) {
 			Room room = roomService.getRoomByRoomId(roomEntryManager.getRoomId());
+			System.out.println("room 재진입, roomId: "+roomEntryManager.getRoomId());
 			return ResponseEntity.ok(
 				RoomEnterDto.builder()
 					.roomId(roomEntryManager.getRoomId())
@@ -105,6 +106,7 @@ public class RoomController {
 				channelStatus.getOwnerId(), userUuid
 			);
 			Room room = roomService.getRoomByRoomId(roomId);
+			System.out.println("private room 생성 및 진입, roomId: "+roomEntryManager.getRoomId());
 			// 입장 성공
 			return
 				ResponseEntity.ok(
@@ -122,6 +124,7 @@ public class RoomController {
 		UUID roomId = roomService.joinGroupRoom(channelStatus.getKey(), userUuid);
 		Room room = roomService.getRoomByRoomId(roomId);
 
+		System.out.println("group room 진입, roomId: "+roomEntryManager.getRoomId());
 		// TODO : 단체 : 기존 ROOM에 입장
 		return
 			ResponseEntity.ok(

@@ -14,7 +14,8 @@ import lombok.Setter;
 public class ChannelEnterInfoDto {
 	private String title;
 	private String content;
-	private String ownerNickname;
-	private String ownerProfileImage;
+	//owner member info
+	private String nickname;
+	private String profileLink;
 	
 }

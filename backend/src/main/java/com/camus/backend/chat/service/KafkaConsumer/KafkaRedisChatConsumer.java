@@ -58,7 +58,6 @@ public class KafkaRedisChatConsumer {
 		} catch (Exception e) {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
-
 	}
 
 	// Kafka에서 필터링 메시지를 받아와서 Redis에 저장하는 메소드

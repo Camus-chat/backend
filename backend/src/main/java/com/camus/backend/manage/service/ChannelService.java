@@ -196,8 +196,8 @@ public class ChannelService {
 		return ChannelEnterInfoDto.builder()
 			.title(channel.getTitle())
 			.content(channel.getContent())
-			.ownerNickname(accountProfile.getNickname())
-			.ownerProfileImage(accountProfile.getProfileLink())
+			.nickname(accountProfile.getNickname())
+			.profileLink(accountProfile.getProfileLink())
 			.build();
 
 	}
