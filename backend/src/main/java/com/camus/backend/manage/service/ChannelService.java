@@ -198,6 +198,7 @@ public class ChannelService {
 			.content(channel.getContent())
 			.nickname(accountProfile.getNickname())
 			.profileLink(accountProfile.getProfileLink())
+			.uuid(accountProfile.get_id())
 			.build();
 
 	}
