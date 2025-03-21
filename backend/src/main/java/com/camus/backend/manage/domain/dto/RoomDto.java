@@ -3,6 +3,7 @@ package com.camus.backend.manage.domain.dto;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class RoomDto {
 	private String channelTitle;
 
 	private ArrayList<UUID> userList;
+	@JsonProperty("isClosed")
 	private boolean isClosed;
 
 	private int filteredLevel;

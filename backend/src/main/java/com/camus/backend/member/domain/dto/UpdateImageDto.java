@@ -1,6 +1,5 @@
 package com.camus.backend.member.domain.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,5 +10,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UpdateImageDto {
-	private MultipartFile newProfileImage;
+	private MultipartFile profileImage;
 }

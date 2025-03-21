@@ -14,5 +14,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UUIDDto {
-	private UUID memberUuid;
+	private UUID uuid;
 }

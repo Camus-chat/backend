@@ -16,15 +16,15 @@ import lombok.Setter;
 @Builder
 public class RoomEnterDto {
 
-	UUID roomId;
+	private UUID roomId;
 
-	String channelType;
+	private String channelType;
 
-	String channelTitle;
-	int filteredLevel;
+	private String channelTitle;
+	private int filteredLevel;
 
-	List<UUID> userList;
+	private List<UUID> userList;
 
-	Boolean isClosed;
+	private Boolean isClosed;
 
 }

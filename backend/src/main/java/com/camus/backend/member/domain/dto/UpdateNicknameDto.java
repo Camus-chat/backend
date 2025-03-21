@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class UpdateNicknameDto {
-	private String newNickname;
+	private String nickname;
 }

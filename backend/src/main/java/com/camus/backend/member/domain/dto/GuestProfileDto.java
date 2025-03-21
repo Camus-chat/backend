@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GuestProfileDto {
-	private UUID myUuid;
+	private UUID uuid;
 	private String nickname;
 	private String profileImageColor;
 }

@@ -82,7 +82,7 @@ public class MemberController {
 
 
     @Operation(
-            summary = "멤버 닉네임 변경",
+            summary = "멤버 이미지 변경",
             description = "b2c/b2b 멤버가 프로필 이미지를 변경하는 API"
     )
     @ApiResponse(responseCode = "200", description = "프로필 변경 성공",

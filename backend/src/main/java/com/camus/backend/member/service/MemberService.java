@@ -237,7 +237,7 @@ public class MemberService {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
 		return AccountProfileDto.builder()
-				.myUuid(uuid)
+				.uuid(uuid)
 				.nickname(accountProfile.getNickname())
 				.username(userDetails.getUsername())
 				.profileLink(accountProfile.getProfileLink())
@@ -293,7 +293,7 @@ public class MemberService {
 
 			// 새로 업로드 하고 링크 바꿔주기
 			try {
-				newProfileLink = uploadFile(b2CUpdateImageDto.getNewProfileImage());
+				newProfileLink = uploadFile(b2CUpdateImageDto.getProfileImage());
 			} catch (IOException e) {
 				throw new CustomException(ErrorCode.INVALID_PARAMETER_IMAGE);
 			}
@@ -406,7 +406,7 @@ public class MemberService {
 
 		// 타입 체크
 		if (memberProfile instanceof AccountProfile accountProfile) {
-			accountProfile.setNickname(updateNicknameDto.getNewNickname());
+			accountProfile.setNickname(updateNicknameDto.getNickname());
 		} else {
 			throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		}
@@ -418,7 +418,7 @@ public class MemberService {
 	// 다른 사람의 정보 가져오기
 	public MemberProfile getMemberInfo(UUIDDto uuidDto){
 
-		UUID userUuid = uuidDto.getMemberUuid();
+		UUID userUuid = uuidDto.getUuid();
 		// 사용자의 profile 가져오기
 		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userUuid);
 		if (memberProfileOptional.isEmpty()) {
@@ -429,7 +429,7 @@ public class MemberService {
 	}
 
 	public String getMemberRole(UUIDDto uuidDto){
-		UUID userUuid = uuidDto.getMemberUuid();
+		UUID userUuid = uuidDto.getUuid();
 		// 사용자의 profile 가져오기
 		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userUuid);
 		if (memberProfileOptional.isEmpty()) {
@@ -464,7 +464,7 @@ public class MemberService {
 		// 타입 체크
 		if (memberProfile instanceof GuestProfile guestProfile) {
 			return GuestProfileDto.builder()
-				.myUuid(uuid)
+				.uuid(uuid)
 				.nickname(guestProfile.getNickname())
 				.profileImageColor(guestProfile.getProfilePalette())
 				.build();

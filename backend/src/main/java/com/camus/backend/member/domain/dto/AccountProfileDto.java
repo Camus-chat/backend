@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Schema
 public class AccountProfileDto {
-    private UUID myUuid;
+    private UUID uuid;
     private String username;
     private String nickname;
     private String profileLink;
