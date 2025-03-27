@@ -13,7 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoomIdDto {
+public class LinkRoomDto {
+	private UUID channelLink;
 	private UUID roomId;
 
 }

@@ -3,6 +3,7 @@ package com.camus.backend.manage.controller;
 import java.util.List;
 import java.util.UUID;
 
+import com.camus.backend.manage.domain.dto.LinkRoomDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,11 +57,12 @@ public class RoomController {
 
 	// FeatureID : 게스트 ROOM 입장하기 & 생성하기
 	@Operation(
-		summary = "게스트가 링크로 진입시 방 입장하기",
-		description = "기존방/신규(개인/그룹)방 모두 동일처리"
+		summary = "링크로 진입시 방 입장하기",
+		description = "기존방/신규(개인/그룹)방 모두 동일처리"+
+			"채널 주인 처리 확인 필요"
 	)
-	@PostMapping("/guest/enter")
-	public ResponseEntity<RoomEnterDto> enterRoom(
+	@PostMapping("/enter")
+	public ResponseEntity<UUID> enterRoom(
 		// TODO : 사용자 인증 정보
 		@RequestBody UUID channelLink
 	) {
@@ -69,74 +71,84 @@ public class RoomController {
 		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
 
-		// CHECK : 여기서 이미 사용자 인증이 되었다고 가정
-		//UUID tempMemberId = ManageConstants.tempMemUuid;
-
 		ChannelStatus channelStatus = roomService.channelStatus(channelLink);
-
-		RoomEntryManager roomEntryManager;
-		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
-		roomEntryManager = roomService.isChannelMember(userUuid, channelLink);
-
-		if (roomEntryManager.isCheck()) {
-			Room room = roomService.getRoomByRoomId(roomEntryManager.getRoomId());
-			System.out.println("room 재진입, roomId: "+roomEntryManager.getRoomId());
-			return ResponseEntity.ok(
-				RoomEnterDto.builder()
-					.roomId(roomEntryManager.getRoomId())
-					.channelType(channelStatus.getType())
-					.channelTitle(channelStatus.getTitle())
-					.filteredLevel(channelStatus.getFilteredLevel())
-					.userList(room.getUserList())
-					.isClosed(room.isClosed())
-					.build()
-			);
-		}
 
 		// TODO : 채널 링크가 유효한가? 체크 => 진입
 		if (!channelStatus.isValid()) {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
 
+		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
+		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, channelLink);
+
+		if (roomEntryManager.isCheck()) {
+			UUID roomId = roomEntryManager.getRoomId();
+			System.out.println("room 재진입, roomId: "+roomId);
+			return ResponseEntity.ok(roomId);
+		}
+
 		// TODO : 개인 : 새로운 ROOM 생성 => 진입
 		if (channelStatus.getType().equals("private")) {
-
 			UUID roomId = roomService.createPrivateRoomByGuestId(
 				channelStatus.getKey(),
 				channelStatus.getOwnerId(), userUuid
 			);
-			Room room = roomService.getRoomByRoomId(roomId);
-			System.out.println("private room 생성 및 진입, roomId: "+roomEntryManager.getRoomId());
-			// 입장 성공
-			return
-				ResponseEntity.ok(
-					RoomEnterDto.builder()
-						.roomId(roomId)
-						.channelType(channelStatus.getType())
-						.channelTitle(channelStatus.getTitle())
-						.filteredLevel(channelStatus.getFilteredLevel())
-						.userList(room.getUserList())
-						.isClosed(room.isClosed())
-						.build()
-				);
+			System.out.println("private room 생성 및 진입, roomId: "+roomId);
+			return ResponseEntity.ok(roomId);
 		}
 
+		// TODO : 단체 : 기존 ROOM 입장
 		UUID roomId = roomService.joinGroupRoom(channelStatus.getKey(), userUuid);
-		Room room = roomService.getRoomByRoomId(roomId);
+		System.out.println("group room 진입, roomId: "+roomId);
 
-		System.out.println("group room 진입, roomId: "+roomEntryManager.getRoomId());
-		// TODO : 단체 : 기존 ROOM에 입장
-		return
-			ResponseEntity.ok(
-				RoomEnterDto.builder()
-					.roomId(roomId)
-					.channelType(channelStatus.getType())
-					.channelTitle(channelStatus.getTitle())
-					.filteredLevel(channelStatus.getFilteredLevel())
-					.userList(room.getUserList())
-					.isClosed(room.isClosed())
-					.build()
-			);
+		return ResponseEntity.ok(roomId);
+		// TODO : 비정상적인 channelType 처리
 	}
 
+	// FeatureID : 게스트 ROOM 입장하기 & 생성하기
+	@Operation(
+			summary = "방 정보 조회",
+			description = "대상이 해당 방에 진입한 유저가 방 정보 조회"
+	)
+	@PostMapping("/info")
+	public ResponseEntity<RoomEnterDto> getRoomInfo(
+			@RequestBody LinkRoomDto linkRoomDto
+			) {
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+		UUID userUuid = userDetails.get_id();
+
+
+		ChannelStatus channelStatus = roomService.channelStatus(linkRoomDto.getChannelLink());
+		// TODO : 채널 링크가 유효한가? 체크
+		if (!channelStatus.isValid()) {
+			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
+		}
+		// TODO : 기존에 그 채널에 들어가 있는가? 체크
+		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getChannelLink());
+
+		if (!roomEntryManager.isCheck()) {
+			System.out.println("room 에 유저 없음");
+			throw new CustomException(ErrorCode.NOTFOUND_ROOM);
+		}
+
+		Room room = roomService.getRoomByRoomId(linkRoomDto.getRoomId());
+		// TODO : room 닫혔을 때 처리? 1 Link, 1 User 분리 필요
+		if (room.getUserList().contains(userUuid)){
+			ResponseEntity.ok(
+					RoomEnterDto.builder()
+							.roomId(linkRoomDto.getRoomId())
+							.channelType(channelStatus.getType())
+							.channelTitle(channelStatus.getTitle())
+							.filteredLevel(channelStatus.getFilteredLevel())
+							.userList(room.getUserList())
+							.isClosed(room.isClosed())
+							.build()
+			);
+		}
+
+		System.out.println("room 진입 실패");
+		throw new CustomException(ErrorCode.NOTFOUND_ROOM);
+	}
 }

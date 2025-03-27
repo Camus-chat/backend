@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.global.util.SuccessCode;
-import com.camus.backend.manage.domain.dto.RoomIdDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;

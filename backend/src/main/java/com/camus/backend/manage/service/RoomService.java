@@ -41,7 +41,7 @@ public class RoomService {
 
 	// FeatureID 511-1 : 기존 채널 참여 여부 확인
 	public RoomEntryManager isChannelMember(UUID memberId, UUID channelLink) {
-
+		// channel 의 모든 roomList 조회, 개선 필요?
 		List<UUID> roomListByLink = roomRepository.getRoomListByLink(channelLink);
 		for (int i = 0; i < roomListByLink.size(); i++) {
 			List<UUID> userListById = roomRepository.getUserListById(roomListByLink.get(i));
