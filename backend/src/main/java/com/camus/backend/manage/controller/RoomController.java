@@ -120,13 +120,13 @@ public class RoomController {
 		UUID userUuid = userDetails.get_id();
 
 
-		ChannelStatus channelStatus = roomService.channelStatus(linkRoomDto.getChannelLink());
+		ChannelStatus channelStatus = roomService.channelStatus(linkRoomDto.getLink());
 		// TODO : 채널 링크가 유효한가? 체크
 		if (!channelStatus.isValid()) {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
 		// TODO : 기존에 그 채널에 들어가 있는가? 체크
-		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getChannelLink());
+		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getLink());
 
 		if (!roomEntryManager.isCheck()) {
 			System.out.println("room 에 유저 없음");

@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class LinkRoomDto {
-	private UUID channelLink;
+	private UUID link;
 	private UUID roomId;
 
 }
