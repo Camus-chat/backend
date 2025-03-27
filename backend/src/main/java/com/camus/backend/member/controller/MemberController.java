@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/member")
 public class MemberController {
@@ -113,7 +115,7 @@ public class MemberController {
 
     @Operation(summary = "사용하지 않는 엔드포인트", description = "필요시 리팩토링 요청")
     @PostMapping("/etc/info")
-    public ResponseEntity<?> getMemberInfo(@RequestBody UUIDDto uuidDto) {
-        return ResponseEntity.ok(memberService.getMemberInfo(uuidDto));
+    public ResponseEntity<?> getMemberInfo(@RequestBody UUID userId) {
+        return ResponseEntity.ok(memberService.getMemberInfo(userId));
     }
 }

@@ -416,11 +416,9 @@ public class MemberService {
 	}
 
 	// 다른 사람의 정보 가져오기
-	public MemberProfile getMemberInfo(UUIDDto uuidDto){
-
-		UUID userUuid = uuidDto.getUuid();
+	public MemberProfile getMemberInfo(UUID userId){
 		// 사용자의 profile 가져오기
-		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userUuid);
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userId);
 		if (memberProfileOptional.isEmpty()) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
@@ -428,10 +426,9 @@ public class MemberService {
 		return memberProfileOptional.get();
 	}
 
-	public String getMemberRole(UUIDDto uuidDto){
-		UUID userUuid = uuidDto.getUuid();
+	public String getMemberRole(UUID userId){
 		// 사용자의 profile 가져오기
-		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userUuid);
+		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userId);
 		if (memberProfileOptional.isEmpty()) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
