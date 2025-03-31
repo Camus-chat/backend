@@ -78,12 +78,16 @@ public class RoomController {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
 
+		if (userUuid.equals(channelStatus.getOwnerId())){
+			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+		}
+
 		// TODO : 기존에 그 채널에 들어가 있는가? 체크 => 진입
 		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, channelLink);
 
 		if (roomEntryManager.isCheck()) {
 			UUID roomId = roomEntryManager.getRoomId();
-			System.out.println("room 재진입, roomId: "+roomId);
+			System.out.println("room 재진입, roomId: " + roomId);
 			return ResponseEntity.ok(roomId);
 		}
 
@@ -124,6 +128,21 @@ public class RoomController {
 		// TODO : 채널 링크가 유효한가? 체크
 		if (!channelStatus.isValid()) {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
+		}
+
+		if (userUuid.equals(channelStatus.getOwnerId())){
+			Room room = roomService.getRoomByRoomId(linkRoomDto.getRoomId());
+
+			ResponseEntity.ok(
+					RoomEnterDto.builder()
+							.roomId(linkRoomDto.getRoomId())
+							.channelType(channelStatus.getType())
+							.channelTitle(channelStatus.getTitle())
+							.filteredLevel(channelStatus.getFilteredLevel())
+							.userList(room.getUserList())
+							.isClosed(room.isClosed())
+							.build()
+			);
 		}
 		// TODO : 기존에 그 채널에 들어가 있는가? 체크
 		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getLink());
