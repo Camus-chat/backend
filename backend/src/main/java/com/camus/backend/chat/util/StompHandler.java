@@ -42,6 +42,7 @@ public class StompHandler implements ChannelInterceptor {
 			String accessToken = accessor.getFirstNativeHeader("Authorization");
 			// 토큰이 없다면
 			if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+				System.out.println("Websocket Not Found token");
 				throw new CustomException(ErrorCode.NOTFOUND_TOKEN);
 			}
 			accessToken = accessToken.substring(7);

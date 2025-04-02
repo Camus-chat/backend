@@ -171,6 +171,7 @@ public class FilterServiceImpl implements FilterService {
 
 	private boolean isBadWord(SingleFilteringRequest request) {
 		boolean result = ahoCorasick.containsAny(request.getSimpleMessage().getContent());
+		System.out.println("isBadWord: " + result);
 		if (result){
 			kafkaFilterProducer.sendResponse(
 				new SingleFilteringResponse(request, FilteredType.MALICIOUS_SIMPLE));
