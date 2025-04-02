@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoomEnterDto {
+public class RoomInfoDto {
 
 	private UUID roomId;
 

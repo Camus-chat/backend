@@ -17,7 +17,7 @@ import com.camus.backend.global.Exception.CustomException;
 import com.camus.backend.global.Exception.ErrorCode;
 import com.camus.backend.manage.domain.document.Room;
 import com.camus.backend.manage.domain.dto.RoomDto;
-import com.camus.backend.manage.domain.dto.RoomEnterDto;
+import com.camus.backend.manage.domain.dto.RoomInfoDto;
 import com.camus.backend.manage.service.RoomService;
 import com.camus.backend.manage.util.ChannelStatus;
 import com.camus.backend.manage.util.RoomEntryManager;
@@ -115,7 +115,7 @@ public class RoomController {
 			description = "대상이 해당 방에 진입한 유저가 방 정보 조회"
 	)
 	@PostMapping("/info")
-	public ResponseEntity<RoomEnterDto> getRoomInfo(
+	public ResponseEntity<RoomInfoDto> getRoomInfo(
 			@RequestBody LinkRoomDto linkRoomDto
 			) {
 		// 요청을 한 사용자의 uuid 구하기
@@ -123,52 +123,6 @@ public class RoomController {
 		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		UUID userUuid = userDetails.get_id();
 
-
-		ChannelStatus channelStatus = roomService.channelStatus(linkRoomDto.getLink());
-		// TODO : 채널 링크가 유효한가? 체크
-		if (!channelStatus.isValid()) {
-			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
-		}
-
-		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getLink());
-
-		if (!roomEntryManager.isCheck()) {
-			System.out.println("room 에 유저 없음");
-			throw new CustomException(ErrorCode.NOTFOUND_ROOM);
-		}
-
-		if (userUuid.equals(channelStatus.getOwnerId())){
-			Room room = roomService.getRoomByRoomId(linkRoomDto.getRoomId());
-
-			return ResponseEntity.ok(
-					RoomEnterDto.builder()
-							.roomId(linkRoomDto.getRoomId())
-							.channelType(channelStatus.getType())
-							.channelTitle(channelStatus.getTitle())
-							.filteredLevel(channelStatus.getFilteredLevel())
-							.userList(room.getUserList())
-							.isClosed(room.isClosed())
-							.build()
-			);
-		}
-
-		Room room = roomService.getRoomByRoomId(linkRoomDto.getRoomId());
-		// TODO : room 닫혔을 때 처리? 1 Link, 1 User 분리 필요
-		if (room.getUserList().contains(userUuid)){
-			System.out.println(1);
-			return ResponseEntity.ok(
-					RoomEnterDto.builder()
-							.roomId(linkRoomDto.getRoomId())
-							.channelType(channelStatus.getType())
-							.channelTitle(channelStatus.getTitle())
-							.filteredLevel(channelStatus.getFilteredLevel())
-							.userList(room.getUserList())
-							.isClosed(room.isClosed())
-							.build()
-			);
-		}
-
-		System.out.println("room 진입 실패");
-		throw new CustomException(ErrorCode.NOTFOUND_ROOM);
+		return ResponseEntity.ok(roomService.getRoomInfo(linkRoomDto, userUuid));
 	}
 }

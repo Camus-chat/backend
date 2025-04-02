@@ -6,6 +6,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import com.camus.backend.manage.domain.dto.LinkRoomDto;
+import com.camus.backend.manage.domain.dto.RoomInfoDto;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
@@ -141,5 +143,43 @@ public class RoomService {
 		return roomRepository.getRoomByRoomId(roomId);
 	}
 
+	public RoomInfoDto getRoomInfo(LinkRoomDto linkRoomDto, UUID memberId) {
+		UUID channelLink = linkRoomDto.getLink();
+		UUID roomId = linkRoomDto.getRoomId();
+        ChannelStatus channelStatus = roomRepository.getChannelStatus(channelLink);
+		List<UUID> roomList = roomRepository.getRoomListByLink(channelLink);
+
+		if (!roomList.contains(roomId))
+			throw new CustomException(ErrorCode.NOTFOUND_ROOM);
+
+		if (channelStatus.getOwnerId().equals(memberId)){
+			Room room = getRoomByRoomId(roomId);
+			return RoomInfoDto.builder()
+					.roomId(linkRoomDto.getRoomId())
+					.channelType(channelStatus.getType())
+					.channelTitle(channelStatus.getTitle())
+					.filteredLevel(channelStatus.getFilteredLevel())
+					.userList(room.getUserList())
+					.isClosed(room.isClosed())
+					.build();
+		}
+		List<UUID> userList = roomRepository.getUserListById(roomId);//DB 이중 요청 가능성
+
+		if (!userList.contains(memberId))
+		{
+			System.out.println("room 에 유저 없음");
+			throw new CustomException(ErrorCode.NOTFOUND_ROOM);
+		}
+
+		Room room = getRoomByRoomId(roomId);
+		return RoomInfoDto.builder()
+				.roomId(linkRoomDto.getRoomId())
+				.channelType(channelStatus.getType())
+				.channelTitle(channelStatus.getTitle())
+				.filteredLevel(channelStatus.getFilteredLevel())
+				.userList(room.getUserList())
+				.isClosed(room.isClosed())
+				.build();
+	}
 }
 
