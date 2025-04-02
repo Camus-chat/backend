@@ -171,7 +171,7 @@ public class MemberService {
 		GuestProfile memberProfile = GuestProfile.builder()
 				._id(newMemberCredential.get_id())
 				.nickname(GuestUtil.makeNickname())
-				.profilePalette(GuestUtil.chooseColorPalette())
+				.profileImageColor(GuestUtil.chooseColorPalette())
 				.build();
 
 		// 프로필 저장
@@ -221,7 +221,7 @@ public class MemberService {
 	}
 
 
-	public AccountProfileDto getProfileInfo()
+	public AccountProfileDto getAccountProfileInfo()
 	{
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
@@ -232,17 +232,19 @@ public class MemberService {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
 
-		if (!(memberProfileOptional.get() instanceof AccountProfile accountProfile))
+		if (memberProfileOptional.get() instanceof AccountProfile accountProfile)
 		{
-			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+			return AccountProfileDto.builder()
+					.uuid(uuid)
+					.nickname(accountProfile.getNickname())
+					.username(userDetails.getUsername())
+					.profileLink(accountProfile.getProfileLink())
+					.role(accountProfile.getRole())
+					.build();
 		}
-		return AccountProfileDto.builder()
-				.uuid(uuid)
-				.nickname(accountProfile.getNickname())
-				.username(userDetails.getUsername())
-				.profileLink(accountProfile.getProfileLink())
-				.role(accountProfile.getRole())
-				.build();
+
+		throw new CustomException(ErrorCode.INVALID_PARAMETER);
+
 	}
 
 	//프로필 이미지 변경
@@ -258,10 +260,9 @@ public class MemberService {
 		if (memberProfileOptional.isEmpty()) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
-		MemberProfile memberProfile = memberProfileOptional.get();
 
 		// 타입 체크
-		if (memberProfile instanceof AccountProfile accountProfile) {
+		if (memberProfileOptional.get() instanceof AccountProfile accountProfile) {
 			String newProfileLink;
 
 			// 새로 업로드 하고 링크 바꿔주기
@@ -270,17 +271,16 @@ public class MemberService {
 			} catch (IOException e) {
 				throw new CustomException(ErrorCode.INVALID_PARAMETER_IMAGE);
 			}
-			(accountProfile).setProfileLink(newProfileLink);
-		} else {
-			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+			accountProfile.setProfileLink(newProfileLink);
+			memberProfileRepository.save(accountProfile);
+
 		}
 
+		throw new CustomException(ErrorCode.INVALID_PARAMETER);
 		// 수정사항 저장
-		memberProfileRepository.save(memberProfile);
 	}
 
 
-		// b2b 정보 수정
 	public void changeNickname(UpdateNicknameDto updateNicknameDto) {
 
 		// 요청을 한 사용자의 uuid 구하기
@@ -293,28 +293,52 @@ public class MemberService {
 		if (memberProfileOptional.isEmpty()) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
-		MemberProfile memberProfile = memberProfileOptional.get();
-
 		// 타입 체크
-		if (memberProfile instanceof AccountProfile accountProfile) {
+		if (memberProfileOptional.get() instanceof AccountProfile accountProfile) {
 			accountProfile.setNickname(updateNicknameDto.getNickname());
-		} else {
-			throw new CustomException(ErrorCode.INVALID_PARAMETER);
+			memberProfileRepository.save(accountProfile);
 		}
+		throw new CustomException(ErrorCode.INVALID_PARAMETER);
 
 		// 수정사항 저장
-		memberProfileRepository.save(memberProfile);
 	}
 
 	// 다른 사람의 정보 가져오기
-	public MemberProfile getMemberInfo(UUID userId){
+	public MemberProfileDto getMemberInfo(UUID userId){
+
+		// 요청을 한 사용자의 uuid 구하기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+		UUID uuid = userDetails.get_id();
+
+
 		// 사용자의 profile 가져오기
 		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(userId);
 		if (memberProfileOptional.isEmpty()) {
 			throw new CustomException(ErrorCode.NOTFOUND_USER);
 		}
 
-		return memberProfileOptional.get();
+		MemberProfile memberProfile = memberProfileOptional.get();
+
+		if (memberProfile instanceof AccountProfile accountProfile)
+		{
+			return MemberProfileDto.builder()
+					.uuid(uuid)
+					.nickname(accountProfile.getNickname())
+					.profileLink(accountProfile.getProfileLink())
+					.role(accountProfile.getRole())
+					.build();
+		}
+
+		if (memberProfile instanceof GuestProfile guestProfile){
+			return MemberProfileDto.builder()
+					.uuid(uuid)
+					.nickname(guestProfile.getNickname())
+					.profileLink(guestProfile.getProfileImageColor())
+					.role("guest")
+					.build();
+		}
+		throw new CustomException(ErrorCode.INVALID_PARAMETER);
 	}
 
 	public String getMemberRole(UUID userId){
@@ -333,33 +357,7 @@ public class MemberService {
 			return "guest";
 		}
 	}
-	
-	// guest 정보 가져오기
-	public GuestProfileDto getGuestInfo() {
 
-		// 요청을 한 사용자의 uuid 구하기
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
-		UUID uuid = userDetails.get_id();
-
-		// 사용자의 profile 가져오기
-		Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findById(uuid);
-		if (memberProfileOptional.isEmpty()) {
-			throw new CustomException(ErrorCode.NOTFOUND_USER);
-		}
-		MemberProfile memberProfile = memberProfileOptional.get();
-
-		// 타입 체크
-		if (memberProfile instanceof GuestProfile guestProfile) {
-			return GuestProfileDto.builder()
-				.uuid(uuid)
-				.nickname(guestProfile.getNickname())
-				.profileImageColor(guestProfile.getProfilePalette())
-				.build();
-		} else {
-			throw new CustomException(ErrorCode.INVALID_PARAMETER);
-		}
-	}
 
 	// guest가 링크 클릭했을 때 guestprofile이랑 chatroominfo 줘야함
 	public LinkDto guestEnter(){
@@ -401,7 +399,7 @@ public class MemberService {
 		GuestProfile memberProfile = GuestProfile.builder()
 				._id(newMemberCredential.get_id())
 				.nickname(GuestUtil.makeNickname())
-				.profilePalette(GuestUtil.chooseColorPalette())
+				.profileImageColor(GuestUtil.chooseColorPalette())
 				.build();
 
 		// 프로필 저장
@@ -463,7 +461,7 @@ public class MemberService {
 		GuestProfile memberProfile = GuestProfile.builder()
 				._id(newMemberCredential.get_id())
 				.nickname(GuestUtil.makeNickname())
-				.profilePalette(GuestUtil.chooseColorPalette())
+				.profileImageColor(GuestUtil.chooseColorPalette())
 				.build();
 		// 프로필 저장
 		memberProfileRepository.save(memberProfile);

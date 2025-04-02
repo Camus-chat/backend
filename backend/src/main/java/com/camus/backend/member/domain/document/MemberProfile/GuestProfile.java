@@ -13,5 +13,5 @@ import lombok.Setter;
 @TypeAlias("guestProfile")
 @Document(collection = "guest_profile")
 public class GuestProfile extends MemberProfile{
-	private String profilePalette;
+	private String profileImageColor;
 }

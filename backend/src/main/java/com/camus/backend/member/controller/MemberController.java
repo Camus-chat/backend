@@ -50,7 +50,7 @@ public class MemberController {
     @GetMapping("/info")
     public ResponseEntity<?> getMemberInfo() {
         try {
-            AccountProfileDto accountProfileDto = memberService.getProfileInfo();
+            AccountProfileDto accountProfileDto = memberService.getAccountProfileInfo();
             return ResponseEntity.ok(accountProfileDto);
         } catch (CustomException e) {
             // 커스텀 예외를 사용하여 에러코드를 기반으로 에러 응답 생성
@@ -113,8 +113,10 @@ public class MemberController {
         return ResponseEntity.ok(memberService.idCheck(signUpDto.getUsername()));
     }
 
-    @Operation(summary = "사용하지 않는 엔드포인트", description = "필요시 리팩토링 요청")
-    @PostMapping("/etc/info")
+    @Operation(
+            summary = "유저 정보 조회",
+            description = "다른 멤버 및 게스트의 정보를 조회하는 API")
+    @PostMapping("/info")
     public ResponseEntity<?> getMemberInfo(@RequestBody UUID userId) {
         return ResponseEntity.ok(memberService.getMemberInfo(userId));
     }

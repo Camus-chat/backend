@@ -67,24 +67,25 @@ public class GuestController {
 		return ResponseEntity.ok(memberService.guestSignUp(memberCredentialDto));
 	}
 
-	@Operation(
-			summary = "게스트 내 프로필 조회",
-			description = "게스트가 자신의 프로필을 조회하는 API 입니다."
-	)
-	@ApiResponse(responseCode = "200", description = "게스트 프로필 조회 성공",
-			content = @Content(schema = @Schema(implementation = GuestProfileDto.class)))
-	@GetMapping("/info")
-	public ResponseEntity<?> getGuestInfo() {
-		try {
-			GuestProfileDto guestProfileDto = memberService.getGuestInfo();
-			return ResponseEntity.ok(guestProfileDto);
-		} catch (CustomException e) {
-			// 커스텀 예외를 사용하여 에러코드를 기반으로 에러 응답 생성
-			return ResponseEntity
-				.status(e.getHttpStatusCode())
-				.body(e.getErrorKey());
-		}
-	}
+
+//	@Operation(
+//			summary = "게스트 내 프로필 조회",
+//			description = "게스트가 자신의 프로필을 조회하는 API 입니다."
+//	)
+//	@ApiResponse(responseCode = "200", description = "게스트 프로필 조회 성공",
+//			content = @Content(schema = @Schema(implementation = GuestProfileDto.class)))
+//	@GetMapping("/info")
+//	public ResponseEntity<?> getGuestInfo() {
+//		try {
+//			GuestProfileDto guestProfileDto = memberService.getGuestInfo();
+//			return ResponseEntity.ok(guestProfileDto);
+//		} catch (CustomException e) {
+//			// 커스텀 예외를 사용하여 에러코드를 기반으로 에러 응답 생성
+//			return ResponseEntity
+//				.status(e.getHttpStatusCode())
+//				.body(e.getErrorKey());
+//		}
+//	}
 
 	// @GetMapping("/enter")
 	// public ResponseEntity<?> guestEnterRoom(@RequestBody UUID channelLink){

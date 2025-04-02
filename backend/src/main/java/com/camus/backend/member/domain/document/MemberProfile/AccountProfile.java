@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @TypeAlias("accountProfile")
-@Document(collection = "accountProfile")
+@Document(collection = "account_profile")
 public class AccountProfile extends MemberProfile {
     private String role;
     private String profileLink;
