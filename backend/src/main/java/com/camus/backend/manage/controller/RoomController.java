@@ -130,10 +130,17 @@ public class RoomController {
 			throw new CustomException(ErrorCode.NOTFOUND_CHANNEL);
 		}
 
+		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getLink());
+
+		if (!roomEntryManager.isCheck()) {
+			System.out.println("room 에 유저 없음");
+			throw new CustomException(ErrorCode.NOTFOUND_ROOM);
+		}
+
 		if (userUuid.equals(channelStatus.getOwnerId())){
 			Room room = roomService.getRoomByRoomId(linkRoomDto.getRoomId());
 
-			ResponseEntity.ok(
+			return ResponseEntity.ok(
 					RoomEnterDto.builder()
 							.roomId(linkRoomDto.getRoomId())
 							.channelType(channelStatus.getType())
@@ -144,18 +151,12 @@ public class RoomController {
 							.build()
 			);
 		}
-		// TODO : 기존에 그 채널에 들어가 있는가? 체크
-		RoomEntryManager roomEntryManager = roomService.isChannelMember(userUuid, linkRoomDto.getLink());
-
-		if (!roomEntryManager.isCheck()) {
-			System.out.println("room 에 유저 없음");
-			throw new CustomException(ErrorCode.NOTFOUND_ROOM);
-		}
 
 		Room room = roomService.getRoomByRoomId(linkRoomDto.getRoomId());
 		// TODO : room 닫혔을 때 처리? 1 Link, 1 User 분리 필요
 		if (room.getUserList().contains(userUuid)){
-			ResponseEntity.ok(
+			System.out.println(1);
+			return ResponseEntity.ok(
 					RoomEnterDto.builder()
 							.roomId(linkRoomDto.getRoomId())
 							.channelType(channelStatus.getType())
