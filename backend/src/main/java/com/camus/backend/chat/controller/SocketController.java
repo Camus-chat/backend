@@ -91,7 +91,7 @@ public class SocketController {
 
 	}
 
-	@MessageMapping("/message_received")
+	@MessageMapping("/message_receive")
 	public void subscribeToTopic(
 		ClientToStompSubRequest clientToStompSubRequest
 		// 여기도 사용자 인증 객체 등록
