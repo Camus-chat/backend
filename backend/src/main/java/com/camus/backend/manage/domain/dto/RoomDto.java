@@ -3,6 +3,7 @@ package com.camus.backend.manage.domain.dto;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.dto.chatmessagedto.MessageBasicDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class RoomDto {
 
 	private int filteredLevel;
 
-	private LastMessageInfo lastMessage;
+	private MessageBasicDto lastMessage;
 	private int unreadCount;
 
 }

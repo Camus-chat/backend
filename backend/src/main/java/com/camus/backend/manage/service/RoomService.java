@@ -66,7 +66,9 @@ public class RoomService {
 				try {
 					RoomDto roomDto = roomRepository.getRoomInfoByRoomId(roomId).join();
 					// 최신 메시지를 가져와서 설정
-					roomDto.setLastMessage(new LastMessageInfo(latestMessage));
+//					roomDto.setLastMessage(new LastMessageInfo(latestMessage));
+//					STOMP 메시지 구조와 통합
+					roomDto.setLastMessage(latestMessage);
 					// 읽지 않은 메시지 개수를 가져와서 설정
 					roomDto.setUnreadCount(unreadCount);
 					return roomDto;
