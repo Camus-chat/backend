@@ -1,5 +1,7 @@
 package com.camus.backend.member.domain.document.MemberProfile;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,6 +12,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @TypeAlias("guestProfile")
 @Document(collection = "guest_profile")
 public class GuestProfile extends MemberProfile{
