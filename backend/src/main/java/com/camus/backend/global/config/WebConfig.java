@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry corsRegistry) {
 		corsRegistry.addMapping("/**")
-			.allowedOrigins("http://localhost:3100", "https://camus.life", "https://www.camus.life")
+			.allowedOrigins("http://localhost:3100", "https://camus.vercel.app")
 			.allowedMethods("GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS")
             .allowedHeaders("*") // 모든 요청 헤더 허용
 			.allowCredentials(true) // 인증정보 포함 (쿠키, Authorization 헤더 등)
