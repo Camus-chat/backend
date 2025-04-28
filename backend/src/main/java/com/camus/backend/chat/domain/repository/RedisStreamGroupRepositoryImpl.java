@@ -123,7 +123,7 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 
 		StreamOperations<String, String, String> streamOps = redisTemplate.opsForStream();
 		String streamKey = chatModules.getRedisStreamKey(roomId);
-		Range<String> range = Range.rightOpen(startRedisId, endRedisId);
+		Range<String> range = Range.closed(startRedisId, endRedisId);
 		List<MapRecord<String, String, String>> messages = streamOps.reverseRange(streamKey, range,
 			Limit.limit().count(chatConstants.CHAT_MESSAGE_PAGE_SIZE + 1));
 
@@ -133,7 +133,7 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		Collections.reverse(messages);
 		List<RedisSavedMessageBasic> result = new ArrayList<>();
 
-		for (int i = 0; i < messages.size(); i++) {
+		for (int i = 1; i < messages.size(); i++) {
 			Map<String, String> valueMap = messages.get(i).getValue();
 			RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
 			result.add(msg);
