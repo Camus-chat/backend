@@ -133,7 +133,7 @@ public class RedisStreamGroupRepositoryImpl implements RedisStreamGroupRepositor
 		Collections.reverse(messages);
 		List<RedisSavedMessageBasic> result = new ArrayList<>();
 
-		for (int i = 1; i < messages.size(); i++) {
+		for (int i = 0; i < messages.size(); i++) {
 			Map<String, String> valueMap = messages.get(i).getValue();
 			RedisSavedMessageBasic msg = convertToRedisSavedMessageBasicDto(valueMap);
 			result.add(msg);
