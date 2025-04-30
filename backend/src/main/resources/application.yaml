@@ -19,7 +19,7 @@ clova:
   api-key: b
   api-key-primary: c
 lambda:
-  endpoint: d
+  endpoint: ${LAMBDA_ENDPOINT:localhost}
 cloud:
   aws:
     credentials:
