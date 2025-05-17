@@ -91,7 +91,7 @@ jobs:
             -e SPRING_MONGO_DB=${{ secrets.SPRING_MONGO_DB }} \
             -e SPRING_KAFKA_HOST=${{ secrets.SPRING_KAFKA_HOST }} \
             -e SPRING_KAFKA_PORT=${{ secrets.SPRING_KAFKA_PORT }} \
-            -e LAMBDA_ENDPOINT =${{ secrets.LAMBDA_ENDPOINT }}
+            -e LAMBDA_ENDPOINT =${{ secrets.LAMBDA_ENDPOINT }} \
             ${{ secrets.DOCKER_USERNAME }}/camus-backend:latest
 
     - name: Remove GitHub Actions IP
