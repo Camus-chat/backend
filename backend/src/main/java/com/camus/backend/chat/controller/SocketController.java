@@ -2,6 +2,9 @@ package com.camus.backend.chat.controller;
 
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.document.CommonMessage;
+import com.camus.backend.chat.service.RedisChatService;
+import com.camus.backend.filter.util.type.FilteredType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -30,14 +33,17 @@ public class SocketController {
 	private final KafkaStompConsumerService kafkaStompConsumerService;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final MemberCredentialRepository memberCredentialRepository;
+	private final RedisChatService redisChatService;
 
 	public SocketController(KafkaStompProducerService kafkaStompProducerService,
 		KafkaStompConsumerService kafkaStompConsumerService, JwtTokenProvider jwtTokenProvider,
-		MemberCredentialRepository memberCredentialRepository) {
+		MemberCredentialRepository memberCredentialRepository,
+		RedisChatService redisChatService) {
 		this.kafkaStompProducerService = kafkaStompProducerService;
 		this.kafkaStompConsumerService = kafkaStompConsumerService;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.memberCredentialRepository = memberCredentialRepository;
+		this.redisChatService = redisChatService;
 	}
 
 	// 새로운 사용자가 웹 소켓을 연결할 때 실행됨
@@ -75,16 +81,23 @@ public class SocketController {
 			MemberCredential memberCredential = memberCredentialRepository.findByUsername(username);
 			UUID userUuid = memberCredential.get_id();
 
-			StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
-				.roomId(clientMessage.getRoomId())
-				.content(clientMessage.getContent())
-				.userId(
-					userUuid.toString()
-				)
-				.build();
+			CommonMessage commonMessage = CommonMessage.builder()
+					.roomId(UUID.fromString(clientMessage.getRoomId()))
+					.senderId(UUID.fromString(userUuid.toString()))
+					.content(clientMessage.getContent())
+					.filteredType(FilteredType.NOT_FILTERED.toString())
+					.build();
+			redisChatService.saveCommonMessageToRedis(commonMessage);
+//			StompToRedisMessage stompToRedisMessage = StompToRedisMessage.builder()
+//				.roomId(clientMessage.getRoomId())
+//				.content(clientMessage.getContent())
+//				.userId(
+//					userUuid.toString()
+//				)
+//				.build();
 
 			// kafka에 올리기
-			kafkaStompProducerService.sendMessage(stompToRedisMessage);
+//			kafkaStompProducerService.sendMessage(stompToRedisMessage);
 		} catch (Exception e) {
 			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
 		}
