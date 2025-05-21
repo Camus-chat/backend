@@ -60,7 +60,8 @@ public class RedisChatService {
 			, userId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);
+//		kafka로 전달된 noticemessage의 consumer 없음
+//		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);
 
 	}
 
@@ -79,6 +80,6 @@ public class RedisChatService {
 		redisChatRepository.updateStreamConsumerGroup(roomId
 			, userId, redisChatRepository.getLatestRedisMessageId(roomId));
 
-		kafkaRedisChatProducer.sendNoticeMessage(newUserEnterRoomNotice);
+//		kafkaRedisChatProducer.sendNoticeMessage(newUserEnterRoomNotice);
 	}
 }
