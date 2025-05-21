@@ -30,7 +30,8 @@ public class RedisChatService {
 		commonMessage.setMessageId(messageId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
+//		kafka로 전달된 common message의 consumer 없음
+//		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
 	}
 
 	public void saveFilteredMessageToRedis(
@@ -60,7 +61,7 @@ public class RedisChatService {
 			, userId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-//		kafka로 전달된 noticemessage의 consumer 없음
+//		kafka로 전달된 notice message의 consumer 없음
 //		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);
 
 	}
