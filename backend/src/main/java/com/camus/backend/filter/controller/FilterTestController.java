@@ -47,7 +47,7 @@ public class FilterTestController {
 			.content("욕설1").build();
 		messages.add(message2);
 
-		kafkaFilterProducer.sendRequest(new ContextFilteringRequest(messages));
+//		kafkaFilterProducer.sendRequest(new ContextFilteringRequest(messages));
 		// filterService.token(new ContextFilteringRequest(messages, FilteringLevel.HIGH));
 		// filterService.predict(new ContextFilteringRequest(messages, FilteringLevel.HIGH));
 	}
@@ -60,7 +60,7 @@ public class FilterTestController {
 			.messageId(0L)
 			.createdDate(LocalDateTime.now())
 			.content("내용1").build();
-		kafkaFilterProducer.sendRequest(new SingleFilteringRequest(message));
+//		kafkaFilterProducer.sendRequest(new SingleFilteringRequest(message));
 		// filterService.predict(new SingleFilteringRequest(message, FilteringLevel.HIGH));
 	}
 

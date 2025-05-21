@@ -3,7 +3,12 @@ package com.camus.backend.filter.service;
 import java.util.List;
 import java.util.Map;
 
+import com.camus.backend.chat.domain.dto.FilteredMessageDto;
+import com.camus.backend.chat.service.RedisChatService;
+import com.camus.backend.chat.util.FilterMatch;
+import com.camus.backend.filter.domain.Response.FilteredMessage;
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +34,9 @@ public class FilterServiceImpl implements FilterService {
 	private final AhoCorasick ahoCorasick;
 	private final ObjectMapper objectMapper;
 	private final KafkaFilterProducer kafkaFilterProducer;
-	public final StatisticConstants statisticConstants;
-	public final RedisTemplate<String, Long> redisTemplate;
+	private final StatisticConstants statisticConstants;
+	private final RedisTemplate<String, Long> redisTemplate;
+	private final RedisChatService redisChatService;
 
 	public FilterServiceImpl(
 		FilterRequestBuilder modelRequestBuilder,
@@ -38,7 +44,8 @@ public class FilterServiceImpl implements FilterService {
 		ObjectMapper objectMapper,
 		KafkaFilterProducer kafkaFilterProducer,
 		StatisticConstants statisticConstants,
-		RedisTemplate<String, Long> redisTemplate
+		RedisTemplate<String, Long> redisTemplate,
+		@Lazy RedisChatService redisChatService
 	){
 		this.filterRequestBuilder = modelRequestBuilder;
 		this.httpService = httpService;
@@ -47,6 +54,7 @@ public class FilterServiceImpl implements FilterService {
 		this.kafkaFilterProducer = kafkaFilterProducer;
 		this.statisticConstants = statisticConstants;
 		this.redisTemplate = redisTemplate;
+		this.redisChatService = redisChatService;
 	}
 
 	@Override
@@ -106,7 +114,8 @@ public class FilterServiceImpl implements FilterService {
 					FilteredType.NOT_FILTERED);
 				default -> throw new RuntimeException("Unexpected filtering type");
 			}
-			kafkaFilterProducer.sendResponse(response);
+//			kafkaFilterProducer.sendResponse(response);
+			ConvertAndSaveResponseToMessageDto(response);
 		}else throw new RuntimeException("lambda predict api error");
 	}
 
@@ -164,17 +173,51 @@ public class FilterServiceImpl implements FilterService {
 					case NOT_FILTERED -> resultTypeArr[i] = FilteredType.NOT_FILTERED;
 				}
 			}
-			kafkaFilterProducer.sendResponse(new ContextFilteringResponse(request, resultTypeArr));
+//			kafkaFilterProducer.sendResponse(new ContextFilteringResponse(request, resultTypeArr));
+			ConvertAndSaveResponseToMessageDto(new ContextFilteringResponse(request, resultTypeArr));
 			// 여기서 redis 처리
 		}
 	}
+
+	private void ConvertAndSaveResponseToMessageDto(SingleFilteringResponse response){
+		FilteredMessage filteredMessage = response.getFilteredMessage();
+		if (filteredMessage.getFilteredType().equals(FilteredType.NOT_FILTERED))
+			return;
+		System.out.println(filteredMessage.getFilteredType());
+		redisChatService.saveFilteredMessageToRedis(FilteredMessageDto.builder()
+				.roomId(response.getRoomId())
+				.messageId(filteredMessage.getId())
+				.filteredLevel(FilterMatch.FILTER_MAP.get(filteredMessage.getFilteredType().getValue()))
+				.filteredType(filteredMessage.getFilteredType().getValue())
+				.createdDate(filteredMessage.getCreatedDate())
+				.build());
+	}
+
+	private void ConvertAndSaveResponseToMessageDto(ContextFilteringResponse response){
+		for (int i = 0; i < response.getFilteredMessages().size(); i++) {
+
+			FilteredMessage filteredMessage = response.getFilteredMessages().get(i);
+			if (filteredMessage.getFilteredType().equals(FilteredType.NOT_FILTERED))
+				continue;
+			System.out.println(filteredMessage.getFilteredType());
+			redisChatService.saveFilteredMessageToRedis(FilteredMessageDto.builder()
+					.roomId(response.getRoomId())
+					.messageId(filteredMessage.getId())
+					.filteredLevel(FilterMatch.FILTER_MAP.get(filteredMessage.getFilteredType().getValue()))
+					.filteredType(filteredMessage.getFilteredType().getValue())
+					.createdDate(filteredMessage.getCreatedDate())
+					.build());
+		}
+	}
+
 
 	private boolean isBadWord(SingleFilteringRequest request) {
 		boolean result = ahoCorasick.containsAny(request.getSimpleMessage().getContent());
 		System.out.println("isBadWord: " + result);
 		if (result){
-			kafkaFilterProducer.sendResponse(
-				new SingleFilteringResponse(request, FilteredType.MALICIOUS_SIMPLE));
+//			kafkaFilterProducer.sendResponse(
+//				new SingleFilteringResponse(request, FilteredType.MALICIOUS_SIMPLE));
+			ConvertAndSaveResponseToMessageDto(new SingleFilteringResponse(request, FilteredType.MALICIOUS_SIMPLE));
 		}
 		return result;
 	}

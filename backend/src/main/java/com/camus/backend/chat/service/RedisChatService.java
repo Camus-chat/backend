@@ -3,6 +3,8 @@ package com.camus.backend.chat.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
+import com.camus.backend.filter.service.FilterService;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
@@ -16,11 +18,14 @@ import com.camus.backend.chat.util.ChatNoticeType;
 public class RedisChatService {
 	private final RedisChatRepository redisChatRepository;
 	private final KafkaRedisChatProducer kafkaRedisChatProducer;
+	private final FilterService filterService;
 
 	RedisChatService(RedisChatRepository redisChatRepository,
-		KafkaRedisChatProducer kafkaRedisChatProducer) {
+		KafkaRedisChatProducer kafkaRedisChatProducer,
+		 FilterService filterService) {
 		this.redisChatRepository = redisChatRepository;
 		this.kafkaRedisChatProducer = kafkaRedisChatProducer;
+		this.filterService = filterService;
 	}
 
 	public void saveCommonMessageToRedis(
@@ -30,8 +35,13 @@ public class RedisChatService {
 		commonMessage.setMessageId(messageId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-//		kafka로 전달된 common message의 consumer 없음
+//		kafka로 전달된 common message의 consumer 없음, filtering 요청 처리
 //		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
+		try {
+			filterService.predict(new SingleFilteringRequest(commonMessage));
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	public void saveFilteredMessageToRedis(
@@ -39,9 +49,10 @@ public class RedisChatService {
 		// WOO TODO : 필터링 저장 로직
 		if (redisChatRepository.addFilteredType(filteredMessageDto)) {
 			// WOO TODO : KafKa에 redis에 저장됐다 메시지 전송
-			kafkaRedisChatProducer.sendFilterMessage(
-				filteredMessageDto
-			);
+//			kafka에서 할당된 consumer 없음
+//			kafkaRedisChatProducer.sendFilterMessage(
+//				filteredMessageDto
+//			);
 			System.out.println("kafka success");
 		}
 
