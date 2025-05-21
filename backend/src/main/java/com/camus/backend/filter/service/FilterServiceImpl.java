@@ -16,7 +16,6 @@ import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.domain.Response.ContextFilteringResponse;
 import com.camus.backend.filter.domain.Response.SingleFilteringResponse;
-import com.camus.backend.filter.service.kafka.KafkaFilterProducer;
 import com.camus.backend.filter.util.AhoCorasick;
 import com.camus.backend.filter.util.BadWords;
 import com.camus.backend.filter.util.component.FilterRequestBuilder;
@@ -33,7 +32,6 @@ public class FilterServiceImpl implements FilterService {
 	private final HttpService httpService;
 	private final AhoCorasick ahoCorasick;
 	private final ObjectMapper objectMapper;
-	private final KafkaFilterProducer kafkaFilterProducer;
 	private final StatisticConstants statisticConstants;
 	private final RedisTemplate<String, Long> redisTemplate;
 	private final RedisChatService redisChatService;
@@ -42,7 +40,6 @@ public class FilterServiceImpl implements FilterService {
 		FilterRequestBuilder modelRequestBuilder,
 		HttpService httpService,
 		ObjectMapper objectMapper,
-		KafkaFilterProducer kafkaFilterProducer,
 		StatisticConstants statisticConstants,
 		RedisTemplate<String, Long> redisTemplate,
 		@Lazy RedisChatService redisChatService
@@ -51,7 +48,6 @@ public class FilterServiceImpl implements FilterService {
 		this.httpService = httpService;
 		ahoCorasick = new AhoCorasick(BadWords.koreaBadWords);
 		this.objectMapper = objectMapper;
-		this.kafkaFilterProducer = kafkaFilterProducer;
 		this.statisticConstants = statisticConstants;
 		this.redisTemplate = redisTemplate;
 		this.redisChatService = redisChatService;

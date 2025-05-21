@@ -18,24 +18,20 @@ import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.chat.domain.document.NoticeMessage;
 import com.camus.backend.chat.domain.dto.FilteredMessageDto;
 import com.camus.backend.chat.domain.repository.RedisChatRepository;
-import com.camus.backend.chat.service.KafkaProducer.KafkaRedisChatProducer;
 import com.camus.backend.chat.util.ChatNoticeType;
 
 @Service
 public class RedisChatService {
 	private final RedisChatRepository redisChatRepository;
-	private final KafkaRedisChatProducer kafkaRedisChatProducer;
 	private final FilterService filterService;
 	private final SimpMessagingTemplate simpMessagingTemplate;
 	private final ChatModules chatModules;
 
 		RedisChatService(RedisChatRepository redisChatRepository,
-			KafkaRedisChatProducer kafkaRedisChatProducer,
 			FilterService filterService,
 			SimpMessagingTemplate simpMessagingTemplate,
 			ChatModules chatModules) {
 		this.redisChatRepository = redisChatRepository;
-		this.kafkaRedisChatProducer = kafkaRedisChatProducer;
 		this.filterService = filterService;
 		this.simpMessagingTemplate = simpMessagingTemplate;
 		this.chatModules = chatModules;

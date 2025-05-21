@@ -5,8 +5,6 @@ spring:
   data:
     mongodb:
       uri: mongodb://${SPRING_MONGO_HOST:localhost}:${SPRING_MONGO_PORT:27017}/${SPRING_MONGO_DB:my_db}
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_HOST:localhost}:${SPRING_KAFKA_PORT:9092}
   # -- wrong value--
   jwt:
     expiration:

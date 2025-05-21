@@ -13,19 +13,15 @@ import com.camus.backend.chat.domain.document.CommonMessage;
 import com.camus.backend.filter.domain.Request.ContextFilteringRequest;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.service.FilterService;
-import com.camus.backend.filter.service.kafka.KafkaFilterProducer;
 
 @RestController
 @RequestMapping("/filter")
 public class FilterTestController {
 
 	private final FilterService filterService;
-	private final KafkaFilterProducer kafkaFilterProducer;
 
-	public FilterTestController(FilterService clovaService,
-		KafkaFilterProducer kafkaFilterProducer){
+	public FilterTestController(FilterService clovaService){
 		this.filterService = clovaService;
-		this.kafkaFilterProducer = kafkaFilterProducer;
 	}
 	@GetMapping("clova")
 	public void clova(){

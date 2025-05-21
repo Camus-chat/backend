@@ -18,8 +18,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import com.camus.backend.chat.domain.message.ClientToStompMessage;
 import com.camus.backend.chat.domain.message.ClientToStompSubRequest;
 import com.camus.backend.chat.domain.message.StompToRedisMessage;
-import com.camus.backend.chat.service.KafkaConsumer.KafkaStompConsumerService;
-import com.camus.backend.chat.service.KafkaProducer.KafkaStompProducerService;
+
 import com.camus.backend.auth.util.JwtTokenProvider;
 import com.camus.backend.member.domain.document.MemberCredential;
 import com.camus.backend.member.domain.repository.MemberCredentialRepository;
@@ -29,18 +28,15 @@ import com.camus.backend.member.domain.repository.MemberCredentialRepository;
 public class SocketController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SocketController.class);
 
-	private final KafkaStompProducerService kafkaStompProducerService;
-	private final KafkaStompConsumerService kafkaStompConsumerService;
+
 	private final JwtTokenProvider jwtTokenProvider;
 	private final MemberCredentialRepository memberCredentialRepository;
 	private final RedisChatService redisChatService;
 
-	public SocketController(KafkaStompProducerService kafkaStompProducerService,
-		KafkaStompConsumerService kafkaStompConsumerService, JwtTokenProvider jwtTokenProvider,
+	public SocketController(
+		JwtTokenProvider jwtTokenProvider,
 		MemberCredentialRepository memberCredentialRepository,
 		RedisChatService redisChatService) {
-		this.kafkaStompProducerService = kafkaStompProducerService;
-		this.kafkaStompConsumerService = kafkaStompConsumerService;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.memberCredentialRepository = memberCredentialRepository;
 		this.redisChatService = redisChatService;
