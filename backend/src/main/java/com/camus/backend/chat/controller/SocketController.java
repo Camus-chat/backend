@@ -120,10 +120,10 @@ public class SocketController {
 			UUID userUuid = memberCredential.get_id();
 
 			// KafkaConsumerService를 사용하여 특정 토픽 구독
-			kafkaStompConsumerService.addListener(
-				clientToStompSubRequest,
-				userUuid
-			);
+//			kafkaStompConsumerService.addListener(
+//				clientToStompSubRequest,
+//				userUuid
+//			);
 		} catch (Exception e) {
 			System.err.println("AccessToken이 없거나 유효하지 않습니다: " + e.getMessage());
 		}

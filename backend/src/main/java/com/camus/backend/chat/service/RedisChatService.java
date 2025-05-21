@@ -3,8 +3,15 @@ package com.camus.backend.chat.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.camus.backend.chat.domain.document.RedisSavedCommonMessage;
+import com.camus.backend.chat.domain.document.RedisSavedNoticeMessage;
+import com.camus.backend.chat.domain.dto.chatmessagedto.CommonMessageDto;
+import com.camus.backend.chat.domain.dto.chatmessagedto.NoticeMessageDto;
+import com.camus.backend.chat.domain.message.FilteredMessageToClient;
+import com.camus.backend.chat.util.ChatModules;
 import com.camus.backend.filter.domain.Request.SingleFilteringRequest;
 import com.camus.backend.filter.service.FilterService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.camus.backend.chat.domain.document.CommonMessage;
@@ -19,13 +26,19 @@ public class RedisChatService {
 	private final RedisChatRepository redisChatRepository;
 	private final KafkaRedisChatProducer kafkaRedisChatProducer;
 	private final FilterService filterService;
+	private final SimpMessagingTemplate simpMessagingTemplate;
+	private final ChatModules chatModules;
 
-	RedisChatService(RedisChatRepository redisChatRepository,
-		KafkaRedisChatProducer kafkaRedisChatProducer,
-		 FilterService filterService) {
+		RedisChatService(RedisChatRepository redisChatRepository,
+			KafkaRedisChatProducer kafkaRedisChatProducer,
+			FilterService filterService,
+			SimpMessagingTemplate simpMessagingTemplate,
+			ChatModules chatModules) {
 		this.redisChatRepository = redisChatRepository;
 		this.kafkaRedisChatProducer = kafkaRedisChatProducer;
 		this.filterService = filterService;
+		this.simpMessagingTemplate = simpMessagingTemplate;
+		this.chatModules = chatModules;
 	}
 
 	public void saveCommonMessageToRedis(
@@ -35,8 +48,9 @@ public class RedisChatService {
 		commonMessage.setMessageId(messageId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-//		kafka로 전달된 common message의 consumer 없음, filtering 요청 처리
 //		kafkaRedisChatProducer.sendCommonMessage(commonMessage);
+		simpMessagingTemplate.convertAndSend(convertTopic(commonMessage.getRoomId().toString()),
+				new CommonMessageDto(new RedisSavedCommonMessage(commonMessage)));
 		try {
 			filterService.predict(new SingleFilteringRequest(commonMessage));
 		} catch (Exception e){
@@ -49,11 +63,12 @@ public class RedisChatService {
 		// WOO TODO : 필터링 저장 로직
 		if (redisChatRepository.addFilteredType(filteredMessageDto)) {
 			// WOO TODO : KafKa에 redis에 저장됐다 메시지 전송
-//			kafka에서 할당된 consumer 없음
 //			kafkaRedisChatProducer.sendFilterMessage(
 //				filteredMessageDto
 //			);
-			System.out.println("kafka success");
+			simpMessagingTemplate.convertAndSend(convertTopic(filteredMessageDto.getRoomId().toString()),
+					new FilteredMessageToClient(filteredMessageDto));
+//			System.out.println("kafka success");
 		}
 
 	}
@@ -72,9 +87,9 @@ public class RedisChatService {
 			, userId);
 
 		// TODO : KafKa에 redis에 저장됐다 메시지 전송
-//		kafka로 전달된 notice message의 consumer 없음
 //		kafkaRedisChatProducer.sendNoticeMessage(firstNoticeMessage);
-
+		simpMessagingTemplate.convertAndSend(convertTopic(roomId),
+				new NoticeMessageDto(new RedisSavedNoticeMessage(firstNoticeMessage)));
 	}
 
 	public void newUserEnterRoomNotice(String roomId, UUID userId) {
@@ -93,5 +108,11 @@ public class RedisChatService {
 			, userId, redisChatRepository.getLatestRedisMessageId(roomId));
 
 //		kafkaRedisChatProducer.sendNoticeMessage(newUserEnterRoomNotice);
+		simpMessagingTemplate.convertAndSend(convertTopic(roomId),
+				new NoticeMessageDto(new RedisSavedNoticeMessage(newUserEnterRoomNotice)));
+	}
+
+	private String convertTopic(String roomId){
+		return "/sub/"+roomId;
 	}
 }
